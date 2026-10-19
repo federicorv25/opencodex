@@ -18,6 +18,7 @@
         // Mirrors detectInitial() + LOCALES in src/i18n/shared.ts.
         var langMap = { en: "en", de: "de", fr: "fr", ko: "ko", zh: "zh-CN", "zh-TW": "zh-TW", ru: "ru", ja: "ja", tr: "tr", vi: "vi" };
         langMap.pt = "pt-BR";
+        langMap.es = "es";
         var stored = null;
         try {
           stored = localStorage.getItem("ocx-lang");
@@ -30,7 +31,7 @@
           if (nav.indexOf("zh") === 0) {
             locale = /tw|hk|mo|hant/.test(nav) ? "zh-TW" : "zh";
           } else {
-            locale = ["de", "fr", "ko", "ru", "ja", "tr", "vi", "pt"].filter(function (c) { return nav.indexOf(c) === 0; })[0] || "en";
+            locale = ["de", "fr", "ko", "ru", "ja", "tr", "vi", "pt", "es"].filter(function (c) { return c === "es" ? /^es(?:-|$)/.test(nav) : nav.indexOf(c) === 0; })[0] || "en";
           }
         }
         document.documentElement.lang = langMap[locale];

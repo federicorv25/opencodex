@@ -77,7 +77,7 @@ Sol pilote la session et appelle un sous-agent Kimi K3.
 </table>
 
 <p align="center">
-  <a href="../README.md">English</a> · <b>Français</b> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ru.md">Русский</a> · <a href="README.ja.md">日本語</a> · <a href="README.tr.md">Türkçe</a> · 📖 <a href="https://opencodex.me/fr/"><b>Documentation complète →</b></a>
+  <a href="../README.md">English</a> · <b>Français</b> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ru.md">Русский</a> · <a href="README.ja.md">日本語</a> · <a href="README.tr.md">Türkçe</a> · <a href="README.es.md">Español</a> · 📖 <a href="https://opencodex.me/fr/"><b>Documentation complète →</b></a>
 </p>
 
 opencodex est un proxy local léger qui traduit l'API Responses de Codex vers le protocole utilisé

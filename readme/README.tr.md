@@ -77,7 +77,7 @@ Sol oturumu yürütüyor ve bir Kimi K3 alt ajanını çağırıyor.
 </table>
 
 <p align="center">
-  <a href="../README.md">English</a> · <a href="README.fr.md">Français</a> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ru.md">Русский</a> · <a href="README.ja.md">日本語</a> · <b>Türkçe</b> · 📖 <a href="https://opencodex.me/tr/"><b>Tüm dokümantasyon →</b></a>
+  <a href="../README.md">English</a> · <a href="README.fr.md">Français</a> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ru.md">Русский</a> · <a href="README.ja.md">日本語</a> · <b>Türkçe</b> · <a href="README.es.md">Español</a> · 📖 <a href="https://opencodex.me/tr/"><b>Tüm dokümantasyon →</b></a>
 </p>
 
 opencodex, Codex'in Responses API'sini sağlayıcınızın konuştuğu protokole çeviren hafif bir yerel

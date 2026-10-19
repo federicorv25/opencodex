@@ -1,0 +1,160 @@
+# Spanish localization: preparation and single-PR delivery plan
+
+## Status and source baseline
+
+- Preparation and implementation date: 2026-10-19 (America/La_Paz). Spanish implementation is prepared; validation and Draft-PR delivery are recorded below.
+- Repository: `lidge-jun/opencodex`; local branch: `feat/spanish-localization`; integration target: `dev`.
+- Initial `dev` baseline: `79fa97be6e6ae974ccd31d9aeedc2da96a0baa73`; refreshed through `bddd61f74bc89f45e6740845823b47f7a0a2f629` to `74463a2f73ac8a8011554385cbd45c42d16441a3`. The clone includes branch history and current checked-out sources; historical blobs are fetched on demand.
+- Current `dev` package version: `2.90.0`. Latest published release checked on this date: [`v2.89.0`](https://github.com/lidge-jun/opencodex/releases/tag/v2.89.0). Release and development versions are distinct.
+- Toolchain: Bun `1.4.3` for tests, Node `v24.21.0`, Git `2.56.0.windows.1`. The root dependency on bundled Bun `1.4.2` stays unchanged.
+- Loaded catalog baseline: 4,078 English keys and 11 GUI locales (`en`, `de`, `fr`, `ko`, `zh`, `zh-TW`, `ru`, `ja`, `tr`, `vi`, `pt`).
+- Documentation baseline: 8 configured site locales and 73 canonical English Markdown/MDX source pages. These are measured snapshot values, never hard-coded future acceptance counts.
+- The user-supplied August design is historical reference. Current checked-out instructions, English sources, tests and contracts govern implementation.
+
+## Agreed contribution
+
+Deliver **one PR against `dev`** containing the Spanish dashboard used by Desktop and browsers, the public website, the documentation tree and the Spanish README. Implement and verify the subsystems in separate steps on this branch, then present them together.
+
+The selected scope excludes native Desktop bootstrap screens, tray menus, updater and installer localization. Those use a separate native shell; dashboard language support becomes available in Desktop when a package includes the updated GUI. A browser check does not establish native Desktop acceptance.
+
+No Spanish source files, fork, push, PR, release or installation replacement have been created in this preparation stage.
+
+### Instructions and accepted precedents
+
+Read again before editing or publishing: root `AGENTS.md`, nearest scoped `AGENTS.md`, `MAINTAINERS.md`, `CONTRIBUTING.md`, the PR template, CODEOWNERS, and the trusted PR-quality/hygiene scripts. Root and GUI instructions, docs-site and scripts instructions, contribution/quality contracts, architecture ownership and current locale wiring were reviewed during preparation.
+
+- [Issue #1551](https://github.com/lidge-jun/opencodex/issues/1551) permits documentation as a separate scope; the user subsequently selected one combined PR. The [owner response](https://github.com/lidge-jun/opencodex/issues/1551#issuecomment-5324945300) welcomes an English-parity `es` locale against `dev`.
+- [French #1733](https://github.com/lidge-jun/opencodex/pull/1733) merged GUI, website, documentation and README together. The [approval](https://github.com/lidge-jun/opencodex/pull/1733#pullrequestreview-4944415405) cites GUI key/placeholder parity, documentation path parity, auxiliary coverage, addressed findings and current-head checks.
+- [Vietnamese #4984](https://github.com/lidge-jun/opencodex/pull/4984) merged exhaustive locale wiring. Later fixes #5005 and #5020 demonstrate why newly added English keys and separately declared native-main namespaces must be audited.
+- [Portuguese #6458](https://github.com/lidge-jun/opencodex/pull/6458) was closed and carried into `dev` in [5d7efbb74](https://github.com/lidge-jun/opencodex/commit/5d7efbb749ffb72efa6696571b73a4a874a8c61d). It is not a directly merged PR. Its implementation highlights pre-paint language selection, quota maps, catalog size exemptions and semantic corrections.
+
+Use these as integration and review precedents. Translate from current English; do not reuse their historical key/page/test counts or bypass present contributor rules. Historical reviewers do not replace the current maintainer roster.
+
+## Implementation sequence
+
+### 1. Reconcile with the latest development version
+
+Fetch `origin/dev` before implementation and again before final readiness. Once the fork is configured, use `upstream/dev` as the canonical comparison. Record the exact base and head SHAs.
+
+Reconcile new English keys, documentation pages, auxiliary unions and changed meanings after each synchronization. Before final handoff, base the contribution on the latest fetched `dev` and rerun checks invalidated by the synchronization. Recheck changed visual evidence against the resulting head. The gate's present 10-commit tolerance is not a substitute for the user's request to cover the latest development source.
+
+### 2. Add Spanish to the existing dashboard architecture
+
+- Create `gui/src/i18n/es.ts` directly from the current English catalog. Preserve the exact key set and interpolation names/multiplicity; provide non-empty translations and a reviewed, narrow allowlist for intentionally identical technical terms.
+- Extend `LabLocale`, `DICTS`, `LOCALES`, stored-value validation and navigator detection. Use internal `es`, visible `Español`, HTML `es`, and map browser `es-*` variants to this single locale. A valid stored selection retains priority.
+- Keep `LanguageProvider`, `useT`, `Trans`, storage key `ocx-lang` and interpolation behavior. Do not introduce another i18n framework, new dependencies, unchecked casts or new English fallbacks.
+- Update the pre-paint locale map and browser detection in `gui/index.html`, so the initial HTML language agrees with the mounted provider.
+- Translate Compatibility Lab base keys, overlays and supplements; the closed native-main translation namespace; all Log Guard maps; routing compatibility and vision-reasoning labels.
+- Extend the locale union, locale order and row tuples in `desktop-compatibility-copy.ts`, and use its Spanish projection in the new catalog. Translate display copy while retaining wire values, commands, URLs, headers, IDs and configuration keys.
+- Add Spanish HTTP labels/descriptions and regional normalization to `status-codes.ts`, including generic status classes.
+- Map Spanish to `es-ES` in both quota-formatting helpers: `QuotaBars.tsx` and `ProviderCapacityQuota.tsx`. Audit other formatters and preserve deliberately fixed display contracts, including the plain-dollar format enforced by existing tests.
+- Add `es` to `gui/scripts/sync-locale-keys.mjs`; its existing omission of `vi`/`pt` is a baseline observation, not permission for unrelated locale cleanup. Do not run bulk synchronization over other catalogs as part of this preparation.
+- Register the Spanish catalog using the existing translation-catalog file-size exemption mechanism and its tests/baseline metadata. Never raise existing file caps to accommodate the change.
+- Review architecture documents mapped to `gui/`; update the current localization contract in `structure/dashboard-and-usage.md` and any dependent whose explanation actually changes.
+
+Use neutral, concise Spanish: dashboard = panel, providers = proveedores, settings = configuración, logs = registros, usage = uso, reasoning = razonamiento. Preserve branded names and protocol/configuration identifiers. Contextually review negations, destructive actions, recovery, credential precedence and ownership guidance.
+
+### 3. Localize the public website, documentation and README
+
+The Astro/Starlight website has a separate language system from the React dashboard. Register `es` / `Español` in `docs-site/astro.config.mjs`, including sidebar labels, and extend the custom header's language type/options and path-preserving language links.
+
+- Add `docs-site/src/content/docs/es/` with the current canonical English page paths, including the home page, Desktop installation/use, getting started, guides, references, benchmarks, contributing and troubleshooting. Recompute the source inventory rather than copying the older French page roster.
+- Translate titles, descriptions, body prose, accessibility text and visible interface text from current English. Keep executable examples, flags, code identifiers, credentials placeholders, routes and documented defaults consistent with English.
+- Add Spanish to `Landing.astro`, `Header.astro`, `SiteJsonLd.astro`, and benchmark/UI translation data such as `frontier-i18n.ts`. Preserve component structure and generated output ownership.
+- Keep `/es/` URLs, language metadata, canonical/alternate metadata, structured data, sitemap, search and translated page links consistent. Rewrite links to translated headings where needed and verify language switches keep the corresponding document path.
+- Add `readme/README.es.md` from the current root README, update existing language bars and `readme/i18n-manifest.json`, and extend the repository's README parity checks using their existing model.
+- Review the mapped documentation architecture and update contract explanations only where this contribution changes them.
+
+French review threads specifically caught altered API-key versus OAuth behavior, canonical Pool mode names, and backend exception semantics. Review Spanish explanations against current English and referenced code so localization does not change operational advice.
+
+### 4. Add regression coverage and inspect the real render
+
+Dashboard cases:
+
+- Spanish base/effective catalogs: exact keys, placeholders, duplicate-key guard, no blank entries, and no accidental English outside the reviewed allowlist.
+- Spanish registration, all supported `es-*` browser variants, persisted selection precedence, blocked/invalid storage behavior, and initial HTML language.
+- Language switching on the same mounted root, persistence after reload, HTML language updates and switching back to an existing language.
+- Every auxiliary namespace, localized status classes and date/number/quota formatters; preserve the existing fixed-dollar assertions.
+- Update exhaustive test maps, explicit locale rosters and the fixed 11-locale assertion in `subagent-surface-warning.test.tsx`. Extend `logs-cost-plain-dollar.test.ts`, DSH/Aside copy expectations and relevant root locale guards.
+
+Website/README cases:
+
+- Derive English versus Spanish documentation path parity from the current source/configuration; a newly added English page must be visible to the guard.
+- Validate locale navigation, internal links/anchors, translated accessibility labels, metadata, search results and README/manifest parity. Use the existing root docs-test domain and layout registration rules if adding a root test.
+- Run the docs build and inspect the real Spanish landing page, Desktop guide, long reference page and language switching at desktop and narrow widths.
+
+Review the dashboard with synthetic data across navigation, providers/models, usage/logs/storage, integrations, account/login dialogs, Lab and Log Guard. Inspect clipped text, overflow, tooltips, warnings and keyboard/focus behavior. Save actual-head screenshots locally for later upload to the PR description; do not commit screenshot evidence to this branch.
+
+## Preparation verification
+
+All commands below ran on the source baseline above, before locale implementation. Logs are local ignored artifacts under `.tmp/spanish-localization/evidence/`.
+
+| Check | Result |
+| --- | --- |
+| Root `bun install --frozen-lockfile` | Exit 0; 104 packages installed |
+| GUI `bun install --frozen-lockfile` | Exit 0; 41 packages installed |
+| Docs `bun install --frozen-lockfile` | Exit 0; 369 packages installed |
+| Root `bun run typecheck` | Exit 0 |
+| Focused GUI locale tests with pinned Bun and explicit root preload | 71 pass, 0 fail, 8 files; 13,909 assertions |
+| GUI `bun run lint:i18n` | Exit 0 |
+| GUI `bun run build` | Exit 0; 462 modules transformed |
+| Docs `OPENCODEX_DOCS_OFFLINE=1 bun run build` | Exit 0; 585 pages; 83,057 internal links checked; search and sitemap generated |
+| Root `bun run privacy:scan` and direct Bun 1.4.3 scan | Exit 0; repository privacy scan passed in both invocations |
+| Targeted preparation-note privacy scan | Exit 0; no findings |
+
+The focused test command was run from `gui/`:
+
+```powershell
+bun ../scripts/test-with-pinned-bun.ts --isolate --preload ../tests/preload.ts ./tests/i18n-locales.test.ts ./tests/i18n-language-switch.test.tsx ./tests/locale-parity.test.ts ./tests/claude-desktop-locale.test.ts ./tests/compatibility-lab-i18n.test.ts ./tests/fr-localization.test.ts ./tests/native-main-translations.test.ts ./tests/logs-cost-plain-dollar.test.ts
+```
+
+A reusable local PowerShell launcher is prepared at `.tmp/spanish-localization/Run-LocaleBaseline.ps1`. It uses the repository's explicit preload, which creates isolated OpenCodex/Codex/client homes, removes inherited production credential variables and arms the real-home guard. Existing tests supply synthetic DOM/state and translation fixtures. No running production proxy is used.
+
+Baseline warnings: Vite reports existing chunks above 500 kB; Astro reports the absent/empty optional `i18n` content collection. Both builds completed successfully. These warnings were observed on unchanged source and are not Spanish changes.
+
+No full root suite, full GUI suite, React Doctor, actual-browser inspection or native Desktop build has been performed in this preparation. Rust/Cargo were not detected on PATH. These results establish a preparation baseline, not review readiness or Spanish acceptance.
+
+Before the combined PR becomes review-ready, run the current required root typecheck, root suite, privacy and structure checks; full GUI tests, lint, i18n lint and build; applicable React Doctor; README/docs parity and file-size guards; and the docs build. Use the pinned test wrapper. Any allowed full-suite resource exception needs exact commands, results, reason and uncovered scope, and never turns unrun checks into passing results.
+
+## Publication and completion
+
+- Implement all agreed surfaces on this branch, then create/reuse the contributor fork. Configure `origin` for the fork and `upstream` for the original repository before pushing.
+- Open one Draft PR to `dev`, titled `feat(i18n): add Spanish dashboard and documentation localization`, with `Refs #1551`.
+- Fill the exact current template sections `Summary`, `Verification` and `Checklist` in English. Include actual-head GUI and website screenshots in the description, named commands/results, translation provenance and any documented limitations.
+- Keep the four readiness items aligned with `.github/scripts/pr-quality.cjs`: required local validation documented, recent `dev` base, correct Codex/CodeRabbit findings resolved, and ready-for-review confirmation. New commits invalidate earlier attestations and potentially affected evidence.
+- Do not change workflow triggers, release behavior, dependencies, auth implementation or existing locale behavior as incidental cleanup. Preserve attribution if actual contributor work is carried.
+- Required checks must succeed on the current PR head. Contributor integration requires the current maintainer approval under `MAINTAINERS.md`; merging into `dev` does not itself publish a Desktop update.
+- Complete when Spanish has current English GUI key/placeholder parity, full agreed documentation/README parity, complete auxiliary coverage, real-render evidence, passing required validation and a reviewable single PR.
+
+## Implementation record
+
+The combined contribution adds the `es` dashboard catalog and auxiliary namespaces, regional browser detection and prepaint language, persistent selection, HTTP-status copy and quota date formats. The catalog follows all 4,078 current English keys. Existing locales retain their behavior. The shared dashboard is the surface used by Desktop and browsers; native tray/startup/updater text is outside this contribution.
+
+The website registers Spanish navigation, landing copy, structured data and benchmark labels. The Spanish tree mirrors all 73 canonical documentation paths. `readme/README.es.md`, every README language bar and the source-hash manifest are updated together. The refreshed English archive contract is reflected in Spanish: 512 MiB / 256 files, explicit refusal codes and manual cleanup. Code examples, HTML code elements, CLI identifiers and admonition structure have regression coverage.
+
+Translation was drafted locally with [Helsinki-NLP/opus-mt-tc-big-en-es](https://huggingface.co/Helsinki-NLP/opus-mt-tc-big-en-es), whose model card declares CC-BY-4.0, using an isolated CTranslate2 conversion at revision `685e28454c38f960d9cddc89e3a6881ec62dc765`. Runtime, model and helper scripts are ignored local scratch files, not project dependencies or committed assets. Subsequent copyediting covers the landing, navigation, README, Desktop and quickstart guides, technical identifiers, privacy/consent warnings and inspected dashboard surfaces. Further linguistic review of the long reference pages is requested in the Draft PR; this is not represented as human acceptance.
+
+| Implementation check | Recorded result |
+| --- | --- |
+| Root typecheck after refreshing `dev` | Passed |
+| Full GUI suite | 3,493 passed, zero failures; 58,734 assertions across 354 files |
+| Final copy retest: Spanish/locale/switch/Lab/native/status/quota/Anthropic coverage | 97 passed, zero failures; 31,666 assertions across nine files |
+| GUI lint and i18n lint | Passed |
+| GUI production build | Passed; 463 modules; pre-existing large-chunk warning remains |
+| Final root documentation, README, hygiene, structure and layout files with `--timeout 120000` | 417 passed, zero failures; 3,089 assertions across 18 files |
+| Final `--changed=dev --timeout 120000` run | 226 passed, zero failures; 2,298 assertions across 16 files |
+| Docs production build, offline | Passed; 658 pages and 95,628 internal links; search and sitemap generated |
+| React Doctor 0.9.11, changed scope against `upstream/dev` | No issues; repository wrapper's `origin/main` ref is absent in this dev-only fork checkout |
+| Root privacy scan, direct Bun 1.4.3 execution of `scripts/privacy-scan.ts` | Passed |
+| Final structure SSOT check | Passed |
+| Root full-suite attempt | Incomplete: stopped after observing 3,104 passing and 26 failing cases; not a passing full-suite result |
+
+The full root attempt encountered Windows `EPERM` symlink creation failures in unchanged spend-ledger/client tests, default timeouts, and `EBUSY` cleanup of `config-dir-acl-harden` background work followed by spend-ledger ownership conflicts. The default full-suite run became impractical in this environment. This uses the documented resource/environment exception in `AGENTS.md`: directly affected regression files remain mandatory, broader backend/platform coverage remains outstanding in CI, and the PR stays Draft. These failures are not claimed to have passed or to have been reproduced on an untouched baseline.
+
+The root full-suite attempt ran on the intermediate `bddd61f74` base. The final base is `74463a2f7`; six further English documentation updates were reconciled, covering inline audio, MiMo tool-call recovery, Mistral vision, pool credit renewal and DeepSeek image-file opt-in. Technical identifiers and examples are checked against this final English snapshot. Final scoped results are reported in the PR; no complete root-suite pass on the final base is claimed.
+
+The first full GUI run had 3,489 passes and three failures: missing `keep-warm` / `Agent SDK` anchors and a filesystem-scan timeout. Both translation anchors were corrected and all three failing files passed focused retesting. The full GUI recheck passed all 3,493 tests; subsequent copyediting passed the 97 focused tests above. No native Desktop build or human-run acceptance test is claimed.
+
+Browser evidence uses an actual built GUI with an isolated OpenCodex runtime and a disabled synthetic provider, plus the built static docs site in Chrome. It exercises mounted language switching and reload persistence, desktop/mobile layouts, providers/models/integrations, subagents, usage/logs/storage, Desktop documentation, a long reference, benchmark views and language-preserving website links. Captures and machine-readable observations remain under ignored scratch space. The installed personal Desktop configuration and running proxy are not used as test fixtures. Screenshots for GitHub belong on the fork's separate `pr-assets` branch and are linked by immutable asset commit, never added to the PR branch.
+
+The contributor fork is configured as `origin`; the original repository remains `upstream`. The pull request targets `dev`, uses the current English template and `Refs #1551`, and retains unchecked review-readiness attestations until local scope, current-head CI, review findings and maintainer readiness are satisfied. Final command results and any remaining limitations are recorded in the PR description.

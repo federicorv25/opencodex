@@ -69,7 +69,7 @@ the persisted values/default, initial refusal, non-direct repair withholding, di
 behavior, and content-free diagnostics. English and all translated copies change together.
 
 The public documentation site lives in `docs-site/` and is built with Astro + Starlight. English is
-served at the site root, with French under `/fr`, Korean under `/ko`, Simplified Chinese under `/zh-cn`, Traditional Chinese under `/zh-tw`, Russian under `/ru`, Japanese under `/ja`, and Turkish under `/tr`. `docs-site/astro.config.mjs` is the locale source of truth.
+served at the site root, with Spanish under `/es`, French under `/fr`, Korean under `/ko`, Simplified Chinese under `/zh-cn`, Traditional Chinese under `/zh-tw`, Russian under `/ru`, Japanese under `/ja`, and Turkish under `/tr`. `docs-site/astro.config.mjs` is the locale source of truth.
 
 Internal links are checked in two places. `docs-site/src/integrations/internal-links.mjs` runs inside the
 Astro build, so the CI `docs` job and Deploy Docs both refuse a site whose generated HTML carries an
