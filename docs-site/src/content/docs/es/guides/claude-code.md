@@ -158,6 +158,8 @@ El escritorio Claude puede usar OpenCodex en uno de los dos modos mutuamente exc
 **Conecte → Claude Desktop → Modo de conexión** en el panel o con `ocx claude desktop apply
 --first-party|--gateway`.
 
+> Los perfiles de la biblioteca de Desktop y `_meta.json` deben ser archivos regulares de un máximo de 4 MiB. OpenCodex también rechaza los perfiles o metadatos generados que superen ese límite antes de reemplazar archivos. Haz una copia de seguridad y reduce manualmente una configuración demasiado grande; el rechazo por tamaño no trunca los datos existentes. Los almacenes propios de cada conexión conservan sus límites más estrictos.
+
 <a id="gateway-default"></a>
 
 ### Puerta de enlace (predeterminado)

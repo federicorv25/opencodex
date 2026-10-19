@@ -4,7 +4,7 @@
 
 - Preparation and implementation date: 2026-10-19 (America/La_Paz). Spanish implementation is prepared; validation and Draft-PR delivery are recorded below.
 - Repository: `lidge-jun/opencodex`; local branch: `feat/spanish-localization`; integration target: `dev`.
-- Initial `dev` baseline: `79fa97be6e6ae974ccd31d9aeedc2da96a0baa73`; refreshed through `bddd61f74bc89f45e6740845823b47f7a0a2f629` to `74463a2f73ac8a8011554385cbd45c42d16441a3`. The clone includes branch history and current checked-out sources; historical blobs are fetched on demand.
+- Initial `dev` baseline: `79fa97be6e6ae974ccd31d9aeedc2da96a0baa73`; refreshed through `bddd61f74bc89f45e6740845823b47f7a0a2f629` and `74463a2f73ac8a8011554385cbd45c42d16441a3` to `1cf98c05d9db5a458dd78f835d38dc393f32f0fe`. The clone includes branch history and current checked-out sources; historical blobs are fetched on demand.
 - Current `dev` package version: `2.90.0`. Latest published release checked on this date: [`v2.89.0`](https://github.com/lidge-jun/opencodex/releases/tag/v2.89.0). Release and development versions are distinct.
 - Toolchain: Bun `1.4.3` for tests, Node `v24.21.0`, Git `2.56.0.windows.1`. The root dependency on bundled Bun `1.4.2` stays unchanged.
 - Loaded catalog baseline: 4,078 English keys and 11 GUI locales (`en`, `de`, `fr`, `ko`, `zh`, `zh-TW`, `ru`, `ja`, `tr`, `vi`, `pt`).
@@ -141,7 +141,8 @@ Translation was drafted locally with [Helsinki-NLP/opus-mt-tc-big-en-es](https:/
 | Final copy retest: Spanish/locale/switch/Lab/native/status/quota/Anthropic coverage | 97 passed, zero failures; 31,666 assertions across nine files |
 | GUI lint and i18n lint | Passed |
 | GUI production build | Passed; 463 modules; pre-existing large-chunk warning remains |
-| Final root documentation, README, hygiene, structure and layout files with `--timeout 120000` | 417 passed, zero failures; 3,089 assertions across 18 files |
+| Root documentation, README, hygiene, structure and layout files with `--timeout 120000` on `74463a2f7` | 417 passed, zero failures; 3,089 assertions across 18 files |
+| Same scoped set on final `1cf98c05d` base | 416 passed; inline-identifier guard caught one omitted `maxIntervalMs` token. Corrected; all five tests in that guard file passed retesting (891 assertions) |
 | Final `--changed=dev --timeout 120000` run | 226 passed, zero failures; 2,298 assertions across 16 files |
 | Docs production build, offline | Passed; 658 pages and 95,628 internal links; search and sitemap generated |
 | React Doctor 0.9.11, changed scope against `upstream/dev` | No issues; repository wrapper's `origin/main` ref is absent in this dev-only fork checkout |
@@ -151,7 +152,7 @@ Translation was drafted locally with [Helsinki-NLP/opus-mt-tc-big-en-es](https:/
 
 The full root attempt encountered Windows `EPERM` symlink creation failures in unchanged spend-ledger/client tests, default timeouts, and `EBUSY` cleanup of `config-dir-acl-harden` background work followed by spend-ledger ownership conflicts. The default full-suite run became impractical in this environment. This uses the documented resource/environment exception in `AGENTS.md`: directly affected regression files remain mandatory, broader backend/platform coverage remains outstanding in CI, and the PR stays Draft. These failures are not claimed to have passed or to have been reproduced on an untouched baseline.
 
-The root full-suite attempt ran on the intermediate `bddd61f74` base. The final base is `74463a2f7`; six further English documentation updates were reconciled, covering inline audio, MiMo tool-call recovery, Mistral vision, pool credit renewal and DeepSeek image-file opt-in. Technical identifiers and examples are checked against this final English snapshot. Final scoped results are reported in the PR; no complete root-suite pass on the final base is claimed.
+The root full-suite attempt ran on the intermediate `bddd61f74` base. Further English documentation updates through `1cf98c05d` were reconciled, covering inline audio, MiMo tool-call recovery, Mistral vision and rate-limit defaults, pool credit renewal, DeepSeek image-file opt-in and allowed roles, bounded Desktop profile reads, account project fallback, OpenGateway handling and quota/login diagnostics. Technical identifiers and examples are checked against this final English snapshot. Final scoped results are reported in the PR; no complete root-suite pass on the final base is claimed.
 
 The first full GUI run had 3,489 passes and three failures: missing `keep-warm` / `Agent SDK` anchors and a filesystem-scan timeout. Both translation anchors were corrected and all three failing files passed focused retesting. The full GUI recheck passed all 3,493 tests; subsequent copyediting passed the 97 focused tests above. No native Desktop build or human-run acceptance test is claimed.
 
