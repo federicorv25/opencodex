@@ -2,9 +2,9 @@
 
 ## Status and source baseline
 
-- Preparation and implementation date: 2026-10-19 (America/La_Paz). Spanish implementation is prepared; validation and Draft-PR delivery are recorded below.
+- Preparation and implementation date: 2026-10-19 (America/La_Paz). Spanish implementation and review corrections are prepared; initial Draft delivery and subsequent review-readiness verification are recorded below.
 - Repository: `lidge-jun/opencodex`; local branch: `feat/spanish-localization`; integration target: `dev`.
-- Initial `dev` baseline: `79fa97be6e6ae974ccd31d9aeedc2da96a0baa73`; refreshed through `bddd61f74bc89f45e6740845823b47f7a0a2f629` and `74463a2f73ac8a8011554385cbd45c42d16441a3` to `1cf98c05d9db5a458dd78f835d38dc393f32f0fe`. The clone includes branch history and current checked-out sources; historical blobs are fetched on demand.
+- Initial `dev` baseline: `79fa97be6e6ae974ccd31d9aeedc2da96a0baa73`; refreshed through `bddd61f74bc89f45e6740845823b47f7a0a2f629`, `74463a2f73ac8a8011554385cbd45c42d16441a3`, `1cf98c05d9db5a458dd78f835d38dc393f32f0fe` and `eb4bf967001327624acca1341a9a51aba0a3ca05` to `12025981e5a304cdb6b1b54f525ba8554f623977`. The clone includes branch history and current checked-out sources; historical blobs are fetched on demand.
 - Current `dev` package version: `2.90.0`. Latest published release checked on this date: [`v2.89.0`](https://github.com/lidge-jun/opencodex/releases/tag/v2.89.0). Release and development versions are distinct.
 - Toolchain: Bun `1.4.3` for tests, Node `v24.21.0`, Git `2.56.0.windows.1`. The root dependency on bundled Bun `1.4.2` stays unchanged.
 - Loaded catalog baseline: 4,078 English keys and 11 GUI locales (`en`, `de`, `fr`, `ko`, `zh`, `zh-TW`, `ru`, `ja`, `tr`, `vi`, `pt`).
@@ -126,7 +126,9 @@ Before the combined PR becomes review-ready, run the current required root typec
 - Required checks must succeed on the current PR head. Contributor integration requires the current maintainer approval under `MAINTAINERS.md`; merging into `dev` does not itself publish a Desktop update.
 - Complete when Spanish has current English GUI key/placeholder parity, full agreed documentation/README parity, complete auxiliary coverage, real-render evidence, passing required validation and a reviewable single PR.
 
-## Implementation record
+## Initial Draft delivery record
+
+This section preserves the original delivery evidence. The review-readiness record below supersedes its pending-work status and older scoped test totals.
 
 The combined contribution adds the `es` dashboard catalog and auxiliary namespaces, regional browser detection and prepaint language, persistent selection, HTTP-status copy and quota date formats. The catalog follows all 4,078 current English keys. Existing locales retain their behavior. The shared dashboard is the surface used by Desktop and browsers; native tray/startup/updater text is outside this contribution.
 
@@ -159,3 +161,28 @@ The first full GUI run had 3,489 passes and three failures: missing `keep-warm` 
 Browser evidence uses an actual built GUI with an isolated OpenCodex runtime and a disabled synthetic provider, plus the built static docs site in Chrome. It exercises mounted language switching and reload persistence, desktop/mobile layouts, providers/models/integrations, subagents, usage/logs/storage, Desktop documentation, a long reference, benchmark views and language-preserving website links. Captures and machine-readable observations remain under ignored scratch space. The installed personal Desktop configuration and running proxy are not used as test fixtures. Screenshots for GitHub belong on the fork's separate `pr-assets` branch and are linked by immutable asset commit, never added to the PR branch.
 
 The contributor fork is configured as `origin`; the original repository remains `upstream`. The pull request targets `dev`, uses the current English template and `Refs #1551`, and retains unchecked review-readiness attestations until local scope, current-head CI, review findings and maintainer readiness are satisfied. Final command results and any remaining limitations are recorded in the PR description.
+
+## Review-readiness record
+
+The single contribution is [PR #7406](https://github.com/lidge-jun/opencodex/pull/7406). Review corrections cover all 34 CodeRabbit inline findings and the out-of-diff locale-count observation. They include benchmark disclosure, current routing precedence, API-key/OAuth distinctions, Pi's loopback export, default subagent mode, native reasoning ownership, opt-in Log Guard, deferred star consent, error labels, executable table syntax, signed-binary warnings and conditional recovery. Long paragraphs were revised in context; critical configuration, admission, platform, consent and recovery instructions were edited directly. Technical examples, identifiers, placeholders, tables and complete instruction lists have parity guards. The English source was corrected where it contradicted the current implementation or policy.
+
+The refreshed `12025981e` base contains upstream #7408 and #7414. The Spanish Codex guide now documents exact account bindings versus manual Pool preference, native-main duplicate exclusion, workspace identity and the actionable account-list fields. This contribution itself has no backend implementation, workflow, dependency manifest or lockfile changes relative to that base.
+
+| Review check | Result |
+| --- | --- |
+| Full GUI suite | 3,493 passed, zero failures; 58,734 assertions across 354 files |
+| Three final Spanish/parity/mounted-switch GUI files after visible-copy corrections | 17 passed, zero failures; 24,962 assertions |
+| GUI lint, i18n lint and production build | Passed; pre-existing chunk-size warning remains |
+| Root typecheck on `12025981e` base | Passed |
+| Final docs/README/hygiene/structure/layout set | 443 passed, zero failures; 3,445 assertions across 18 files |
+| Changed-import suite on the refreshed base | 492 passed, zero failures; 3,936 assertions across 24 files |
+| Upstream duplicate-main and Pool caller-fallback regressions after synchronization | 34 passed, zero failures; 78 assertions across two files |
+| Final offline documentation build | Passed; 658 pages, 95,626 internal links, Pagefind search and sitemap |
+| Final privacy scan and structure SSOT check | Passed |
+| React Doctor 0.9.11 against `upstream/dev`, changed GUI scope | No issues |
+
+The root-suite resource exception was investigated further using an isolated non-root Linux container with pinned Bun 1.4.3, 2 CPUs and 4 GiB. The full run used the exact previously published tree `150628e19fea7cfbd4982b72f127a7596d38ec87`, observed 21,964 passes and 24 failures, and hit the wrapper's 900-second limit with files unrun. Installing missing jq/Node tools and correcting fixture-parent permissions allowed the eight failing files to rerun: 155 passes, one skip and four failures. Two CLI-help cases require a host service manager. The other two failures were reproduced on a clean `1cf98c05d` snapshot: 22 passes and two failures. Upstream #7408 then fixed the cold-spawn disposition failure; the refreshed file passed all 20 cases. The unchanged Grok config-write-lock fixture discrepancy remains a reproduced baseline failure. There is no complete full-root-suite pass; broad backend/platform validation remains required in upstream CI before merge.
+
+Actual-browser evidence uses the built GUI and built docs with isolated client homes and a disabled synthetic provider. Final inspection corrected a split reference table and additional technical terminology. No personal Desktop configuration, native Desktop build, live model request or human-executed acceptance test is claimed. Captures are uploaded separately to the fork's `pr-assets` branch and linked by immutable commit in the PR description.
+
+CodeRabbit was explicitly requested on the Draft. A manual Codex review request returned its account rate-limit message without a code review; this is an unavailable review, not a clean result. The contributor readiness checklist must describe this limitation accurately. Required fork Actions still need maintainer authorization and successful results on the exact final PR head, plus maintainer approval, before integration. The PR description carries the final head/tree, build, scan, browser and review-thread evidence.
