@@ -54,7 +54,11 @@ back, `ocx restore back` re-points Codex at the proxy.
 
 ```bash
 ocx start
+ocx ready --json
+ocx status --json
 ocx service install   # keep it running across restarts
+ocx ready --json
+ocx status --json
 ```
 
 `ocx status` reports whether the proxy is answering and whether Codex is

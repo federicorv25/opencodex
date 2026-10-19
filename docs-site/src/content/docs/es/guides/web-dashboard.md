@@ -162,7 +162,7 @@ Los switches responden de inmediato para que pueda seguir cambiando modelos mien
 
 ### Administrar modelos en un espacio de trabajo de proveedor
 
-En un proveedor **Modelos** ficha: **Eliminar** elimina la definición personalizada almacenada. Un subyacente El modelo nativo o el modelo descubierto en vivo pueden volver a aparecer, por lo que el recuento de modelos puede permanecer igual.
+En un proveedor **Modelos** token: **Eliminar** elimina la definición personalizada almacenada. Un subyacente El modelo nativo o el modelo descubierto en vivo pueden volver a aparecer, por lo que el recuento de modelos puede permanecer igual.
 **Ocultar** solo cambia la visibilidad del catálogo: no elimina la definición ni cambia directamente política de enrutamiento. Uso **Gestionar la visibilidad en modelos** para abrir el **Modelos** página y restaurar visibilidad, incluso cuando la pestaña del proveedor no tiene filas.
 
 **Añadir** guarda una definición personalizada; no borra una regla de selección de proveedores o ocultación existente. Por lo tanto, un modelo guardado puede permanecer oculto. Si el modelo ya se conoce, gestionar su visibilidad en **Modelos**. Todavía se guarda un guardado confirmado con una actualización de catálogo fallida: siga la actualización mensaje en lugar de añadirlo de nuevo. Si el cambio no se puede confirmar, actualice el estado del modelo antes de volver a intentarlo.
@@ -195,7 +195,7 @@ En **Conecte las teclas → API**, cada fila de la tabla clave tiene su propio b
 
 Mostrar el valor completo de una clave almacenada requiere una sesión de panel establecida por emparejamiento explícito o Identidad de Tailscale de confianza. Una sesión de panel de control local automática aún puede mostrar la lista de claves enmascaradas, pero no puede revelar los valores existentes; un administrador token sin procesar tampoco puede llamar a esta acción de solo sesión. Utilizar el existente [flujo de emparejamiento de panel](/es/guides/remote-hub/#pairing-this-browser-with-a-hub) Para establecer un sesión autorizada por el operador antes de solicitar un valor almacenado; una revelación rechazada indica el requisito en la página. El formulario de emparejamiento local se ofrece solo mediante un panel independiente del mismo origen abierto sobre HTTP en el literal `127.0.0.1` o `[::1]` dirección. El origen debe coincidir con el del servidor Loopback bind. En marcha `http://localhost:<port>` (u otro alias localhost), comprobar el enlace del servidor: reabrir `http://127.0.0.1:<port>` por a `127.0.0.1` enlace o
 `http://[::1]:<port>` por a `::1` atar, y luego emparejar allí. Un servidor configurado con hostname
-`localhost` no tiene un origen de emparejamiento local elegible. El panel de control no puede inferir el bind de un alias URL, por lo que muestra la negación genérica sin sugerir un reemplazo URL. Utilice el flujo de emparejamiento de concentrador remoto existente o el inicio de sesión de escala de cola de confianza cuando esté disponible. Pare de nuevo si la sesión autorizada expira o es revocada. Iniciar sesión en el panel de control ordinario, La creación, rotación y eliminación de claves no han cambiado.
+`localhost` no tiene un origen de emparejamiento local elegible. El panel de control no puede inferir el bind de un alias URL, por lo que muestra la negación genérica sin sugerir un reemplazo URL. Utilice el flujo de emparejamiento de concentrador remoto existente o el inicio de sesión de Tailscale de confianza cuando esté disponible. Pare de nuevo si la sesión autorizada expira o es revocada. Iniciar sesión en el panel de control ordinario, La creación, rotación y eliminación de claves no han cambiado.
 
 Después de emparejar, haga clic en la clave nuevamente para solicitar su valor. El emparejamiento en sí nunca revela una clave. Los valores de clave visualizados y la retroalimentación de copia se borran cuando se borra o reemplaza la sesión compartida. se inicia la vinculación, abandona este panel, oculta la pestaña del navegador o la ventana de escritorio, o cambia de servidor. Esto también borra los valores recién creados y de reemplazo, por lo que copia un valor de una sola vez antes de salir el panel. Si la creación o rotación tiene éxito después de que cambie la sesión o vista, se El valor permanece oculto. Después de cambiar los servidores, volver a la El servidor original revalida su lista de claves. Las rotaciones pendientes siguen estando disponibles para la confirmación explícita o el aborto.
 
@@ -237,16 +237,16 @@ La descripción general de los proveedores resume por separado el uso del modo P
 
 <a id="starring-is-yours-to-decide-not-an-agents"></a>
 
-## Protagonizar es tuyo para decidir, no de un agente
+## Tú decides si dar una estrella
 
-El botón — de la barra lateral y la pregunta de una sola vez `ocx start` pregunta en un interactivo terminal — pasa a través **tu propio `gh` inicio de sesión**. opencodex no tiene GitHub token, y el Lo único que aprende es tu sí o no.
+El botón de la barra lateral y la pregunta que `ocx start` muestra en una terminal interactiva usan **tu propia sesión de `gh`**. opencodex no guarda un token de GitHub para esta acción; solo registra tu respuesta.
 
 Debido a que eso se escribe en su cuenta GitHub, se rechazan las llamadas dirigidas por agentes en lugar de Se le permite responder por usted:
 
-- `ocx start` y `ocx service install` **saltarse el mensaje por completo** Cuando un agente o El arnés los conduce (`CLAUDECODE`, `CODEX_THREAD_ID`, `CURSOR_TRACE_ID`, `CI`, y similares). El marcador de una sola vez permanece sin escribir, por lo que el indicador real aún aparece en su siguiente ejecución escrita a mano. Se le dice al agente que le pregunte en su lugar — y que pregunte como simple Sí / No elección tienes que responder, no como un suave a un lado puede deslizarse más allá de ti. Si nunca consigues Para responder, se le dice al agente que vuelva a preguntar en lugar de tratar su silencio como un no.
-- `POST /api/github/star` respuestas `403` con `code: "agent_consent_required"` Cuando el proxy se ejecuta bajo una sesión de agente y la solicitud no tiene ninguna sesión del navegador del panel. Posesión el administrador token no es consentimiento: un agente en su máquina puede leer ese archivo.
-- El botón del panel de instrumentos sigue funcionando normalmente. Un clic real lleva sesión del mismo origen pruebas, por lo que se reconoce como usted incluso cuando un agente inició el proxy.
-- Decir que no lo termina. No se persiste nada y no se agrega nada a ningún mensaje de modelo para empujar Más tarde.
+- `ocx start` y `ocx service install` omiten la pregunta interactiva cuando detectan un agente o entorno automático (`CLAUDECODE`, `CODEX_THREAD_ID`, `CURSOR_TRACE_ID`, `CI`, entre otros). El agente debe trasladar la pregunta una sola vez con una opción clara Sí/No. El silencio queda pendiente: no se registra como Sí ni como No y el agente no debe repetirla en respuestas o sesiones posteriores. Una versión posterior puede volver a activar el aviso de la CLI según los plazos de `AGENTS_INSTALL.md`.
+- `POST /api/github/star` devuelve `403` con `code: "agent_consent_required"` cuando el proxy detecta una sesión de agente y la solicitud no acredita una sesión del navegador del panel. Tener el token de administración no constituye consentimiento: un agente local puede leer ese archivo.
+- El botón del panel sigue disponible. Un clic real aporta la evidencia de sesión del mismo origen, incluso si el agente inició el proxy.
+- Una respuesta negativa termina el asunto; no se insiste ni se añaden indicaciones a los mensajes del modelo para retomarlo después.
 
 <a id="how-the-dashboard-talks-to-the-proxy"></a>
 
@@ -309,7 +309,7 @@ Los días del mapa de calor de uso tienen un punto de entrada de pestaña. Usa A
 
 Las cuentas Claude/Anthropic se administran solo en **Proveedores > Anthropic > Cuentas**: inicio de sesión y la opción del navegador, la lista de cuentas con interruptor, pausa, eliminar y volver a autenticar, el campo de código de pegado, la configuración del grupo de cuentas y la cuota. Claude ya no tiene una subpestaña Cuenta. Controles a nivel de proveedor, como el proveedor predeterminado, la eliminación y la opción habilitada permanecer en proveedores.
 
-Los marcadores `#claude` y `#claude/code` abrir esta página, y la anterior `#claude/settings` redirecciona a `#claude/code`; `#claude/desktop` selecciona la ficha Escritorio Claude separada. El viejo `#claude/account` Marcador redirige a `#providers?provider=anthropic&tab=accounts`. Legado `#integrations/claude` y `#integrations/claude/desktop` Los marcadores todavía redirigen a `#claude/code` y `#claude/desktop`, respectivamente. Las teclas de flecha se mueven entre pestañas; Home y End seleccione la primera y última pestaña.
+Los marcadores `#claude` y `#claude/code` abrir esta página, y la anterior `#claude/settings` redirecciona a `#claude/code`; `#claude/desktop` selecciona la token Escritorio Claude separada. El viejo `#claude/account` Marcador redirige a `#providers?provider=anthropic&tab=accounts`. Legado `#integrations/claude` y `#integrations/claude/desktop` Los marcadores todavía redirigen a `#claude/code` y `#claude/desktop`, respectivamente. Las teclas de flecha se mueven entre pestañas; Home y End seleccione la primera y última pestaña.
 
 
 <a id="test-one-provider-model"></a>

@@ -49,7 +49,7 @@ La suite utiliza Bun 1.4.3 (`package.json`'s `testRunnerBun`) mientras que el en
 `scripts/test.ts` encuentra un binario 1.4.3 en PATH o en `~/.bun/bin`, o usos `OCX_TEST_RUNNER_BUN`. Instale esa versión localmente si falta; el solucionador nunca la descarga.
 
 Ejecuta `bun run test` por defecto. Si una ejecución completa es desproporcionadamente costosa para el tamaño de la tarea, recursos de máquina disponibles, o árboles de trabajo concurrentes, al menos debe ejecutar pruebas de regresión enfocadas que ejercen el comportamiento cambiado, como `bun test tests/<domain>/<name>.test.ts`. Explique la razón para reducir la ejecución e informar los comandos exactos, los resultados y el alcance no probado.
-`bun run test:changed` puede complementar esta cobertura, pero no puede detectar cada dependencia indirecta. Ni confiar solo en CI ni saltarse las pruebas locales es una exención general. Antes de fusionarse, todos Los controles de CI requeridos deben pasar por el jefe de relaciones públicas actual exacto.
+`bun run test:changed` puede complementar esta cobertura, pero no puede detectar cada dependencia indirecta. Ni confiar solo en CI ni saltarse las pruebas locales es una exención general. Antes de fusionarse, todos Los controles de CI requeridos deben pasar por el jefe de PR actual exacto.
 
 `test:changed` selecciona la primera comparación ref que existe, en orden: `upstream/dev`,
 `origin/dev`Entonces local `dev`. Se informa que ref y el exacto `git merge-base HEAD <ref>`
@@ -98,7 +98,7 @@ Utilice el ayudante para las versiones:
 
 Antes de ejecutar el ayudante, elija la versión de lanzamiento prevista y envíe
 `.github/workflows/dev-version-bump.yml` de la rama por defecto con
-`intended-version=<version>` y `mode=pre-move`. Revisar y fusionar las relaciones públicas que abre en `dev`, luego promover a `main` o `preview` y correr el ayudante. Si `dev` ya supera la versión prevista, los informes de flujo de trabajo `changed=false` y no hay bump PR es necesario. Publicar todavía requiere un CI exitoso en el compromiso de lanzamiento exacto.
+`intended-version=<version>` y `mode=pre-move`. Revisar y fusionar las PR que abre en `dev`, luego promover a `main` o `preview` y correr el ayudante. Si `dev` ya supera la versión prevista, los informes de flujo de trabajo `changed=false` y no hay bump PR es necesario. Publicar todavía requiere un CI exitoso en el compromiso de lanzamiento exacto.
 
 ```bash
 bun run release <version>           # commits/pushes the bump; publish workflow is dry-run by default
@@ -203,7 +203,7 @@ para un transporte verdaderamente bidireccional como Cursor. Añadir pruebas enf
 
 ### Añadir una reclamación de compatibilidad
 
-Las reclamaciones de compatibilidad viven bajo `src/compatibility/`. Un reclamo es más estrecho que un adaptador: nombra el proveedor exacto, la base normalizada de subida URL, el modo de autenticación, el protocolo entrante, la subida protocolo, y modelos de identificación cuyo comportamiento fue probado. No copie una reclamación a cada proveedor que utilice el mismo adaptador o a otro destino utilizando el mismo formato de cable.
+Las reclamaciones de compatibilidad viven bajo `src/compatibility/`. Un reclamo es más estrecho que un adaptador: nombra el proveedor exacto, la base normalizada de subida URL, el modo de autenticación, el protocolo entrante, la subida protocolo, y modelos de identificación cuyo comportamiento fue probado. No copie una reclamación a cada proveedor que utilice el mismo adaptador o a otro destino utilizando el mismo formato del protocolo.
 
 Utilice una de las disposiciones versionadas: `passthrough`, `translated`, `degraded`, o `unsupported`. Cada reclamo sin paso debe indicar su limitación, y cada reclamo respaldado por accesorios debe nombrar el ids de afirmación exacta que lo prueban. Añadir el vector de solicitud libre de secretos bajo
 `tests/fixtures/compatibility/` y ejecutarlo contra el adaptador de producción en una prueba enfocada. A `passthrough` Reclamar sólo puede citar `equals` aserciones cuyo valor esperado es el propio valor en el mismo lugar, en un selector vinculado a esa característica en la prueba de manifiesto, reescrito, o el campo no relacionado no puede ser etiquetado como sin pérdida. Manténgase relacionado Aspectos como reclamaciones separadas cuando una ruta puede preservar una y perder la otra, como una herramienta personalizada. y su gramática. Los manifiestos de compatibilidad son datos pasivos: el enrutador ordinario, el controlador Responses y el servidor La ruta de inicio no debe importar el catálogo del manifiesto ni activar Compatibility Lab.

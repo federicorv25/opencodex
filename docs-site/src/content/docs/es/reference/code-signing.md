@@ -1,88 +1,78 @@
 ---
 title: "Firma de código en Windows"
-description: "Cómo OpenCodex firma sus binarios Windows a través de SignPath Foundation, cómo verificar una firma y la política de firma de código del proyecto."
+description: "Cómo OpenCodex firma sus binarios de Windows mediante SignPath Foundation, cómo verificar las firmas y qué política aplica."
 ---
 
-OpenCodex está moviendo sus descargas de Windows, la versión independiente `ocx.exe` y el instalador de escritorio
-`OpenCodex-<version>-windows-x64.msi`, a Authenticode firma de código a través
-[Fundación SignPath](https://signpath.org). Un archivo firmado indica Windows, SmartScreen y antivirus productos que lo publicaron y que nadie lo cambió después de la compilación, que es lo que se detiene falsos positivos binarios no firmados como el reportado en
-[#7207](https://github.com/lidge-jun/opencodex/issues/7207).
+OpenCodex está incorporando firmas Authenticode de [SignPath Foundation](https://signpath.org) en sus descargas de Windows: el ejecutable independiente `ocx.exe` y el instalador de escritorio `OpenCodex-<version>-windows-x64.msi`. Una firma identifica al editor ante Windows, SmartScreen y los antivirus y permite comprobar que el archivo no cambió después de compilarlo. Puede reducir los avisos y falsos positivos por binarios sin firma como el de [#7207](https://github.com/lidge-jun/opencodex/issues/7207). No garantiza que SmartScreen lo acepte ni demuestra que el archivo sea seguro: [Microsoft explica](https://learn.microsoft.com/windows/apps/package-and-deploy/smartscreen-reputation) que un binario recién firmado todavía puede mostrar avisos de reputación.
 
-La firma se está extendiendo. El flujo de trabajo de liberación está cableado y SignPath lo está validando con una prueba Certificado. Hasta que se emita el certificado de producción, los archivos de versión Windows permanecen sin firmar y SmartScreen puede preguntar una vez (**Más info → Ejecutar de todos modos**) Releases publicados después de que el interruptor lleva Una firma de **Fundación SignPath**.
+La incorporación está en curso. El flujo de publicación ya está preparado y SignPath lo valida con un certificado de prueba. Hasta que se emita el certificado de producción, los archivos de Windows se publican sin firma y SmartScreen puede pedir confirmación (**Más información → Ejecutar de todas formas**). Las versiones publicadas después de ese cambio llevan una firma de **SignPath Foundation**.
 
 <a id="code-signing-policy"></a>
 
 ## Política de firma de código
 
-Firma de código gratuito proporcionada por [SignPath.io](https://about.signpath.io/), certificado por
-[Fundación SignPath](https://signpath.org/).
+Firma gratuita proporcionada por [SignPath.io](https://about.signpath.io/), con certificado de [SignPath Foundation](https://signpath.org/).
 
-- Committers y revisores: [lidge-jun](https://github.com/lidge-jun)
-- Aprobadores: [lidge-jun](https://github.com/lidge-jun)
+- Personas que realizan commits y revisiones: [lidge-jun](https://github.com/lidge-jun).
+- Aprobador: [lidge-jun](https://github.com/lidge-jun).
 
-Cada solicitud de firma para un lanzamiento se aprueba a mano en SignPath antes de que el certificado sea aprobado. utilizado. Solo se firman los binarios creados a partir del origen de este repositorio por GitHub Actions. Terceros archivos incluidos con una versión, como los complementos de llavero preconstruidos, mantienen su forma ascendente; el La política de la Fundación SignPath prohíbe firmarlos con el certificado del proyecto.
+Cada solicitud de firma de una versión se aprueba manualmente en SignPath antes de usar el certificado. Solo se firman los binarios compilados desde el código de este repositorio mediante GitHub Actions. Los archivos de terceros incluidos, como los módulos de llavero precompilados, conservan su forma original: la política de SignPath Foundation prohíbe firmarlos con el certificado del proyecto.
 
 <a id="privacy"></a>
 
 ### Privacidad
 
-Este programa no transferirá ninguna información a otros sistemas en red a menos que solicitado por el usuario o la persona que lo instala u opera. En la práctica, OpenCodex reenvía solicitudes a los proveedores que configure. Para buscar nuevas versiones también lee release metadatos de GitHub y el registro npm, y esas comprobaciones no llevan ninguna de sus indicaciones, credenciales o datos de uso.
+Este programa no transfiere información a otros sistemas de red salvo que lo solicite expresamente el usuario o quien lo instale u opere. En la práctica, OpenCodex reenvía las solicitudes a los proveedores configurados. También consulta metadatos de versiones en GitHub y el registro npm para buscar actualizaciones; esas consultas no incluyen prompts, credenciales ni datos de uso.
 
 <a id="verifying-a-download"></a>
 
 ## Verificar una descarga
 
-En PowerShell, compruebe el archivo que descargó:
+En PowerShell, comprueba el archivo descargado:
 
 ```powershell
 Get-AuthenticodeSignature .\OpenCodex-<version>-windows-x64.msi | Format-List Status, SignerCertificate
 Get-AuthenticodeSignature .\ocx.exe | Format-List Status, SignerCertificate
 ```
 
-Informes de liberación firmados `Status : Valid` y un certificado de firma cuyos nombres de asunto
-`SignPath Foundation`. En el Explorer, la misma información está bajo **Propiedades → Digital Firmas**. Cada archivo de lanzamiento también tiene un `.sha256` en la página de lanzamiento, que puede Comparar con `Get-FileHash <file> -Algorithm SHA256`.
+Una versión firmada muestra `Status : Valid` y un certificado cuyo sujeto identifica a `SignPath Foundation`. En el Explorador puedes ver la misma información en **Propiedades → Firmas digitales**. Cada archivo publicado tiene un `.sha256` junto a él en la página de versiones; puedes compararlo con `Get-FileHash <file> -Algorithm SHA256`.
 
 <a id="what-gets-signed"></a>
 
-## Lo que se firma
+## Qué archivos se firman
 
 | Archivo | Contenido firmado |
 |---|---|
-| `ocx-<version>-bun-windows-x64.zip` | `ocx.exe` dentro del archivo. El zip y sus `.sha256` se construyen a partir del binario firmado. |
-| `OpenCodex-<version>-windows-x64.msi` | El instalador, además de todos los `.exe` instala (la aplicación de escritorio y su paquete `ocx.exe`). |
+| `ocx-<version>-bun-windows-x64.zip` | El `ocx.exe` del archivo. El ZIP y su `.sha256` se generan a partir del binario firmado. |
+| `OpenCodex-<version>-windows-x64.msi` | El instalador y todos los `.exe` que instala, incluida la aplicación de escritorio y su `ocx.exe`. |
 
-La firma del actualizador de escritorio (`.msi.sig`) `latest.json` Producido a partir de la firma instalador, por lo que las actualizaciones dentro de la aplicación instalan los mismos bytes que ofrece la página de lanzamiento.
+La firma del actualizador de escritorio (`.msi.sig`) y `latest.json` se generan a partir del instalador firmado. Así, las actualizaciones dentro de la aplicación instalan los mismos bytes que ofrece la página de versiones.
 
 <a id="for-maintainers"></a>
 
-## Para los mantenedores
+## Para mantenedores
 
-El flujo de trabajo de liberación (`.github/workflows/release.yml`) firma a través del funcionario
-`signpath/github-action-submit-signing-request` acción. Se lee un secreto y tres repositorios variables:
+El flujo de publicación (`.github/workflows/release.yml`) firma mediante la acción oficial `signpath/github-action-submit-signing-request`. Lee un secreto y tres variables del repositorio:
 
-| Nombre | Amable | Valor |
+| Nombre | Tipo | Valor |
 |---|---|---|
-| `SIGNPATH_API_TOKEN` | secreto | API token del usuario SignPath CI |
-| `SIGNPATH_ORGANIZATION_ID` | variable | ID de organización SignPath |
-| `SIGNPATH_PROJECT_SLUG` | variable | `opencodex` |
-| `SIGNPATH_SIGNING_POLICY_SLUG` | variable | `test-signing` hoy; `release-signing` Una vez emitido el certificado |
+| `SIGNPATH_API_TOKEN` | Secreto | Token API del usuario de CI de SignPath |
+| `SIGNPATH_ORGANIZATION_ID` | Variable | Identificador de la organización de SignPath |
+| `SIGNPATH_PROJECT_SLUG` | Variable | `opencodex` |
+| `SIGNPATH_SIGNING_POLICY_SLUG` | Variable | `test-signing` actualmente; `release-signing` cuando se emita el certificado |
 
-Configuración de artefactos SignPath: `windows-standalone-zip` (uno `ocx.exe` en la raíz zip) y
-`windows-msi-zip` (uno `.msi` en la zip root, profundo firmado).
+Las configuraciones de artefactos de SignPath son `windows-standalone-zip` (un `ocx.exe` en la raíz del ZIP) y `windows-msi-zip` (un `.msi` en la raíz del ZIP, con firma profunda).
 
-Firmar nunca bloquea un lanzamiento. Lo que hace una carrera depende de la política:
+La firma nunca bloquea una publicación. El resultado depende de la política:
 
-| Política | Secado | Liberación real |
+| Política | Simulación | Publicación real |
 |---|---|---|
-| Sin token, o una configuración incompleta | Sin firmar | Sin firmar, con una notificación o advertencia |
-| `test-signing` | Firmado con el certificado de prueba, mantenido solo como un artefacto de flujo de trabajo | Sin firmar, con un aviso; un certificado de prueba nunca se envía |
-| `release-signing` | Firmado y verificado como de confianza | Firmado y verificado como de confianza |
+| Sin token o con configuración incompleta | Sin firma | Sin firma, con un aviso o advertencia |
+| `test-signing` | Firmado con el certificado de prueba y conservado solo como artefacto del workflow | Sin firma, con un aviso; nunca se distribuye un certificado de prueba |
+| `release-signing` | Firmado y verificado como confiable | Firmado y verificado como confiable |
 
-Si una solicitud de firma falla, expira o es rechazada, o si la verificación falla, el trabajo registra un alerta y envía el archivo sin firmar junto con su firma original del actualizador.
+Si la solicitud de firma falla, agota el tiempo o se rechaza, o si falla la verificación, el trabajo registra una advertencia y publica el archivo sin firmar con su firma original del actualizador.
 
-**Cambiar al certificado de producción.** Una vez que SignPath lo emite, establezca la variable de repositorio
-`SIGNPATH_SIGNING_POLICY_SLUG` a `release-signing` (Configuración de → Secretos y variables → Acciones → variables). No es necesario ningún cambio en el flujo de trabajo. A partir de entonces, cada liberación, incluyendo una carrera seca, se abre. dos solicitudes de firma (el binario independiente y el instalador). Un aprobador debe aprobar ambos en
-[app.signpath.io](https://app.signpath.io) mientras la carrera espera. El flujo de trabajo espera hasta una hora por solicitud antes de que se dé por vencida y navegue sin firmar.
+**Cambiar al certificado de producción.** Cuando SignPath lo emita, establece `SIGNPATH_SIGNING_POLICY_SLUG` en `release-signing` desde la configuración del repositorio (Settings → Secrets and variables → Actions → Variables). No hace falta modificar el workflow. Desde entonces, cada publicación, incluidas las simulaciones, abre dos solicitudes: una para el binario independiente y otra para el instalador. Un aprobador debe aceptar ambas en [app.signpath.io](https://app.signpath.io) mientras la ejecución espera. El flujo espera hasta una hora por solicitud antes de continuar con archivos sin firmar.
 
-**Pruebas sin publicar.** Los **Prueba de firma Windows** flujo de trabajo (`.github/workflows/windows-signing-test.yml`, envío manual solamente, sin entradas) construye `ocx.exe`
-y los corredores MSI en GitHub-hosted Windows, firma ambos con `test-signing`, verifica el firmas y mantiene los archivos firmados como artefactos de flujo de trabajo de corta duración. Publica nada y nunca usa la política de liberación.
+**Probar sin publicar.** El workflow **Windows signing test** (`.github/workflows/windows-signing-test.yml`, solo ejecución manual y sin parámetros) compila `ocx.exe` y el MSI en servidores Windows de GitHub, firma ambos con `test-signing`, verifica las firmas y los conserva como artefactos de corta duración. No publica nada ni usa la política de publicación.

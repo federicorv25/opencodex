@@ -68,7 +68,9 @@ the `server/responses.ts` facade and its `server/responses/*.ts` modules:
 6. For routed models with a hosted `web_search` tool, `web-search/` exposes a synthetic function,
    executes the real search through the configured backend (the OpenAI/ChatGPT sidecar or Anthropic),
    feeds results back to the routed model, and repeats within the configured loop limit. This loop
-   supports only the standard HTTP path; adapters that implement `runTurn`, such as Cursor, bypass it.
+   uses the fetch-based path for ordinary HTTP adapters. Adapters that implement `runTurn`,
+   including Cursor, use the separate `runTurnWebSearchLoop` in
+   `server/responses/run-turn-execution.ts` when the search plan is eligible.
 7. `bridge/sse.ts` / `bridge/response-json.ts` produces Responses SSE or JSON. `server/request-log.ts` and `usage/` collect terminal
    status, latency, provider/model labels, and best-effort token usage without changing the response.
 

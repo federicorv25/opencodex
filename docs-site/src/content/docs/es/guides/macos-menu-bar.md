@@ -1,55 +1,55 @@
 ---
-title: "Aplicación de barra de menús de macOS"
-description: "Utilice la bandeja, el panel de uso nativo y el widget macOS de la aplicación de escritorio OpenCodex."
+title: "Barra de menús de macOS"
+description: "Usa la bandeja, el panel nativo de uso y el widget de OpenCodex Desktop en macOS."
 ---
 
-El elemento de la barra de menús macOS es parte de la aplicación de escritorio OpenCodex. Muestra el uso desde el proxy local y abre un panel de uso nativo. La misma aplicación también contiene el panel de control y una extensión WidgetKit. Ver la [guía de aplicaciones de escritorio](/es/guides/desktop-app/) Instalación en otras plataformas.
+El elemento de la barra de menús forma parte de OpenCodex Desktop. Muestra el uso del proxy local y abre un panel nativo de uso. La aplicación también incluye el dashboard y una extensión de WidgetKit. Consulta la [guía de escritorio](/es/guides/desktop-app/) para instalarla en otras plataformas.
 
 <a id="install"></a>
 
 ## Instalar
 
-Descargar `OpenCodex-<version>-macos.dmg` Desde el [última versión](https://github.com/lidge-jun/opencodex/releases). Abra el DMG y arrastre `OpenCodex.app` a Aplicaciones. La aplicación de escritorio requiere macOS 13 o posterior; su widget requiere macOS 14 o posterior.
+Descarga `OpenCodex-<version>-macos.dmg` de la [última versión](https://github.com/lidge-jun/opencodex/releases), abre el DMG y arrastra `OpenCodex.app` a Aplicaciones. La aplicación requiere macOS 13 o posterior; el widget, macOS 14 o posterior.
 
 <a id="first-launch"></a>
 
-## Primer lanzamiento
+## Primer inicio
 
-Las compilaciones de lanzamiento de `OpenCodex.app` están firmados con un ID de desarrollador, usan el runtime endurecido y son notariados por Apple con el ticket grapado a la aplicación. En el primer lanzamiento, macOS normalmente solo solicita la confirmación estándar para una aplicación descargada de Internet. Si macOS todavía lo bloquea, abra **Configuración del sistema → Privacidad y seguridad** y elige **Abrir de todas formas** para OpenCodex. Las aplicaciones que tú mismo creas están firmadas ad-hoc; ver [Construir desde la fuente](#build-from-source).
+Las versiones publicadas de `OpenCodex.app` llevan firma de Developer ID, usan el entorno de ejecución reforzado y están notarizadas por Apple, con el comprobante adjunto. En el primer inicio, macOS normalmente solo pide la confirmación habitual para una aplicación descargada. Si sigue bloqueándola, abre **Configuración del Sistema → Privacidad y seguridad → Abrir de todos modos**. Las compilaciones propias llevan firma ad hoc; consulta [Compilar desde el código fuente](#build-from-source).
 
-La aplicación muestra su progreso de inicio en una ventana al abrirlo. Esto permite **Inicio de sesión** una vez en el primer lanzamiento; puede desactivarlo desde el menú de la bandeja. El elemento de la bandeja se comprueba solo cuando esta copia de la aplicación está registrada y macOS no ha desactivado el elemento de inicio de sesión; de lo contrario, su etiqueta indica por qué (ver [Aplicación de escritorio](/es/guides/desktop-app/)) Los lanzamientos posteriores desde el elemento de inicio de sesión comienzan con la ventana oculta mientras la bandeja permanece disponible.
+Al abrirse, la aplicación muestra el progreso de inicio en una ventana. En el primer inicio activa una vez **Iniciar al iniciar sesión (Start at Login)**; puedes desactivarlo desde la bandeja. Esa opción solo aparece marcada cuando esta copia está registrada y macOS no ha desactivado el elemento de inicio. En otro caso, la etiqueta explica el motivo; consulta [Aplicación de escritorio](/es/guides/desktop-app/). Los inicios posteriores mediante ese elemento ocultan la ventana y mantienen la bandeja disponible.
 
 <a id="menu-bar-and-usage-panel"></a>
 
 ## Barra de menús y panel de uso
 
-El titular de la barra de menú muestra el total de tokens de hoy por defecto. En el panel de control, abra **Uso → Barra de menú y widget** (o `#usage/companion`) para elegir solicitudes, tokens, costo estimado, cuota o icono solamente.
+La barra muestra de forma predeterminada los tokens totales de hoy. En el dashboard, abre **Uso → Barra de menús y widget** o `#usage/companion` para elegir solicitudes, tokens, costo estimado, cuota o solo el icono.
 
-Uso **Mostrar uso** en el menú de la bandeja para abrir el panel nativo. El panel muestra los totales de hoy y de 30 días, una tabla de uso, una lista de modelos y límites de proveedores y cuentas según la configuración de su pantalla. Los totales incluyen tokens y solicitudes, con un costo estimado cuando está habilitado. Las filas de cuota muestran su ventana, porcentaje y tiempo de reinicio. Las mediciones que faltan aparecen como `—`, y el uso parcial se marca como incompleto.
+Usa **Show Usage (Mostrar uso)** en la bandeja para abrir el panel nativo. Incluye totales de hoy y de 30 días, un gráfico de uso, la lista de modelos y los límites de proveedores y cuentas según tus preferencias de visualización. Los totales incluyen tokens y solicitudes, además del costo estimado si está activado. Las filas de cuota muestran ventana, porcentaje y restablecimiento. Las mediciones ausentes aparecen como `—` y los datos parciales se marcan como incompletos.
 
-El panel tiene **Actualizar**, **Panel**, y **Configuración** controles. **Panel** abre la vista de uso en la ventana del escritorio; **Configuración** abre el **Barra de menú & widget** tab bajo Uso. El menú también ofrece **Abrir el panel de control**, **Abrir en el navegador**, **Inicio de sesión**, **Detener proxy**, **Buscar actualizaciones…**, un **Instalar actualización** artículo cuando uno está disponible, y **Salir**. **Detener proxy** siempre aparece, pero solo está habilitado cuando la aplicación inició el proxy en sí; un proxy que comenzó por separado sigue funcionando. Cerrar la ventana o usar Command-Q oculta la aplicación cuando su bandeja está disponible; use la **Salir** para salir de él.
+Los controles nativos son **Refresh**, **Dashboard** y **Settings**. **Dashboard** abre Uso en la ventana de escritorio y **Settings**, la pestaña Barra de menús y widget de Uso. La bandeja también ofrece **Open Dashboard**, **Open in Browser**, **Start at Login** (iniciar al iniciar sesión), **Stop proxy**, **Check for Updates…**, **Install update** cuando hay una actualización y **Quit**. **Stop proxy** siempre aparece, pero solo está disponible si la aplicación inició el proxy; uno iniciado por separado sigue funcionando. Cerrar la ventana o pulsar Command-Q oculta la aplicación cuando hay bandeja; usa **Quit** para salir por completo.
 
-El botón de actualización del panel del escritorio abre la propia página de actualización de la aplicación; comprueba e instala la misma actualización firmada que el menú de la bandeja.
+El botón de actualización del dashboard abre la página de actualizaciones de la aplicación y usa la misma actualización firmada que la bandeja.
 
-El titular de la bandeja se actualiza cada 60 segundos. Mientras el panel nativo está abierto, sus datos se actualizan cada 60 segundos; **Actualizar** Solicita una actualización inmediata.
+El texto de la bandeja se actualiza cada 60 segundos. Mientras está abierto, el panel nativo también se actualiza cada 60 segundos; **Refresh** solicita una actualización inmediata.
 
 ## Widget
 
-En macOS 14 o posterior, abra OpenCodex.app una vez, luego Controle y haga clic en un área vacía del escritorio, elija **Editar widgets**, busque por **OpenCodex**y agregue el tamaño que desee. Los tamaños de los widgets muestran diferentes combinaciones de estado de proxy, tokens de hoy y solicitudes, costo estimado, cuotas y un gráfico de uso. La extensión lee una instantánea local escrita por la aplicación de escritorio; esa instantánea contiene datos de visualización, no claves API ni datos de cuenta sin procesar. La aplicación actualiza la instantánea del widget en cada quinto tick de bandeja de 60 segundos, aproximadamente cada cinco minutos mientras el proxy está conectado. WidgetKit también solicita una nueva línea de tiempo después de cinco minutos.
+En macOS 14 o posterior, abre OpenCodex.app una vez y haz Control-clic en un área vacía del escritorio. Elige **Editar widgets**, busca **OpenCodex** y añade el tamaño deseado. Los tamaños combinan estado del proxy, tokens y solicitudes de hoy, costo estimado, cuotas y gráfico de uso. La extensión lee una instantánea local escrita por la aplicación: contiene datos de visualización, no claves API ni datos originales de cuentas. La aplicación la actualiza cada cinco ciclos de bandeja de 60 segundos, aproximadamente cada cinco minutos mientras el proxy está conectado. WidgetKit también solicita una nueva línea temporal después de cinco minutos.
 
 <a id="connecting-to-the-proxy"></a>
 
-## Conectarse al proxy
+## Conectar con el proxy
 
-La aplicación de escritorio pide a su CLI incluido que se ejecute `ocx resolve --json`. Se conecta a un proxy local accesible existente, o inicia su entorno de ejecución incluido solo cuando el CLI demuestra que no hay entorno de ejecución escuchando. Si el descubrimiento es incierto, el inicio informa el problema en lugar de iniciar un segundo proxy. La aplicación habla con el puerto resuelto en `127.0.0.1`.
+La aplicación pide a su CLI incluida ejecutar `ocx resolve --json`. Se conecta a un proxy local accesible existente o inicia su entorno incluido solo si la CLI confirma que no hay ninguno escuchando. Si la detección es incierta, informa el problema en lugar de crear un segundo proxy. Usa el puerto resuelto en `127.0.0.1`.
 
-Para las solicitudes de administración, la aplicación primero intenta sin un token. Si el proxy devuelve HTTP 401, vuelve a intentarlo usando `OPENCODEX_ADMIN_AUTH_TOKEN` desde el entorno de la aplicación o la configuración resuelta `admin-api-token` Archivo. No utiliza el llavero macOS para este token. Un proxy vinculado solo a una dirección que la aplicación no puede alcanzar en bucle no puede ser conectado por el shell de escritorio.
+Para las solicitudes de administración prueba primero sin token. Si recibe HTTP 401, reintenta con `OPENCODEX_ADMIN_AUTH_TOKEN` del entorno de la aplicación o con el archivo `admin-api-token` del directorio de configuración resuelto. No usa el Llavero de macOS para ese token. La aplicación no puede conectarse a un proxy que solo escuche en una dirección inaccesible mediante loopback.
 
 <a id="build-from-source"></a>
 
-## Construir desde la fuente
+## Compilar desde el código fuente
 
-En macOS 13 o posterior, con Bun, Rust y las herramientas Swift/Xcode de macOS disponibles, cree el panel desde la raíz del repositorio y ejecute los comandos del escritorio desde `desktop/`:
+En macOS 13 o posterior, con Bun, Rust y las herramientas Swift/Xcode disponibles, compila el dashboard desde la raíz y después ejecuta los comandos de escritorio desde `desktop/`:
 
 ```bash
 bun install
@@ -61,10 +61,10 @@ bun run prepare-widget
 bun run build:local
 ```
 
-`build:local` produce la aplicación local y DMG sin necesidad de una clave de firma del actualizador Tauri. Un directo `bunx tauri build` requiere `TAURI_SIGNING_PRIVATE_KEY` porque también produce un artefacto actualizador. La compilación del widget utiliza una firma ad-hoc a menos que `MACOS_SIGN_IDENTITY` se establece, y los paquetes de escritorio locales también están firmados ad-hoc. La aplicación se ejecuta, pero macOS no registra una extensión de widget firmada ad-hoc, por lo que una compilación local generalmente no muestra ningún widget OpenCodex. `build:local` siempre ad-hoc firma la aplicación, por lo que la configuración `MACOS_SIGN_IDENTITY` Solo no ayuda: el widget se registra solo cuando la aplicación y la extensión están firmadas por el mismo equipo de ID de desarrollador, como lo hace la compilación de la versión. Usa una compilación de lanzamiento cuando necesites el widget.
+`build:local` genera la aplicación y el DMG sin requerir una clave de firma del actualizador de Tauri. Ejecutar `bunx tauri build` directamente sí requiere `TAURI_SIGNING_PRIVATE_KEY`, porque también genera el artefacto de actualización. El widget usa firma ad hoc salvo que se configure `MACOS_SIGN_IDENTITY`; los paquetes locales de escritorio también llevan firma ad hoc. La aplicación funciona, pero macOS no registra una extensión de widget con esa firma y normalmente no aparece el widget. `build:local` siempre firma la aplicación de forma ad hoc: configurar solo `MACOS_SIGN_IDENTITY` no basta. Para registrar el widget, tanto la aplicación como la extensión deben estar firmadas por el mismo equipo de Developer ID, como ocurre en las versiones publicadas. Usa una versión publicada si necesitas el widget.
 
 <a id="uninstall"></a>
 
 ## Desinstalar
 
-Apagado **Inicio de sesión** en el menú de la bandeja si lo habilitaste, luego mueve `OpenCodex.app` de las aplicaciones a la basura. Esto elimina el paquete CLI y la extensión de widget, pero no elimina el proxy `$OPENCODEX_HOME` estado o un instalado por separado `ocx` Servicio. La aplicación de escritorio también escribe un identificador de instalación y marcadores de elemento de inicio de sesión en su directorio de configuración de la aplicación, además de una instantánea del widget en `~/Library/Containers/com.opencodex.desktop.widget/Data/Library/Application Support/OpenCodex/snapshot.json`; mover la aplicación a la Papelera no elimina esos archivos.
+Desactiva **Iniciar al iniciar sesión (Start at Login)** en la bandeja si estaba activado y mueve `OpenCodex.app` de Aplicaciones a la Papelera. Esto elimina la CLI incluida y la extensión del widget, pero conserva el estado de `$OPENCODEX_HOME` y cualquier servicio `ocx` instalado por separado. La aplicación también guarda un identificador de instalación y marcadores de inicio en su directorio de configuración, además de una instantánea del widget en `~/Library/Containers/com.opencodex.desktop.widget/Data/Library/Application Support/OpenCodex/snapshot.json`; moverla a la Papelera no borra esos archivos.

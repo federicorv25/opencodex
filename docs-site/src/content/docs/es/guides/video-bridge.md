@@ -7,17 +7,17 @@ description: "Generar vídeos con Grok Imagine Video a través de un modelo que 
 
 ## Descripción general
 
-El puente de vídeo le permite utilizar xAI de Grok Imagine Generación de vídeo a través de cualquier modelo que no sea OpenAI dirigido por opencodex. Cuando se activa, un `video_gen` La herramienta se inyecta en la conversación. El modelo lo llama como cualquier herramienta de función; opencodex intercepta la llamada, envía una generación de video trabajo en xAI, sondeos hasta su finalización y descarga el resultado.
+El puente de vídeo le permite utilizar xAI 's Grok Imagine Generación de vídeo a través de cualquier modelo no OpenAI enrutado por opencodex. Cuando se activa, se inyecta una herramienta sintética `video_gen` en la conversación. El modelo lo llama como cualquier herramienta de función; opencodex intercepta la llamada, envía un trabajo de generación de video a xAI, encuesta hasta su finalización y descarga el resultado.
 
 <a id="prerequisites"></a>
 
 ## Requisitos previos
 
-- Un `xai` entrada del proveedor con un **Clave API** (`ocx login xai` solo no es suficiente — el puente de vídeo requiere autenticación clave, no OAuth)
-- Un modelo que no sea OpenAI como su proveedor de rutas (e.g. Anthropic Claude, Google Gemini
-- opencodex configurado para enrutarse a través del proveedor que no es OpenAI
+- Una entrada de proveedor `xai` con un **API clave** (`ocx login xai` solo no es suficiente - el puente de vídeo requiere autenticación clave, no OAuth)
+- Un modelo no OpenAI como su proveedor de rutas (p. ej. Anthropic Claude, Google Gemini)
+- opencodex configurado para enrutar a través del proveedor no OpenAI
 
-> **⚠ Se requiere clave de proveedor:** El puente de vídeo solo se activa cuando el `xai` proveedor utiliza > API clave de autenticación. Añade esto a tu configuración:
+> **⚠ Se requiere clave de proveedor:** El puente de vídeo solo se activa cuando el proveedor `xai` usa API clave de autenticación. Añade esto a tu configuración:
 >
 > ```json
 > {
@@ -27,15 +27,13 @@ El puente de vídeo le permite utilizar xAI de Grok Imagine Generación de víde
 > }
 > ```
 >
-> Si te has embarcado vía `ocx login xai` (OAuth), el proveedor permanece en `authMode: "oauth"`
-> y el puente en silencio no se activarán. Establecer `XAI_API_KEY` en el medio ambiente **o**
-> código duro de la clave como se muestra arriba.
+> Si ha embarcado a través de `ocx login xai` (OAuth), el proveedor se queda en `authMode: "oauth"` y el puente no se activará en silencio. Establecer `XAI_API_KEY` en el entorno **o** código duro de la clave como se muestra anteriormente.
 
 <a id="configuration"></a>
 
 ## Configuración
 
-Añadir `videoBridgeEnabled: true` a su `images` config:
+Agregue `videoBridgeEnabled: true` a su configuración `images`:
 
 ```json
 {
@@ -52,7 +50,7 @@ Añadir `videoBridgeEnabled: true` a su `images` config:
 | Opción | Predeterminado | Descripción |
 |--------|---------|-------------|
 | `videoBridgeEnabled` | `false` | Interruptor maestro. Debe estar explícitamente habilitado. |
-| `videoBridgeModel` | `"grok-imagine-video"` | ID de modelo de vídeo xAI. |
+| `videoBridgeModel` | `"grok-imagine-video"` | Id. de modelo de vídeo xAI. |
 | `videoMaxRounds` | `2` | Max video-gen rondas antes de la respuesta final forzada. |
 | `videoTimeoutMs` | `300000` (5 min) | Tiempo de espera por video, incluida la votación. |
 
@@ -60,9 +58,9 @@ Añadir `videoBridgeEnabled: true` a su `images` config:
 
 ## Cómo funciona
 
-1. opencodex detecta un modelo enrutado no-OpenAI con `videoBridgeEnabled: true`
-2. Un sintético `video_gen` herramienta de función se inyecta en la conversación
-3. Cuando el modelo llama `video_gen`, opencodex envía un trabajo a xAI `/videos/generations`
+1. opencodex detecta un modelo enrutado no OpenAI con `videoBridgeEnabled: true`
+2. Una herramienta de función sintética `video_gen` se inyecta en la conversación
+3. Cuando el modelo llama al `video_gen`, opencodex envía un trabajo a xAI 's `/videos/generations`
 4. El puente sondea el estado del trabajo cada 5-15 segundos, enviando mensajes de latido para mantener viva la transmisión
 5. Cuando el video está listo, se descarga en el directorio de artefactos
 6. La ruta local del archivo se devuelve al modelo como resultado de la herramienta
@@ -71,7 +69,7 @@ Añadir `videoBridgeEnabled: true` a su `images` config:
 
 ## Parámetros soportados
 
-Los `video_gen` herramienta acepta:
+La herramienta `video_gen` acepta:
 
 | Parámetro | Tipo | Alcance | Descripción |
 |-----------|------|-------|-------------|
@@ -84,10 +82,10 @@ Los `video_gen` herramienta acepta:
 
 ## Limitaciones
 
-- **Solo xAI**: La generación de videos solo está disponible a través de xAI's Grok Imagine Video API
+- **xAI solamente**: La generación de video solo está disponible a través de xAI 's Grok Imagine Video API
 - **Asíncrono**: La generación de video toma 30-120 segundos
-- **Coste**: La generación de vídeo es una función xAI pagada (~$0,05/seg. 480p, ~$0,07/seg. 720p)
-- **Un video por llamada**: Cada uno `video_gen` llamada produce un video
+- **Coste**: La generación de vídeo es una función de pago xAI (? $ 0.05 / seg? 480p,? $ 0.07 / seg? 720p)
+- **Un video por llamada**: Cada llamada `video_gen` produce un vídeo
 - **Coexiste con Image Bridge**: Ambos puentes se pueden habilitar simultáneamente
-- **Prioridad de búsqueda web**: Cuando un sidecar de búsqueda web está activo durante un turno (no`runTurn` adaptador), el puente de vídeo se salta — los dos no pueden ejecutarse simultáneamente. A `console.warn` se emite para que pueda detectar esto en registros.
-- **Tiempo de espera cubre enviar + encuesta**: El `videoTimeoutMs` El presupuesto comienza antes de la presentación del trabajo, por lo que la convocatoria de presentación (60 s) y las encuestas posteriores comparten el mismo plazo.
+- **Prioridad de búsqueda web**: Cuando un sidecar de búsqueda web está activo durante un giro (no adaptador `runTurn`), el puente de vídeo se salta - los dos no pueden funcionar simultáneamente. Se emite un `console.warn` para que pueda detectarlo en registros.
+- **Tiempo de espera cubre enviar + encuesta**: El presupuesto `videoTimeoutMs` comienza antes de la presentación del trabajo, por lo que la convocatoria de presentación (60 s) y las encuestas posteriores comparten la misma fecha límite.

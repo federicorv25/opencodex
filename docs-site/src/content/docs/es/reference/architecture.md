@@ -3,8 +3,7 @@ title: "Arquitectura"
 description: "opencodex integra el mapa del módulo —, el puente AdapterEvent, el analizador de solicitudes y el almacenamiento en caché."
 ---
 
-opencodex es un único proceso Bun. Una solicitud ingresa como OpenAI Responses, se normaliza a un modelo, enrutado, enviado a un proveedor a través de un adaptador, y puenteado de nuevo a Responses SSE. Véase
-[Cómo funciona](/es/getting-started/how-it-works/) para el flujo de extremo a extremo.
+opencodex es un único proceso Bun. Una solicitud ingresa como OpenAI Responses, se normaliza a un modelo interno, se enruta, se envía a un proveedor a través de un adaptador y se vuelve a Responses SSE. Véase [Cómo funciona](/es/getting-started/how-it-works/) para el flujo de extremo a extremo.
 
 <a id="module-map"></a>
 
@@ -36,75 +35,58 @@ src/
 └── index.ts            # public entry
 ```
 
-Varios archivos de entrada anteriormente grandes ahora conservan la compatibilidad como fachadas: `codex/catalog.ts` exportaciones Su enfocado `codex/catalog/*.ts` módulos, `server/management-api.ts` despachos a
-`server/management/*.ts`, `server/responses.ts` exportaciones `server/responses/*.ts`, y `bridge.ts`
-reexportaciones `bridge/*.ts`. Una fachada es la ruta de importación estable, no la implementación: cada paso nombre del módulo que posee el código, y `structure/transports/responses.md` lleva el inventario completo del propietario para la superficie Responses.
+Varios archivos de entrada anteriormente grandes ahora preservan la compatibilidad como fachadas: `codex/catalog.ts` exporta sus `codex/catalog/*.ts` módulos enfocados, `server/management-api.ts` despachos a `server/management/*.ts`, `server/responses.ts` exportaciones `server/responses/*.ts`, y `bridge.ts` reexportaciones `bridge/*.ts`. Una fachada es la ruta de importación estable, no la implementación: cada paso a continuación nombra el módulo que posee el código, y `structure/transports/responses.md` lleva el inventario completo del propietario para la superficie Responses.
 
 <a id="request-flow"></a>
 
 ## Flujo de solicitudes
 
-`server/index/serve-options.ts` posee el límite HTTP y delega el plano de datos Responses a la `server/responses.ts` La fachada y su `server/responses/*.ts` módulos:
+`server/index/serve-options.ts` posee el límite HTTP y delega el plano de datos Responses a la fachada `server/responses.ts` y sus módulos `server/responses/*.ts`:
 
-1. `server/index/serve-options.ts` aplica la autenticación CORS y API, rechaza nuevo trabajo mientras drena con HTTP 503, JSON `error.code: "server_restarting"`, y `Retry-After: 5`, y registros solicitar metadatos del ciclo de vida. Las respuestas de drenaje usan la directiva CORS del oyente receptor. Sirve `GET /v1/models`, `POST /v1/responses`,
-   `POST /v1/responses/compact`, `POST /v1/images/generations` / `POST /v1/images/edits`
-   (retransmitido a una familia OpenAI de origen por `server/images.ts` para el códice incorporado `image_gen`
-   herramienta), `POST /v1/live` / `POST /v1/realtime/calls` (ChatGPT / Codex App voz y OpenAI Llamada-crear en tiempo real, transmitida por `server/live.ts`), banda lateral WebSocket se une
-   `/v1/live/{callId}` (y `/v1/realtime?call_id=`), y la actualización opcional WebSocket en
-   `/v1/responses`.
-2. `server/responses/request-prepare.ts` descomprime y analiza JSON, expande localmente recordado
-   `previous_response_id` entrada cuando esté disponible, luego llama `responses/parser.ts`.
-3. `router.ts` Resolver un desnudo o `provider/model` id. El servidor resuelve la cuenta Codex afinidad, actualiza el proveedor OAuth cuando sea necesario y aplica la credencial seleccionada a la ruta.
-4. Antes de la llamada principal, `vision/` describe imágenes para modelos en `noVisionModels`; si no hay caja fuerte Si existe una ruta sidecar, las imágenes se eliminan en lugar de enviarse a un flujo ascendente solo de texto.
-5. `server/adapter-resolve.ts` aplica cualquier anulación de cable específica del modelo y construye uno de los adaptadores registrados. Responses retransmite el cuerpo nativo, Cursor ejecuta su sistema bidireccional
-   `runTurn` transporte, y adaptadores traducidos compilar/fetch/parse una petición ascendente.
-6. Para modelos enrutados con un host `web_search` herramienta, `web-search/` expone una función sintética, ejecuta la búsqueda real a través del backend configurado (el sidecar OpenAI/ChatGPT o Anthropic), devuelve los resultados al modelo enrutado y se repite dentro del límite de bucle configurado. Este bucle admite solo la ruta estándar HTTP; adaptadores que implementan `runTurn`, como Cursor, omitalo.
-7. `bridge/sse.ts` / `bridge/response-json.ts` produce Responses SSE o JSON `server/request-log.ts` y `usage/` terminal de recogida estado, latencia, etiquetas de proveedor/modelo y uso token de mejor esfuerzo sin cambiar la respuesta.
+1. `server/index/serve-options.ts` aplica CORS y la autenticación de API, registra los metadatos del ciclo de vida y rechaza trabajo nuevo durante el drenaje con HTTP 503, JSON `error.code: "server_restarting"` y `Retry-After: 5`. La respuesta usa la política CORS del servidor receptor. Atiende `GET /v1/models`, `POST /v1/responses`, `POST /v1/responses/compact` y `POST /v1/images/generations` / `POST /v1/images/edits` (reenviados por `server/images.ts` a un proveedor de la familia OpenAI para la herramienta integrada `image_gen` de Codex). `server/live.ts` gestiona `POST /v1/live` / `POST /v1/realtime/calls`, la unión WebSocket `/v1/live/{callId}` o `/v1/realtime?call_id=`, y se admite la actualización opcional WebSocket en `/v1/responses`.
+2. `server/responses/request-prepare.ts` descomprime y analiza JSON, expande la entrada de `previous_response_id` recordada localmente, si existe, y llama a `responses/parser.ts`.
+3. `router.ts` resuelve un identificador sin prefijo o `provider/model`. El servidor resuelve la afinidad de cuenta de Codex, actualiza OAuth cuando es necesario y aplica la credencial elegida.
+4. Antes de la llamada principal, `vision/` describe las imágenes de los modelos incluidos en `noVisionModels`. Si no existe una ruta sidecar segura, se eliminan las imágenes en lugar de enviarlas a un proveedor de texto.
+5. `server/adapter-resolve.ts` aplica las opciones de protocolo por modelo y construye el adaptador. Responses reenvía el cuerpo nativo; Cursor usa su transporte bidireccional `runTurn`; los adaptadores traducidos construyen, envían y analizan la solicitud.
+6. En modelos enrutados que solicitan la herramienta alojada `web_search`, `web-search/` expone una función sintética, ejecuta la búsqueda real mediante el backend configurado (el sidecar de OpenAI/ChatGPT o Anthropic), devuelve los resultados al modelo y repite hasta el límite configurado. Los adaptadores HTTP ordinarios usan el bucle basado en fetch. Los que implementan `runTurn`, incluido Cursor, usan el bucle independiente `runTurnWebSearchLoop` de `server/responses/run-turn-execution.ts` cuando el plan de búsqueda cumple los requisitos.
+7. `bridge/sse.ts` / `bridge/response-json.ts` generan Responses SSE o JSON. `server/request-log.ts` y `usage/` recogen estado terminal, latencia, etiquetas de proveedor y modelo y el uso de tokens disponible sin modificar la respuesta.
 
-La estimación de entrada previa al envío sigue lo que realmente envía el adaptador enrutado. Porque `openai-chat`
-modelos excluidos por la política efectiva de repetición del pensamiento de chat (una
-`preserveReasoningContentModels` lista, o detección de Flash/Pro DeepSeek cuando no está configurado), el adaptador deja caer el pensamiento del asistente reproducido, por lo que la estimación lo excluye también; el historial que nunca llega al proveedor, por lo tanto, no puede denegación contexto-límite. Modelos que preservan el razonamiento, y otros adaptadores, Envía ese pensamiento y aún cuenta.
+La estimación de entrada previa al envío sigue lo que realmente envía el adaptador enrutado. Para los modelos `openai-chat` excluidos por la política efectiva de repetición de pensamiento de chat (una lista explícita `preserveReasoningContentModels`, o detección DeepSeek Flash/Pro cuando no está configurado), el adaptador elimina el pensamiento de asistente repetido, por lo que la estimación también lo excluye; el historial que nunca llega al proveedor, por lo tanto, no puede causar un rechazo de límite de contexto local. Los modelos que preservan el razonamiento, y otros adaptadores, envían ese pensamiento y aún lo cuentan.
 
 <a id="the-parser"></a>
 
 ## El analizador
 
-`responses/parser.ts` valida la solicitud entrante con `responses/schema.ts` (Zod), luego construye un
-`OcxParsedRequest`:
+`responses/parser.ts` valida la solicitud entrante con `responses/schema.ts` (Zod), luego construye un `OcxParsedRequest`:
 
-- **Messages** — `input` Los elementos se vuelven normalizados `OcxMessage[]`: usuario / desarrollador / asistente / toolResult. `reasoning` los elementos se convierten en bloques de pensamiento; `function_call`, `custom_tool_call`, y
-  `tool_search_call` los artículos se convierten en llamadas de herramientas; sus `*_output` Las contrapartes se convierten en resultados de herramientas.
-- **Herramientas** Las herramientas de función — pasan a través; **Las herramientas namespaced (MCP) están aplanadas** a
-  `namespace__name` (y restaurado en el camino de regreso); **freeform** herramientas (e.g. `apply_patch`)
-  **tool_search** Las herramientas de descubrimiento están marcadas; **Herramientas alojadas** (`web_search`, gen de imagen, …) son Se deja caer y se vuelve a inyectar por un sidecar sólo si se manejan ellos.
-- **Imágenes** — se conserva como partes de contenido real (datos URL o https remoto), nunca se alinea como texto.
-- **Banderas de características** — `_webSearch` (se solicita una búsqueda web alojada), `_structuredOutput`
-  (`text.format` es json_schema / json_object), y `_compactionRequest` (compactación remota v2).
+- **Messages** - `input` elementos se convierten en un normalizado `OcxMessage[]`: usuario / desarrollador / asistente / toolResult. `reasoning` artículos se convierten en bloques de pensamiento; `function_call`, `custom_tool_call`, y `tool_search_call` artículos se convierten en llamadas de herramientas, sus `*_output` contrapartes se convierten en resultados de herramientas.
+- **Herramientas** - herramientas de función pasan a través; **namespaced (MCP) las herramientas se aplanan** a `namespace__name` (y restaurado en el camino de regreso); **freeform** herramientas (p. ej. `apply_patch`) y **tool_search** herramientas de descubrimiento están marcadas; **Herramientas alojadas** ( `web_search`, image gen,...) se dejan caer y se reinyectan por un sidecar sólo si va a manejarlos.
+- **Imágenes** - preservado como partes de contenido real (URL de datos o https remoto), nunca alineado como texto.
+- **Banderas de características** - `_webSearch` (búsqueda web alojada solicitada), `_structuredOutput` (`text.format` es json_schema / json_object), y `_compactionRequest` (compactación remota v2).
 
 <a id="the-bridge"></a>
 
 ## El puente
 
-`bridge/sse.ts` Gire el adaptador interno `AdapterEvent` transmitir de nuevo a Responses SSE que Codex entiende:
+`bridge/sse.ts` convierte el flujo interno `AdapterEvent` del adaptador en Responses SSE que Codex entiende:
 
 | AdaptadorEvent | Responses SSE emitido |
 | --- | --- |
 | `text_delta` | `response.output_text.delta` → `…done`, `response.content_part.done`, `response.output_item.done` |
-| `thinking_delta` | `response.reasoning_summary_text.delta` → `…done`, elemento cerrar |
-| `reasoning_raw_delta` | Un crudo `reasoning_text` artículo (o un sobre de ida y vuelta oculto) |
-| `thinking_signature` / `redacted_thinking` | Conservado en un `encrypted_content` envolvente de razonamiento |
-| `tool_call_start` | `response.output_item.added` (tipo: `function_call` / `custom_tool_call` / `tool_search_call`) |
-| `tool_call_delta` | `response.function_call_arguments.delta` (omitido para la forma libre / tool_search) |
+| `thinking_delta` | `response.reasoning_summary_text.delta` → `…done`, artículo cerrar |
+| `reasoning_raw_delta` | Un artículo crudo `reasoning_text` (o un sobre de ida y vuelta oculto) |
+| `thinking_signature` / `redacted_thinking` | Conservado en un sobre de razonamiento `encrypted_content` |
+| `tool_call_start` | `response.output_item.added` (tipo: `function_call` / `custom_tool_call` / `tool_search_call` ) |
+| `tool_call_delta` | `response.function_call_arguments.delta` (omitido para forma libre / tool_search) |
 | `tool_call_end` | `response.function_call_arguments.done` → `response.output_item.done` |
-| `web_search_call_begin` / `web_search_call_end` | Uno vive `web_search_call` elemento más citas URL |
+| `web_search_call_begin` / `web_search_call_end` | Un artículo vivo `web_search_call` más citas de URL |
 | `heartbeat` | Marca la actividad ascendente; ningún elemento de salida visible por el usuario |
-| `done` | `response.completed` (Con el uso) |
+| `done` | `response.completed` (con uso) |
 | `error` | `response.failed` (con `last_error`) |
 
-El puente también corre a **latido del corazón mantener vivo** (RC3): durante el silencio ascendente, emite un SSE línea de comentarios (`: opencodex heartbeat`) cada 2 segundos para volver a armar el temporizador inactivo de Codex. Líneas de comentarios son descartados por cada analizador de eventsource sin producir un evento, por lo que los decodificadores Responses estrictos nunca se ve una variante desconocida. El valor predeterminado **fecha límite de venta** es de 300 segundos para un público de origen y discapacitado para un local (`stallTimeoutSec`; `0` lo desactiva en todas partes); alcanzarlo aborta el upstream y emite `response.incomplete` con razón
-`upstream_stall_timeout`, evitando que una conexión colgada bloquee Codex indefinidamente.
+El puente también ejecuta un **latido del corazón mantener vivo** (RC3): durante el silencio ascendente, emite una línea de comentario SSE (`: opencodex heartbeat`) cada 2 segundos para volver a armar el temporizador inactivo de Codex. Las líneas de comentario son descartadas por cada analizador de fuente de eventos sin producir un evento, por lo que los decodificadores estrictos de Responses nunca ven una variante desconocida. El valor predeterminado **fecha límite de venta** es de 300 segundos para un flujo ascendente público y desactivado para uno local ( `stallTimeoutSec`; `0` lo deshabilita en todas partes); al alcanzarlo aborta el flujo ascendente y emite `response.incomplete` con la razón `upstream_stall_timeout`, evitando que una conexión colgada bloquee Codex indefinidamente.
 
-Las llamadas a herramientas se desambiguan en tres tipos de elementos Responses utilizando el mapa de espacio de nombres, la forma libre conjunto, y el conjunto de herramientas de búsqueda capturado por el analizador — para MCP espacios de nombres, `apply_patch`-style freeform herramientas, y el cliente ejecutado `tool_search` todo el viaje. A `buildResponseJSON()` Variante produce un un solo objeto de respuesta no de transmisión de los mismos eventos.
+Las llamadas a herramientas se desambiguan en tres tipos de elementos Responses usando el mapa de espacios de nombres, el conjunto de formularios libres y el conjunto de búsqueda de herramientas capturados por el analizador, de modo que MCP espacios de nombres, `apply_patch` herramientas de formularios libres de estilo y `tool_search` ejecutados por el cliente son de ida y vuelta. Una variante `buildResponseJSON()` produce un único objeto de respuesta que no es de flujo continuo a partir de los mismos eventos.
 
 <a id="management-api-oauth-and-usage"></a>
 
@@ -114,76 +96,61 @@ Las llamadas a herramientas se desambiguan en tres tipos de elementos Responses 
 `server/management/*.ts`. Es `/api/*` las rutas cubren configuración/configuración seguros, proveedor CRUD y grupos de claves, selección de modelos/controles de v2 de mayúsculas/contexto, sincronización de catálogo, diagnósticos y Registros de depuración, uso y cuotas, configuración de sidecar, actualizaciones, claves API de cliente generadas, inicio de sesión / estado / OAuth cierre de sesión y selección de cuenta, gestión de cuentas Codex y stop elegante. `server/auth-cors.ts`
 requiere `OPENCODEX_API_AUTH_TOKEN` Para ambos `/api/*` y `/v1/*` cuando el poder se une más allá loopback; configurado `corsAllowOrigins` Las entradas amplían la lista de permisos de origen local.
 
-Implementaciones de OAuth en vivo `oauth/`; acceso tokens se cargan o actualizan inmediatamente antes de La llamada, mientras `oauth/token-guardian.ts` puede actualizar proactivamente solo a los proveedores cuya política Lo permite. La actualización se coordina con un solo vuelo en proceso, un bloqueo de archivos por cuenta y generación CAS para que los escritores concurrentes no puedan bloquear una credencial más nueva. Una proyección de salud compartida (`oauth/health.ts`) alimenta `ocx status`, `ocx doctor`, la administración API y el panel de control. Credenciales de grupo Codex/ChatGPT y afinidad de subproceso local de proceso en vivo bajo `codex/` y se mantienen fuera de las respuestas de la administración; la afinidad `401` / `403` / `429` (no fijado a través de los límites de tarifa) y no se persiste en los reinicios. El uso de las solicitudes está normalizado `OcxUsage`, apareció en eventos de terminal Responses, y agregados por `usage/` para el panel de instrumentos y opcional JSONL Diagnóstico.
+OAuth implementaciones en vivo en `oauth/`; tokens de acceso se cargan o actualizan inmediatamente antes de una llamada enrutada, mientras que `oauth/token-guardian.ts` puede actualizar proactivamente sólo los proveedores cuya política lo permite. Refresh se coordina con un solo vuelo en proceso, un bloqueo de archivos por cuenta y CAS de generación para que los escritores concurrentes no puedan bloquear una credencial más nueva. Una proyección de salud compartida (`oauth/health.ts`) alimenta `ocx status`, `ocx doctor`, la administración API y el tablero de instrumentos. Codex / ChatGPT credenciales de grupo y afinidad proceso-local hilo vivo por debajo de `codex/` y se mantienen fuera de las respuestas de gestión; afinidad borra en `401` / `403` / `429` (no fijado a través de límites de velocidad) y no persiste a través de reinicios. El uso de solicitudes se normaliza a `OcxUsage`, aparece en Responses eventos de terminal y se agrega por `usage/` para el panel de control y los diagnósticos JSONL opcionales.
 
 <a id="transport-and-compaction"></a>
 
 ## Transporte y compactación
 
-`server/index/serve-options.ts` sirve HTTP/SSE en `/v1/responses` por defecto. Si Codex intenta un Responses WebSocket actualización mientras `websockets` es `false`, opencodex devuelve `426 upgrade_required`; Codex entonces vuelve a HTTP para esa sesión. Cuando `"websockets": true` se establece, el mismo punto final acepta la actualizar y utiliza el puente WebSocket.
+`server/index/serve-options.ts` sirve HTTP / SSE en `/v1/responses` por defecto. Si Codex intenta una actualización Responses WebSocket mientras que `websockets` es `false`, opencodex devuelve `426 upgrade_required`; Codex luego vuelve a HTTP para esa sesión. Cuando se establece `"websockets": true`, el mismo punto final acepta la actualización y utiliza el puente WebSocket.
 
-Independientemente de esa configuración orientada al cliente, las solicitudes canónicas de reenvío ChatGPT con nivel raíz
-`stream: true` puede usar Codex's de origen WebSocket Transporte en estable Bun 1.4.0 o más reciente. El canónico ChatGPT conservas de caminos HTTP Responses Lite intent en los metadatos de marco WS y deriva su sugerencia de enrutamiento del modelo saliente real y el nivel de servicio. HTTP cabeceras de respuesta; las actualizaciones de cuota posteriores se atribuyen a la cuenta de servicio, no se agregan retroactivamente a las cabeceras ya enviadas. Un fallo después de que se envió una solicitud WS no activa una cuenta automática HTTP Estas asignaciones no permiten que el cliente
-WebSocket configuración o cambiar la selección de transporte de otros proveedores. Bun 1.3.14, prelanzamientos, e identidades en entorno de ejecución no verificables HTTP/SSE. Las respuestas de WS de origen exitosas mantienen la del cliente SSE contrato y bypass `tee()` a través de una avidez limitada relé de un solo lector (4 MiB por trama sin procesar/envuelta y una cola de productores de 8 MiB). Desbordamiento de colas cierra el upstream y emite un terminal downstream `response.failed` Evento seguido de `[DONE]`.
+Independientemente de esa configuración orientada al cliente, las solicitudes canónicas de reenvío ChatGPT con nivel raíz `stream: true` pueden usar el transporte aguas arriba Codex de WebSocket en el estable Bun 1.4.0 o más reciente. La ruta canónica ChatGPT conserva la intent HTTP Responses Lite en los metadatos de la trama WS y deriva su sugerencia de enrutamiento del modelo saliente real y el nivel de servicio. Los metadatos iniciales de la cuota/modelo ascendente se convierten en cabeceras de respuesta HTTP limitadas; las actualizaciones de cuotas posteriores se atribuyen a la cuenta de servicio, no se agregan retroactivamente a las cabeceras ya enviadas. Un fallo después de que se envió una solicitud WS no desencadena un reenvío automático HTTP. Estas asignaciones no habilitan la configuración WebSocket orientada al cliente ni cambian la selección de transporte de otros proveedores. El paquete Bun 1.3.14, prelanzamientos e identidades de entorno de ejecución no verificables usa HTTP / SSE. Las respuestas WS ascendentes exitosas mantienen el contrato SSE descendente y la derivación `tee()` a través de un relé de un solo lector ansioso limitado (4 MiB por trama sin procesar / envolvente y una cola de productores de 8 MiB). El desbordamiento de cola cierra el flujo ascendente y emite un evento terminal de flujo descendente `response.failed` seguido por `[DONE]`.
 
-Para el modelo saliente final `gpt-5.3-codex-spark`, reenvío canónico ChatGPT explícitamente desactiva Responses Lite tanto en la cabecera HTTP como en los metadatos de fotograma WS nativos, incluso cuando un alias selecciona Spark — pero solo cuando el cuerpo saliente no lleva `additional_tools` artículo con un no vacío `tools` matriz. Ese grupo ES la forma de entrega de herramientas Lite, por lo que un cuerpo Spark que todavía lo usa mantiene Lite ON incluso si un llamante o encabezado configurado dijera lo contrario; de lo contrario, el marco anunciaría que no es Lite mientras que las herramientas solo existen en la forma Lite. Una identidad Lite cambiada retira el socket antiguo; subsecuentemente elegible las solicitudes con la misma identidad pueden reutilizar el nuevo socket. Otros modelos y pasarelas mantienen su política Lite existente. Los metadatos nativos mal formados todavía vuelven a HTTP con su cuerpo sin cambios.
+Para el modelo saliente final `gpt-5.3-codex-spark`, el reenvío canónico ChatGPT desactiva explícitamente Responses Lite tanto en la cabecera HTTP como en los metadatos de trama WS nativos, incluso cuando un alias selecciona Spark, pero solo cuando el cuerpo saliente no lleva ningún elemento `additional_tools` con una matriz `tools` no vacía. Ese grupo ES la forma de entrega de herramientas Lite, por lo que un cuerpo de Spark que todavía lo usa mantiene Lite ON incluso si un llamante o un encabezado configurado dijeron lo contrario; de lo contrario, el marco anunciaría que no es Lite mientras que las herramientas existen solo en la forma Lite. Una identidad Lite cambiada retira el socket anterior; las solicitudes elegibles posteriores con la misma identidad pueden reutilizar el socket nuevo. Otros modelos y puertas de enlace mantienen su política Lite existente. Los metadatos nativos mal formados todavía caen de nuevo a HTTP con su cuerpo sin cambios.
 
-Cuando un proveedor rechaza una solicitud de transmisión con HTTP 413 antes de que comience SSE, OpenCodex emite una terminal `response.failed` evento con `context_length_exceeded` en lugar de retransmitir el reintentable estado desconocido. Esto permite a Codex detener su bucle de reconexión y aplicar su propia política de compactación de contexto. en el siguiente turno. OpenCodex no elimina silenciosamente mensajes o imágenes; reducir la entrada actual o Reintentar después de la compactación. Las personas que no llaman a API continúan recibiendo el HTTP 413 del proveedor.
+Cuando un proveedor rechaza una solicitud de flujo continuo con HTTP 413 antes de que comience SSE, OpenCodex emite un evento de terminal `response.failed` con `context_length_exceeded` en lugar de retransmitir el estado desconocido reintentable. Esto permite que Codex detenga su bucle de reconexión y aplique su propia política de compresión de contexto en el siguiente turno. OpenCodex no elimina silenciosamente mensajes o imágenes; reduzca la entrada actual o reintente después de la compactación. Las personas que no llaman API continúan recibiendo el HTTP 413 del proveedor.
 
-La compactación de contexto Codex funciona para modelos enrutados. `server/responses/compact.ts` mangos
-`POST /v1/responses/compact` ejecutando un giro de resumen interno y volviendo compactado historia, mientras `responses/parser.ts` y `bridge/sse.ts` manejar la compactación remota v2
-`compaction_trigger` se convierte emitiendo exactamente una `compaction` elemento de salida.
+La compactación de contexto Codex funciona para modelos enrutados. `server/responses/compact.ts` maneja `POST /v1/responses/compact` ejecutando un giro de resumen enrutado interno y devolviendo el historial compactado, mientras que `responses/parser.ts` y `bridge/sse.ts` manejan la compactación remota v2 `compaction_trigger` gira emitiendo exactamente un elemento de salida `compaction` sintético.
 
 <a id="caching--the-catalog"></a>
 
 ## El almacenamiento en caché y el catálogo
 
-- `codex/model-cache.ts` mantiene una caché de TTL en memoria por proveedor `/models` resultados (por defecto 5 min, ej., haciendo coincidir la propia memoria caché de Codex), con un retroceso obsoleto cuando falla una fetch.
-- `codex/catalog/sync.ts`exportado a través de la `codex/catalog.ts` fachada, fusiona modelos enrutados en Catálogo de Codex como entradas namespaced, rangos destacados
-  [Modelos de subagentes](/es/guides/codex-integration/#the-subagent-picker) Primero, los filtros
-  `disabledModels`, y puede restaurar completamente el catálogo prístino desde una copia de seguridad única.
+- `codex/model-cache.ts` mantiene una caché TTL por proveedor, en memoria, de resultados en vivo de `/models` (por defecto 5 min, que coincide con la propia caché de Codex), con una recuperación obsoleta cuando falla una extracción.
+- `codex/catalog/sync.ts`, exportado a través de la fachada `codex/catalog.ts`, fusiona modelos enrutados en el catálogo de Codex como entradas con nombre, clasifica primero [Modelos de subagentes](/es/guides/codex-integration/#the-subagent-picker), filtra `disabledModels` y puede restaurar completamente el catálogo prístino desde una copia de seguridad única.
 
 <a id="reasoning-effort"></a>
 
 ## Esfuerzo de razonamiento
 
-`reasoning-effort.ts` traduce las etiquetas de razonamiento de Codex en los valores de cable de cada proveedor. Los El catálogo de Codex anuncia las etiquetas que Codex acepta (`low` / `medium` / `high` / `xhigh` / `max`), pero Los proveedores de upstream pueden admitir solo un subconjunto más pequeño o requerir un alias real. El módulo:
+`reasoning-effort.ts` traduce las etiquetas de razonamiento de Codex en los valores de cable de cada proveedor. El catálogo Codex anuncia etiquetas Codex acepta (`low` / `medium` / `high` / `xhigh` / `max`), pero los proveedores anteriores pueden admitir solo un subconjunto más pequeño o requerir un alias real. El módulo:
 
-- Define el canónico `CODEX_REASONING_LEVELS` y su orden.
+- Define el canónico `CODEX_REASONING_LEVELS` y su orden de clasificación.
 - Sujeta un esfuerzo solicitado al nivel soportado más cercano cuando el nivel exacto no está disponible.
-- Resuelve por modelo y por proveedor `reasoningEffortMap` Anulaciones para asignaciones de cables personalizadas.
+- Resuelve anulaciones por modelo y por proveedor `reasoningEffortMap` para asignaciones de cables personalizadas.
 - Deja de lado el esfuerzo por completo para los modelos enumerados en `noReasoningModels`.
 
-Qwen3.8-Max es una excepción explícita de esfuerzo directo al antiguo contrato de presupuesto Qwen3.x. Alibaba Token Plan registra su escalera soportada de origen como `low`, `medium`, y `xhigh` (el valor predeterminado), y Emite el valor efectivo como `reasoning_effort`; Codex-solamente las tapas de compatibilidad están sujetas a
-`xhigh` en el cable. El enriquecimiento del registro en entorno de ejecución repara metadatos preestablecidos persistentes anteriores que aún clasifica este modelo como `thinking_budget` modelo.
+Qwen3.8-Max es una excepción explícita de esfuerzo directo al antiguo contrato de presupuesto Qwen3.x. Alibaba Token Plan registra su escalera compatible con upstream como `low`, `medium` y `xhigh` (el valor predeterminado), y envía el valor efectivo como `reasoning_effort`; Codex -sólo las tapas de compatibilidad están sujetas a `xhigh` en el cable. El enriquecimiento del registro en entorno de ejecución repara metadatos preestablecidos persistentes anteriores que todavía clasifican este modelo como un modelo `thinking_budget`.
 
 <a id="core-types"></a>
 
 ## Tipos de núcleo
 
-El modelo interno vive en `types.ts`: `OcxParsedRequest`, `OcxContext`, el `OcxMessage` Unión,
-`OcxContentPart` (texto/imagen), `OcxToolCall`, `OcxTool`, `AdapterEvent`, y los tipos de configuración (`OcxConfig`, `OcxProviderConfig`) Dos ayudantes son ampliamente utilizados: `namespacedToolName()` y
-`modelInList()` (Tolerante) `:size`-etiqueta coincidente para `noVisionModels` / `noReasoningModels`).
+El modelo interno vive en `types.ts`: `OcxParsedRequest`, `OcxContext`, la unión `OcxMessage`, `OcxContentPart` (texto / imagen), `OcxToolCall`, `OcxTool`, `AdapterEvent`, y los tipos de configuración (`OcxConfig`, `OcxProviderConfig`). Dos ayudantes son ampliamente utilizados: `namespacedToolName()` y `modelInList()` (tolerante `:size` -etiqueta que coincide con `noVisionModels` / `noReasoningModels`).
 
 
 <a id="incomplete-quota-terminals"></a>
 
 ### Terminales de cuota incompletos
 
-Una respuesta directa nativa que termina con evidencia de cuota o límite de tasa en un
-`incomplete` terminal registra el fallo de la cuota de cuenta y la salud de retroceso de generación. Estructurado `incomplete_details.reason` y los códigos de error se aceptan sin un mensaje; el límite de salida ordinario, el filtrado, la dirección y el bloqueo incompletos no Enfriar una cuenta. La clasificación de la política cibernética mantiene su precedencia. El terminal es no se reproduce después de la salida, y la selección de solicitud de cuenta fija permanece fija.
+Una respuesta directa nativa que termina con evidencia de cuota o límite de tasa en una terminal `incomplete` registra el fallo de la cuota de la cuenta y la salud de la reaparición. Estructurado `incomplete_details.reason` y códigos de error son aceptados sin un mensaje; ordinarios de límite de salida, filtrado, dirección y pérdida incompleta no enfrían una cuenta. La clasificación de la política cibernética mantiene su precedencia. El terminal no se reproduce después de la salida, y la selección de solicitud de cuenta fija permanece fija.
 
-Las solicitudes compactas remotas pueden almacenar en búfer su respuesta por más tiempo que el servidor. tiempo de espera. Ese tiempo de espera del oyente se desactiva después de que el cuerpo de la solicitud es aceptado; la cancelación del cliente y los plazos de operación ascendente aún se aplican.
+Las solicitudes compactas remotas pueden almacenar su respuesta en búfer durante más tiempo que el tiempo de espera inactivo de la solicitud del servidor. Ese tiempo de espera del oyente se deshabilita después de que se acepte el cuerpo de la solicitud; aún se aplican los plazos de cancelación del cliente y de operación ascendente.
 
-La compactación enrutada amortiguada trata los deltas de texto y razonamiento no vacíos como progreso sin exponer texto de resumen parcial. Comentarios, deltas vacías y pasarela Los keepalives no restablecen el organismo de control de pérdida de eventos del adaptador. El stand por defecto El tiempo de espera permanece 300 segundos; el contenido de compactación encriptado se conserva sin cambios.
+La compactación enrutada amortiguada trata el texto no vacío y los deltas de razonamiento como progreso sin exponer texto de resumen parcial. Los comentarios, deltas vacíos y keepalives de la puerta de enlace no restablecen el regulador de pérdida de eventos del adaptador. El tiempo de espera por defecto permanece 300 segundos; el contenido de compactación encriptado se conserva sin cambios.
 
-El almacenamiento en búfer de respuesta compacto nativo también impone una fecha límite de inactividad de byte por cuerpo usando `stallTimeoutSec` (300 segundos para un upstream público, deshabilitado para uno local, y discapacitados en todas partes cuando se `0`) Los trozos no vacíos restablecen esa plazo; un cuerpo estancado devuelve HTTP 504, la cancelación del cliente retiene HTTP 499, y la limpieza no espera una promesa de cancelación de origen atascada. Los 32 MiB Se conservan el techo de respuesta y los bytes del cuerpo original.
+El almacenamiento en búfer de respuesta compacta nativa también impone una fecha límite de inactividad de byte de cuerpo usando `stallTimeoutSec` (300 segundos para un flujo ascendente público, deshabilitado para uno local y deshabilitado en todas partes cuando se establece en `0`). Los fragmentos no vacíos restablecen esa fecha límite; un cuerpo estancado devuelve HTTP 504, la cancelación del cliente retiene HTTP 499 y la limpieza no espera una promesa de cancelación ascendente atascada. Se conservan el techo de respuesta de 32 MiB y los bytes originales del cuerpo.
 
-Un error canónico WebSocket denegado puede convertirse en un HTTP 4xx solamente antes de que se confirme la respuesta y después de las comprobaciones de correlación de flujo. Permitido Las cabeceras de cuota están acotadas y reconstruidas sin cabeceras de encuadre ascendentes; la JSON La respuesta no es cacheable. Los errores posteriores al compromiso y 5xx mantienen la ruta sin reenvío.
+Un error canónico de creación rechazada WebSocket aguas arriba puede convertirse en un HTTP 4xx solo antes de que se confirme la respuesta y después de las comprobaciones de correlación de flujo. Las cabeceras de cuota permitidas se acotan y reconstruyen sin cabeceras de entramado ascendentes; la respuesta JSON no se puede almacenar en caché. Los errores posteriores al compromiso y 5xx mantienen la ruta sin reenvío.
 
-Cuando la recuperación de la tarea agente encriptada rechaza una tarea enrutada, su error 400 existente puede incluir un límite `recovery_reason`: `unsupported_envelope`,
-`admission_denied`, `recovery_unavailable`, `caller_cancelled`, `input_changed`,
-`recovery_http_rejected`, `recovery_timeout`, `recovery_aborted`,
-`recovery_transport_error`, o `recovery_invalid_output`. El rechazo HTTP requiere una respuesta no exitosa observada. Salida no válida incluye UTF-8 no válido, cuerpos de gran tamaño, flujos de recuperación mal formados o incompletos, y Asignaciones inválidas o contradictorias. La cancelación de una llamada tiene prioridad sobre una fecha límite propia, que tiene prioridad sobre los fallos de decodificación/transporte.
-`recovery_aborted` describe una recuperación compartida cancelada independientemente de esa persona que llama. Los camareros de vuelos compartidos reciben el mismo fallo subyacente a menos que se cancele individualmente. solo se almacena en caché el texto sin formato correcto. Los diagnósticos no contienen ningún error de flujo ascendente o texto de carga útil. El campo se omite cuando no existe un resultado de recuperación clasificado, y cuando existe un combo ramas que devuelven el fallo de destino original mantienen esa respuesta.
-`recovery_unavailable` incluye capacidad de caché/singleflight y no prueba Se intentó una solicitud ascendente. No se permite reintento o aceptación de envolvente más amplia.
+Cuando la recuperación de la tarea de agente encriptada rechaza una tarea enrutada, su error 400 existente puede incluir un `recovery_reason` limitado: `unsupported_envelope`, `admission_denied`, `recovery_unavailable`, `caller_cancelled`, `input_changed`, `recovery_http_rejected`, `recovery_timeout`, `recovery_aborted`, `recovery_transport_error` o `recovery_invalid_output`. El rechazo HTTP requiere una respuesta observada sin éxito. La salida no válida incluye UTF-8 no válido, cuerpos de gran tamaño, flujos de recuperación mal formados o incompletos y asignaciones inválidas o conflictivas. La cancelación de una persona que llama tiene prioridad sobre una fecha límite propia, que tiene prioridad sobre los fallos de decodificación/transporte. `recovery_aborted` describe una recuperación compartida cancelada independientemente de esa persona que llama. Los camareros de vuelos compartidos reciben el mismo error subyacente a menos que se cancele individualmente; solo se almacena en caché el texto sin formato correcto. Los diagnósticos no contienen ningún error de flujo ascendente o texto de carga útil. El campo se omite cuando no existe un resultado de recuperación clasificado, y las ramas de combo existentes que devuelven el error de destino original mantienen esa respuesta. `recovery_unavailable` incluye capacidad de caché/solamente vuelo y no prueba que se intentó una solicitud ascendente. No se permite reintento o aceptación de envolvente más amplia.

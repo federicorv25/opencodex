@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../assets/banner.png" alt="opencodex — proxy de proveedor universal para Codex, Claude Code, Claude Escritorio y Grok Build" width="100%">
+  <img src="../assets/banner.png" alt="opencodex — proxy universal de proveedores para Codex, Claude Code, Claude Desktop y Grok Build" width="100%">
 </p>
 
 <h3 align="center">¡Abre Codex!</h3>
@@ -35,7 +35,7 @@ El selector es el original de Claude Code. El modelo que lo ejecuta puede ser ot
 
 </td>
 <td width="50%">
-  <img src="../assets/claude-code-models.gif" alt="Claude Code ejecutar un modelo enrutado a través opencodex — la barra de estado muestra gpt-5.6-luna-medium como el modelo activo" width="100%">
+  <img src="../assets/claude-code-models.gif" alt="Claude Code ejecutando un modelo enrutado a través de opencodex: la barra de estado muestra gpt-5.6-luna-medium como el modelo activo" width="100%">
 </td>
 </tr>
 <tr>
@@ -59,7 +59,7 @@ Opus responde, luego entrega la tarea a un subagente GPT-5.6 Sol.
 
 </td>
 <td width="50%">
-  <img src="https://raw.githubusercontent.com/lidge-jun/opencodex/main/assets/claude-desktop-subagent.gif" alt="Claude Escritorio contestando como Claude Opus 4.8, luego despachando un GPT-5.6 Sol subagente a través opencodex" width="100%">
+  <img src="https://raw.githubusercontent.com/lidge-jun/opencodex/main/assets/claude-desktop-subagent.gif" alt="Claude Desktop responde como Claude Opus 4.8 y luego envía la tarea a un subagente GPT-5.6 Sol a través de opencodex" width="100%">
 </td>
 </tr>
 <tr>

@@ -67,6 +67,16 @@ describe("Spanish documentation localization", () => {
       expect(htmlCode(spanish), `${path} HTML code`).toEqual(htmlCode(english));
       const directives = (text: string): string[] => [...text.matchAll(/^:::(\w*)/gm)].map(match => match[1]!);
       expect(directives(spanish), `${path} admonition structure`).toEqual(directives(english));
+      const prose = (text: string): string => text.replace(/^[ \t]*(`{3,}|~{3,})[^\n]*\n[\s\S]*?^[ \t]*\1[ \t]*$/gm, "");
+      const tables = (text: string): number => [...prose(text).matchAll(/^\s*\|?\s*:?-{3,}:?\s*\|\s*:?-{3,}:?/gm)].length;
+      const items = (text: string): number => [...prose(text).matchAll(/^\s*(?:[-*]|[1-9]\d*\.)\s+/gm)].length;
+      expect(tables(spanish), `${path} complete tables`).toBe(tables(english));
+      const tableShapes = (text: string): number[][] => prose(text).split(/\n\s*\n/)
+        .filter(block => /^\s*\|?\s*:?-{3,}:?\s*\|\s*:?-{3,}:?/m.test(block))
+        .map(block => block.split("\n").filter(line => line.trimStart().startsWith("|"))
+          .map(line => [...line.matchAll(/(?<!\\)\|/g)].length));
+      expect(tableShapes(spanish), `${path} table rows and columns`).toEqual(tableShapes(english));
+      expect(items(spanish), `${path} complete instruction lists`).toBeGreaterThanOrEqual(items(english));
       expect(spanish, path).not.toMatch(/ZXQ\d|QXZ|\u2047|\uFFFD/);
       expect(spanish, path).not.toMatch(/locale=["']en["']/);
       expect(relative(root, join(root, "es", path)).replaceAll("\\", "/")).toBe(`es/${path}`);
@@ -96,6 +106,7 @@ describe("Spanish documentation localization", () => {
 
   test("documents the current archive limits and recoverable refusal codes", () => {
     const spanish = source(join(root, "es/reference/configuration/server.md"));
+    expect(spanish).toContain('<a id="native-reasoning-retention"></a>');
     for (const value of ["512 MiB", "256", "reasoning_archive_quota_exceeded", "reasoning_archive_busy", "reasoning_archive_unavailable"]) {
       expect(spanish).toContain(value);
     }

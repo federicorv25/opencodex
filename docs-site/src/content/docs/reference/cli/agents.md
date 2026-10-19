@@ -422,9 +422,9 @@ Inspect proxy requests, usage, storage, memory, and debug data. The direct alias
 
 | Alias | Equivalent resource |
 | --- | --- |
-| `ocx logs [filters] [--follow] [--json|--jsonl|--events]` | `ocx observe logs` |
-| `ocx usage [--range <today|1d|7d|30d|all>] [--since <timestamp> --until <timestamp>] [--surface <all|codex|claude|grok>] [--provider <name>] [--model <id>] [--api-key-id <id>] [--search <text>] [--top <1-1000>] [--json]` | `ocx observe usage` |
-| `ocx usage compare [--range <today|1d|7d|30d>] [--json]` | `ocx observe usage compare` |
+| `ocx logs [filters] [--follow] [--json\|--jsonl\|--events]` | `ocx observe logs` |
+| `ocx usage [--range <today\|1d\|7d\|30d\|all>] [--since <timestamp> --until <timestamp>] [--surface <all\|codex\|claude\|grok>] [--provider <name>] [--model <id>] [--api-key-id <id>] [--search <text>] [--top <1-1000>] [--json]` | `ocx observe usage` |
+| `ocx usage compare [--range <today\|1d\|7d\|30d>] [--json]` | `ocx observe usage compare` |
 | `ocx storage [--json]` | `ocx observe storage` |
 | `ocx memory [--json]` | `ocx observe memory` |
 

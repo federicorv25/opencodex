@@ -1,119 +1,96 @@
 ---
-title: "Configuración del agente"
-description: "Superficies multiagente, guía de delegación, modelos preferidos, cadenas de reserva, sincronización por defecto nativo y límites de esfuerzo."
+title: "Configuración de agentes"
+description: "Modos multiagente, guía de delegación, modelos preferidos, cadenas de respaldo, sincronización de valores nativos y límites de esfuerzo."
 ---
 
-Control de configuración del agente qué superficie de colaboración Codex se anuncia y cómo opencodex guías, rutas y límites del trabajo delegado.
+La configuración de agentes determina qué interfaz de colaboración de Codex se anuncia y cómo opencodex orienta, enruta y limita el trabajo delegado.
 
 <a id="agent-fields"></a>
 
-## Campos de agente
+## Campos de agentes
 
 <a id="skills-catalog-refresh"></a>
 
-### Actualización de catálogo de habilidades
+### Actualización del catálogo de habilidades
 
-`skills.catalog_refresh` acepta `"per_session"` (el valor predeterminado) o `"per_turn"`
-en opencodex `config.json`. El modo de sesión reutiliza las primeras habilidades recibidas instrucciones para una conversación, protegiendo el prefijo de caché del catálogo Cambios entre turnos. El modo Turn reenvía el catálogo actual del cliente. Véase [Mantener el catálogo de habilidades estable](/es/guides/codex-prompt/#keeping-the-skills-catalog-stable)
-para detalles de configuración y duración de instantáneas.
+`skills.catalog_refresh` acepta `"per_session"` (predeterminado) o `"per_turn"` en el archivo `config.json` de opencodex. El modo por sesión reutiliza las primeras instrucciones de habilidades recibidas para la conversación, de modo que los cambios del catálogo entre turnos no alteren el prefijo de la caché del prompt. El modo por turno reenvía el catálogo actual del cliente. Consulta [Mantener estable el catálogo de habilidades](/es/guides/codex-prompt/#keeping-the-skills-catalog-stable) para conocer la configuración y la duración de las instantáneas.
 
 <a id="astra-roster-upgrade"></a>
 
 ### Actualización de la lista de Astra
 
-En el primer inicio después de la actualización, `subagentModels` listas reciben
-`gpt-6-astra` Primero. Las primeras cuatro opciones únicas no-Astra se conservan y la La vieja quinta opción se perdió. Si `gpt-5.5` Se mantiene, se mueve hasta el final. Por lo tanto, la lista predeterminada anterior se convierte en Astra, Sol, Terra, Luna, 5.5. Una lista de legado no establecida recibe los valores predeterminados actuales; una lista de legado vacía explícita se convierte en
-`["gpt-6-astra"]`. Las entradas Astra existentes no están duplicadas.
+En el primer inicio después de actualizar, las listas existentes de `subagentModels` reciben `gpt-6-astra` en primer lugar. Se conservan las primeras cuatro opciones únicas distintas de Astra y se descarta la quinta opción anterior. Si se conserva `gpt-5.5`, pasa al final. Por tanto, la antigua lista predeterminada queda como Astra, Sol, Terra, Luna y 5.5. Una lista antigua sin configurar recibe los valores predeterminados actuales; una lista antigua explícitamente vacía pasa a ser `["gpt-6-astra"]`. Las entradas de Astra existentes no se duplican.
 
-El valor predeterminado actual es `gpt-6-astra`, `gpt-6.1-sol`, `gpt-6-luna`. En el primer inicio después de la actualización, se limpia una lista almacenada de filas retiradas: `gpt-5.6-sol` y
-`gpt-5.6-luna` convertidos `gpt-6-sol` y `gpt-6-luna` en la misma posición, y cada otros `gpt-5.5` o `gpt-5.6` El modelo se ha eliminado. Ids con un `/` (enrutado)
-`provider/model` ej., opciones calificadas para la cuenta) se dejan tal como están escritas. Una lista que Solo las filas retiradas reciben el valor predeterminado actual; una lista vacía permanece vacía.
+La lista predeterminada actual es `gpt-6-astra`, `gpt-6.1-sol`, `gpt-6-luna`. En el primer inicio después de actualizar se eliminan las entradas retiradas de las listas guardadas: `gpt-5.6-sol` y `gpt-5.6-luna` pasan a ser `gpt-6-sol` y `gpt-6-luna` en su misma posición, y se elimina cualquier otro modelo `gpt-5.5` o `gpt-5.6`. Los identificadores con `/` (rutas `provider/model` u opciones que especifican una cuenta) se conservan tal como están escritos. Una lista que solo contenía modelos retirados recibe la lista predeterminada actual; una lista vacía permanece vacía.
 
-GPT-6.1 Sol reemplazó a GPT-6 Sol como predeterminado el 30 de septiembre de 2026. En el primer inicio Después de esa actualización, un `gpt-6-sol` en una lista almacenada se convierte `gpt-6.1-sol` en el mismo posición (sin un duplicado si ya está en la lista 6.1 Sol). GPT-6 Sol permanece disponible: agrégalo Después vuelve y se queda.
+GPT-6.1 Sol sustituyó a GPT-6 Sol como modelo predeterminado el 30 de septiembre de 2026. En el primer inicio tras esa actualización, un `gpt-6-sol` sin prefijo en una lista guardada pasa a ser `gpt-6.1-sol` en la misma posición, sin duplicarlo si 6.1 Sol ya figura en ella. GPT-6 Sol sigue disponible: puedes volver a añadirlo después y se conservará.
 
-El interior `subagentModelsVersion` Marcador (actualmente `3`) hace cada paso a Actualización única. Después puede reordenar, eliminar Astra o guardar una lista vacía sin que la startup vuelva a cambiar sus opciones. Los modelos con discapacidad permanecen inhabilitados. Disponibilidad de Astra todavía depende del soporte de upstream para su cuenta.
+El marcador interno `subagentModelsVersion` (actualmente `3`) hace que cada migración se ejecute una sola vez. Después puedes reordenar la lista, quitar Astra o guardar una lista vacía sin que el inicio vuelva a cambiar tus opciones. Los modelos desactivados permanecen desactivados. La disponibilidad de Astra sigue dependiendo de la compatibilidad del proveedor con tu cuenta.
 
 | Campo | Tipo | Predeterminado | Significado |
 | --- | --- | --- | --- |
-| `multiAgentMode?` | `"v1" \| "default" \| "v2"` | `"default"` | `v1` estampa cada modelo de catálogo como v1; `v2` Sella cada modelo como v2. `default` restaura los pines de origen (Sol/Terra v2, Luna v1) y, de lo contrario, sigue el patrón nativo `multi_agent_v2` bandera. Se aplica a nuevas sesiones. |
-| `keepNativeChatGptOnV1?` | `boolean` | `false` | Cuando `multiAgentMode` es `"v2"`, deshabilite la anulación global de V2, marque las filas nativas ChatGPT como v1 y mantenga las filas enrutadas en v2. Codex resuelve la anulación global antes de los pines del catálogo, por lo que se requieren ambas partes para que un padre ChatGPT genere hijos enrutados sin tareas cifradas en el backend ([#92](https://github.com/lidge-jun/opencodex/issues/92)) Ignorado en `v1` y `default`. |
-| `subagentModels?` | `string[]` | `gpt-6-astra`, `gpt-6.1-sol`, `gpt-6-luna` | Hasta cinco nativos desnudos, cuenta-calificado `<selector>/<native-openai-model>`, o enrutado `provider/model` En el caso de la primera aparición. El panel de control solo ofrece identificadores nativos y enrutados y omite las opciones exactas calificadas para la cuenta cuando se guarda; use `ocx agent subagents set` o edite la configuración para elegir exactamente. Después de la [Actualización única de Astra](#astra-roster-upgrade), se conserva una lista vacía explícita. |
-| `injectionModel?` | `string` | — | Modelo de subagente nativo o encaminado preferido usado en la guía de delegación v2 de autor proxy. |
-| `injectionEffort?` | `string` | — | Esfuerzo preferido (`low` a través `ultra`), significante solo con `injectionModel`. |
-| `injectionPrompt?` | `string` | — | Reemplaza el cuerpo de guía v2 incorporado. Apoyos `{{model}}`, `{{effort}}`, `{{roster}}`, y `{{fallback}}`. Un configurado `injectionModel` es suficiente para mostrar el mensaje personalizado. |
-| `multiAgentGuidanceEnabled?` | `boolean` | `true` | Controla solo la guía para desarrolladores v1/v2 de opencodex; no cambia los valores predeterminados, las herramientas, el enrutamiento, las listas o los límites de esfuerzo de los agentes nativos. |
-| `syncCodexSubagentDefaults?` | `boolean` | `false` | Optar por escribir `injectionModel` y opcional `injectionEffort` como los valores predeterminados nativos de Codex durante la sincronización/reinicio. Requiere `injectionModel`. |
-| `subagentModelFallback?` | `string[]` | `[]` | Modelos de reserva globales ordenados por prioridad para turnos infantiles generados. |
-| `subagentModelFallbackByModel?` | `Record<string, string[]>` | `{}` | Cadenas de reserva por modelo primario, encadenadas por el ID del modelo primario solicitado. Este es el hogar admitido para los metadatos de reserva por función; `model_fallback` dentro del agente Codex TOML hace que Codex 0.146+ omita el rol ( +1190). |
-| `subagentModelFallbackPollMs?` | `number` | `60000` | Intervalo de caché de sonda de disponibilidad. Los valores por debajo de 1000 ms vuelven al valor predeterminado. |
-| `codexRoleTiers?` | `{ fast?, standard?, frontier?: string[] }` | — | Nivel de capacidad de los modelos con nombre para [función auto-asignación](/es/guides/integrations/#auto-assign). Los modelos listados toman ese nivel; otros modelos están escalonados por precio, y nunca se proponen modelos no listados. |
-| `effortCap?` | `string` | — | Techo duro para los giros principales de calificación v2 y los giros marcados de niño engendrado. Acepta `low` a través `ultra`. |
-| `subagentEffortCap?` | `string` | — | Techo adicional para giros de niños engendrados solamente. Cuando se aplican ambas tapas, la más baja gana. |
-| `plaintextV2AgentMessages?` | `boolean` | — (desactivado) | Opt-in experimental. Se ejecuta solo cuando se establece explícitamente en `true` y pide a los padres ChatGPT v2 que emitan `spawn_agent`, `send_message`, y `followup_task` argumentos como texto plano. Véase [Mensajes de agente de texto sin formato v2](#plaintext-v2-agent-messages). |
-| `agentTaskRecovery?` | `object` | — | Recuperación opt-in experimental para tareas v2 cifradas en backend enviadas a proveedores enrutados. Discapacitados a menos que `enabled: true`; ver [Recuperación de tareas cifradas v2](#encrypted-v2-task-recovery). |
+| `multiAgentMode?` | `"v1" \| "default" \| "v2"` | `"default"` | `v1` marca todos los modelos del catálogo como v1; `v2` los marca como v2. `default` restaura las asignaciones del proveedor (Sol/Terra v2, Luna v1) y, en los demás casos, sigue la opción nativa `multi_agent_v2`. Se aplica a las sesiones nuevas. |
+| `keepNativeChatGptOnV1?` | `boolean` | `false` | Cuando `multiAgentMode` es `"v2"`, desactiva la anulación global de V2, marca las entradas nativas de ChatGPT como v1 y conserva las enrutadas en v2. Codex resuelve la anulación global antes que las asignaciones del catálogo: ambas partes son necesarias para que un agente principal de ChatGPT cree subagentes enrutados sin tareas cifradas por el backend ([#92](https://github.com/lidge-jun/opencodex/issues/92)). Se ignora en `v1` y `default`. |
+| `subagentModels?` | `string[]` | `gpt-6-astra`, `gpt-6.1-sol`, `gpt-6-luna` | Hasta cinco identificadores nativos sin prefijo, con cuenta `<selector>/<native-openai-model>` o enrutados `provider/model` que aparecen primero en el selector de subagentes. El panel solo ofrece identificadores nativos sin prefijo y enrutados; al guardar omite las opciones que especifican una cuenta exacta. Para estas últimas, usa `ocx agent subagents set` o edita la configuración. Tras la [migración única de Astra](#astra-roster-upgrade), se conserva una lista explícitamente vacía. |
+| `injectionModel?` | `string` | — | Modelo de subagente nativo o enrutado preferido que se menciona en la guía de delegación v2 redactada por el proxy. |
+| `injectionEffort?` | `string` | — | Esfuerzo preferido (de `low` a `ultra`); solo tiene efecto junto con `injectionModel`. |
+| `injectionPrompt?` | `string` | — | Sustituye el cuerpo de la guía v2 integrada. Admite `{{model}}`, `{{effort}}`, `{{roster}}` y `{{fallback}}`. Basta con configurar `injectionModel` para generar el prompt personalizado. |
+| `multiAgentGuidanceEnabled?` | `boolean` | `true` | Solo controla la guía de desarrollador v1/v2 redactada por opencodex; no cambia los valores nativos de agentes, las herramientas, el enrutamiento, las listas ni los límites de esfuerzo. |
+| `syncCodexSubagentDefaults?` | `boolean` | `false` | Permite escribir `injectionModel` y el `injectionEffort` opcional como valores nativos de Codex al sincronizar o reiniciar. Requiere `injectionModel`. |
+| `subagentModelFallback?` | `string[]` | `[]` | Modelos globales de respaldo, en orden de prioridad, para los turnos de subagentes creados. |
+| `subagentModelFallbackByModel?` | `Record<string, string[]>` | `{}` | Cadenas de respaldo por modelo principal, indexadas por su identificador solicitado. Esta es la ubicación admitida para los metadatos de respaldo por rol; incluir `model_fallback` en el TOML de un agente hace que Codex 0.146+ omita ese rol (#1190). |
+| `subagentModelFallbackPollMs?` | `number` | `60000` | Duración de la caché de comprobaciones de disponibilidad. Los valores inferiores a 1000 ms usan el predeterminado. |
+| `codexRoleTiers?` | `{ fast?, standard?, frontier?: string[] }` | — | Nivel de capacidad de los modelos indicados para la [asignación automática de roles](/es/guides/integrations/#auto-assign). Esos modelos reciben el nivel indicado; los demás se clasifican por precio. No se proponen modelos sin precio que no estén en la lista. |
+| `effortCap?` | `string` | — | Límite máximo para los turnos principales v2 que cumplan los requisitos y para los turnos de subagentes que lleven los marcadores correspondientes. Admite de `low` a `ultra`. |
+| `subagentEffortCap?` | `string` | — | Límite adicional solo para turnos de subagentes creados. Cuando se aplican ambos límites, prevalece el menor. |
+| `plaintextV2AgentMessages?` | `boolean` | — (sin configurar) | Opción experimental que solo se ejecuta al establecerla explícitamente en `true`. Pide a los agentes principales v2 nativos de ChatGPT que cumplan los requisitos emitir en texto sin cifrar los argumentos de mensaje de `spawn_agent`, `send_message` y `followup_task`. Consulta [Mensajes de agentes v2 en texto sin cifrar](#plaintext-v2-agent-messages). |
+| `agentTaskRecovery?` | `object` | — | Recuperación experimental de tareas v2 cifradas por el backend que se envían a proveedores enrutados. Está desactivada salvo que se indique `enabled: true`; consulta [Recuperación de tareas v2 cifradas](#encrypted-v2-task-recovery). |
 
-Gestione la superficie con el panel de control o
-`ocx v2 status|on|off|mode <v1|default|v2>|keep-native-v1 <on|off>|threads <n>|mode-hint <text|--clear>`. Los cambios de modo se aplican a las sesiones nuevas. `maxConcurrentThreadsPerSession` es un `PUT /api/v2` campo, no a
-`config.json` clave; `ocx v2 threads <n>` escribe `max_concurrent_threads_per_session` bajo
-`[features.multi_agent_v2]` en Codex `$CODEX_HOME/config.toml` después de que se habilite v2.
+Configura el modo desde el panel o con `ocx v2 status|on|off|mode <v1|default|v2>|keep-native-v1 <on|off>|threads <n>|mode-hint <text|--clear>`. Los cambios de modo se aplican a sesiones nuevas. `maxConcurrentThreadsPerSession` es un campo de `PUT /api/v2`, no una clave de `config.json`; después de activar v2, `ocx v2 threads <n>` escribe `max_concurrent_threads_per_session` dentro de `[features.multi_agent_v2]` en el archivo `$CODEX_HOME/config.toml` de Codex.
 
-**Delegación siempre proactiva** en Subagentes → Avanzado (anteriormente **Modo Ultra**) cambia el delegación sin cambiar el esfuerzo de razonamiento. Su preajuste conserva las instrucciones del usuario, límites de autoridad, alcance de tareas y reglas de herramientas. El panel de instrumentos alterna, `PUT /api/v2` campo
-`multiAgentModeHintText`, y `ocx v2 mode-hint` escribir
-`features.multi_agent_v2.multi_agent_mode_hint_text` en Codex
-`$CODEX_HOME/config.toml`. El CLI `ocx v2 mode-hint` comando persiste esta clave incluso cuando `multi_agent_v2` está deshabilitado; no cambia la función. El hint sustituye La política multiagente derivada del esfuerzo de codex-rs cuando esa superficie nativa está activa. A `null` valor elimina la clave para que la política derivada del esfuerzo (ultra  + proactivo, explícitamente); los valores vacíos o solo de espacio en blanco se rechazan porque un La anulación vacía presente suprimiría incluso el mensaje Proactivo ultraderivado. Los Panel de Subagentes **Delegación siempre proactiva** requiere tanto de la característica nativa como una superficie v2 explícita (`multiAgentMode: "v2"`, equivalente a `ocx v2 mode v2`);
-`ocx v2 on` por sí sola no satisface esa puerta de panel.
+**Delegación siempre proactiva**, en Subagentes → Avanzado (antes **Modo Ultra**), cambia el criterio para delegar sin cambiar el esfuerzo de razonamiento. Su configuración predefinida conserva las instrucciones del usuario, los límites de autoridad, el alcance de la tarea y las reglas de las herramientas. El interruptor del panel, el campo `multiAgentModeHintText` de `PUT /api/v2` y `ocx v2 mode-hint` escriben `features.multi_agent_v2.multi_agent_mode_hint_text` en el archivo `$CODEX_HOME/config.toml` de Codex. El comando `ocx v2 mode-hint` guarda esta clave incluso cuando `multi_agent_v2` está desactivado; no activa la función. Cuando la interfaz nativa está activa, esta indicación sustituye la política multiagente que codex-rs deriva del esfuerzo. Un valor `null` elimina la clave y restaura la política derivada del esfuerzo (ultra = proactiva; los demás niveles = explícita). Se rechazan los valores vacíos o compuestos solo por espacios, porque una anulación vacía suprimiría incluso el mensaje proactivo derivado de ultra. El interruptor **Delegación siempre proactiva** del panel de Subagentes requiere tanto la función nativa como un modo v2 explícito (`multiAgentMode: "v2"`, equivalente a `ocx v2 mode v2`); `ocx v2 on` por sí solo no cumple ese requisito.
 
-`GET` y `PUT /api/v2` También regreso `multiAgentModeHintRecommendation: { text, revision }`. El panel de control utiliza este texto proporcionado por el servidor al habilitar o restaurar el preset, sin hardcoded fallback. Si un servidor antiguo omite la recomendación o devuelve un valor mal formado, la instalación y restauración preestablecidas no están disponibles; editar o borrar una sugerencia personalizada existente sigue estando disponible. **Restaurar preajuste** cambia solo el borrador local; **Guardar** Y lo hizo.
+`GET` y `PUT /api/v2` también devuelven `multiAgentModeHintRecommendation: { text, revision }`. El panel usa ese texto del servidor al activar o restaurar la configuración predefinida, sin un texto alternativo fijo. Si un servidor anterior omite la recomendación o devuelve un valor mal formado, no se puede instalar ni restaurar la configuración predefinida; sigue siendo posible editar o borrar una indicación personalizada existente. **Restaurar configuración predefinida** solo cambia el borrador local; **Guardar** lo conserva.
 
-La configuración de lectura, las actualizaciones no relacionadas y las actualizaciones no migran una pista almacenada. Sólo una explícita actualización de pista que coincide con cualquiera de los dos preconfiguración heredados reconocidos OpenCodex byte por byte es reemplazado por la recomendación actual. Otro texto personalizado válido, incluidas las variantes de espacio en blanco, Se conserva byte por byte. El soporte de indicación de modo aún se comprueba antes de escribir, y se aplican cambios a nuevas sesiones Codex.
+Leer la configuración, actualizar campos ajenos o cambiar de versión no migra una indicación guardada. Solo una actualización explícita cuyo texto coincida byte por byte con uno de los dos preajustes antiguos reconocidos de OpenCodex se sustituye por la recomendación actual. Los demás textos personalizados válidos, incluidas las variantes de espacios, se conservan byte por byte. Antes de escribir se sigue comprobando la compatibilidad con esta función, y los cambios se aplican a sesiones nuevas de Codex.
 
-La gestión API expone `GET`/`PUT /api/v2`, `/api/injection-model`, `/api/effort-caps`,
-`/api/subagent-models`, y `/api/subagent-model-fallback`. Las actualizaciones del modelo de inyección son parciales; el prompt personalizado es `prompt` campo en ese API.
+La API de administración expone `GET`/`PUT /api/v2`, `/api/injection-model`, `/api/effort-caps`, `/api/subagent-models` y `/api/subagent-model-fallback`. Las actualizaciones del modelo de inyección son parciales; en esa API el prompt personalizado corresponde al campo `prompt`.
 
-La página de Autonomía Codex también puede alternar la propia Codex `default_mode_request_user_input`
-bandera característica (`GET`/`PUT /api/codex-auth/features/default-mode-request-user-input`) Habilitarlo añade `[features] default_mode_request_user_input = true` a Codex
-`$CODEX_HOME/config.toml` a través del oficial `codex features enable|disable` CLI (edición de conservación de formato, se elimina de nuevo cuando está desactivado), lo que permite a Codex pausar una Por defecto-modo de sesión y hacerle preguntas con el `request_user_input` herramienta. Los bandera está en desarrollo de origen y solo se aplica a nuevas sesiones; el toggle falla en voz alta cuando la compilación Codex instalada aún no conoce el indicador.
+La página de autenticación de Codex también permite cambiar la opción nativa `default_mode_request_user_input` (`GET`/`PUT /api/codex-auth/features/default-mode-request-user-input`). Al activarla se añade `[features] default_mode_request_user_input = true` al archivo `$CODEX_HOME/config.toml` de Codex mediante el comando oficial `codex features enable|disable`, con una edición que conserva el formato y se elimina al desactivar la opción. Esto permite que Codex pause una sesión en modo Default para preguntar con `request_user_input`. La función está en desarrollo en el proyecto original y solo afecta a sesiones nuevas; si la compilación instalada todavía no la reconoce, el interruptor muestra un error explícito.
 
 <a id="roster-and-guidance"></a>
 
-## Lista y orientación
+## Lista de modelos y guía
 
-La lista efectiva de v2 son los primeros cinco modelos configurados, visibles para el selector y clasificados por prioridad que están presentes en el catálogo inyectado y no están explícitamente marcados `"disabled"`. Una explícita `"v2"`
-pin apoya trabajadores recursivos; `"v1"`, `null`, y los pines ausentes siguen siendo elegibles como trabajadores de hojas. Las entradas excluidas permanecen en la configuración para que puedan ser elegibles más adelante.
+La lista v2 efectiva comprende los primeros cinco modelos configurados, visibles en el selector y ordenados por prioridad que estén presentes en el catálogo inyectado y no estén marcados explícitamente como `"disabled"`. Una asignación `"v2"` explícita permite subagentes recursivos; `"v1"`, `null` o la ausencia de asignación siguen permitiendo subagentes sin delegación adicional. Las entradas excluidas permanecen en la configuración para poder cumplir los requisitos más adelante.
 
-La detección de superficies utiliza la forma de la herramienta. Un espacio de nombres `spawn_agent` con `send_input`, `resume_agent`, o
-`close_agent` es v1. Un piso `spawn_agent` con `send_message`, `followup_task`, `interrupt_agent`, o
-`list_agents` Es V2.
+El modo se detecta por la estructura de las herramientas. Un `spawn_agent` dentro de un espacio de nombres, junto con `send_input`, `resume_agent` o `close_agent`, indica v1. Un `spawn_agent` plano, junto con `send_message`, `followup_task`, `interrupt_agent` o `list_agents`, indica v2.
 
-La guía V1 es texto proactivo solo en `max` o `ultra`. V2 recibe un desarrollador de autor proxy mensaje solo cuando existe un modelo preferido, una lista elegible o una cadena de reserva. Guía v2 incorporada tiene un presupuesto de 700 caracteres y elimina la lista primero si es necesario. La guía es deduplicada prefijos de reproducción e insertados antes de un `compaction_trigger`.
+La guía v1 solo usa texto proactivo en `max` o `ultra`. V2 recibe un mensaje de desarrollador del proxy únicamente cuando existe un modelo preferido, una lista de modelos aptos o una cadena de respaldo. La guía v2 integrada tiene un presupuesto de 700 caracteres y, si hace falta, omite primero la lista. Se eliminan duplicados entre los prefijos del historial reproducido y la guía se inserta antes de un `compaction_trigger` final.
 
-Tanto la guía de subagente v2 incorporada como la personalizada `injectionPrompt` uso de cuerpos
-`<opencodex_subagent_guidance>`, separado del nativo de Codex `<multi_agent_mode>` mensajes. El texto incorporado informa el modelo preferido resuelto, la lista y la cadena de reserva sin recetar delegación, anulaciones de modelos, o `fork_turns`. Los cuerpos personalizados conservan su sustitución de marcador de posición y contenido. `injectionModel` y `injectionEffort` seguir siendo asesor a menos que la sincronización por defecto nativo sea habilitado; los valores de marcador de posición personalizados que faltan todavía se reemplazan con una cadena vacía.
+Tanto la guía v2 integrada como el cuerpo de `injectionPrompt` usan `<opencodex_subagent_guidance>`, separado de los mensajes nativos `<multi_agent_mode>` de Codex. El texto integrado informa el modelo preferido resuelto, la lista y la cadena de respaldo sin ordenar la delegación ni imponer cambios de modelo o de `fork_turns`. Los cuerpos personalizados conservan su contenido y la sustitución de marcadores. `injectionModel` e `injectionEffort` siguen siendo recomendaciones salvo que se active la sincronización de valores nativos; los marcadores personalizados sin valor se sustituyen por una cadena vacía.
 
-La deduplicación de reproducción compara el texto exacto más reciente de cada familia de etiquetas. Cuando ambos valores utilizan el nueva familia de proxy, cambiando la guía personalizada al formulario incorporado agrega el valor actual; Los cambios de modo nativo que intervienen no duplican la orientación del proxy sin cambios. existentes nativos y Se conserva la historia legacy-tagged. Este cambio de envoltura no identifica al autor de mensajes o revocar instrucciones previas. Las historias de versiones mixtas no se pueden clasificar a partir de la etiqueta heredada sola, y la detección de transición a través de tales historias no está garantizada.
+La eliminación de duplicados compara el texto exacto más reciente de cada familia de etiquetas. Cuando ambos valores usan la nueva familia del proxy, volver de una guía personalizada a la integrada añade el valor actual; los cambios intermedios del modo nativo no duplican una guía del proxy que no haya cambiado. Se conserva el historial nativo y el que lleva etiquetas antiguas. Cambiar esta envoltura no identifica al autor de mensajes anteriores ni revoca instrucciones previas. La etiqueta antigua por sí sola no permite clasificar historiales de versiones mixtas y no se garantiza la detección de transiciones en ellos.
 
 <a id="native-codex-default-sync"></a>
 
-## Codex nativo sincronización predeterminada
+## Sincronización de valores nativos de Codex
 
-Cuando está habilitado, `syncCodexSubagentDefaults` escribe marker-own
-`[agents] default_subagent_model` y `default_subagent_reasoning_effort` campos. Sin marcar Los campos de destino propiedad del usuario se tratan como conflictos y siguen siendo autorizados; TOML parcial o ambigua escritura fallida. Liquidación `injectionModel` También elimina el opt-in. Estos valores predeterminados afectan nuevamente creó tareas Codex y no causa delegación por sí mismas.
+Al activarse, `syncCodexSubagentDefaults` escribe los campos `[agents] default_subagent_model` y `default_subagent_reasoning_effort` que pertenecen al marcador de opencodex. Los campos de destino sin marcador que pertenecen al usuario se consideran conflictos y siguen teniendo prioridad; las escrituras TOML parciales o ambiguas se rechazan. Borrar `injectionModel` también desactiva esta opción. Estos valores afectan a las tareas nuevas de Codex y no provocan delegación por sí mismos.
 
 <a id="fallback-chain"></a>
 
-## Cadena de fallback
+## Cadena de respaldo
 
-El orden de reserva de hijo desove es:
+El orden de respaldo para los turnos de subagentes creados es:
 
-1. el modelo primario solicitado;
-2. cadenas por modelo de `subagentModelFallbackByModel` (en clave por el modelo primario); luego
-3. mundial `subagentModelFallback` entradas.
+1. El modelo principal solicitado.
+2. Las cadenas por modelo de `subagentModelFallbackByModel`, indexadas por el modelo principal.
+3. Las entradas globales de `subagentModelFallback`.
 
-Las cadenas de reserva por función deben vivir en la configuración opencodex. Escritura `model_fallback` en
-`$CODEX_HOME/agents/*.toml` hace que Codex 0.146+ rechace todo el archivo de rol como desconocido campo y omita el rol (n.o 1190). Un legado `model_fallback` La línea en el TOML sigue siendo compatibilidad con versiones anteriores, pero `ocx doctor` banderas.
+Las cadenas por rol deben estar en la configuración de opencodex. Escribir `model_fallback` en `$CODEX_HOME/agents/*.toml` hace que Codex 0.146+ rechace todo el archivo por un campo desconocido y omita el rol (#1190). Una línea antigua `model_fallback` todavía se lee por compatibilidad, pero `ocx doctor` la señala.
 
-opencodex omite los candidatos deshabilitados, no enrutables, poco saludables, de enfriamiento o de umbral de cuota. Los snapshot de disponibilidad se almacena en caché para `subagentModelFallbackPollMs`. Restringir las tareas secundarias cifradas la cadena a los objetivos canónicos nativos ChatGPT más rutas directas clave-auth Responses explícitamente Confiado con `allowEncryptedV2AgentTasks: true`; si ninguno puede consumir la carga útil cifrada, el solicitud falla en lugar de encaminar texto cifrado ilegible a otro lugar. Combo routing primero prueba un objetivo nativo canónico disponible; cuando ninguno es seleccionable o sus intentos se han agotado, y
-`agentTaskRecovery` está habilitado, un cifrado `NEW_TASK` se recupera una vez antes del combo enrutado despacho. La recuperación combinada se ejecuta solo en giros hijo generados; el camino directo también se recupera en un interruptor de modelo de rosca media.
+opencodex omite candidatos desactivados, sin ruta, con problemas de funcionamiento, en espera de recuperación o que hayan alcanzado el umbral de cuota. La instantánea de disponibilidad se conserva durante `subagentModelFallbackPollMs`. Las tareas cifradas limitan la cadena a destinos nativos canónicos de ChatGPT y a rutas directas de Responses con clave que se hayan declarado de confianza mediante `allowEncryptedV2AgentTasks: true`. Si ninguno puede consumir la carga cifrada, la solicitud falla sin enviarla a otro destino que no pueda leerla. El enrutamiento de Combos prueba primero un destino nativo canónico disponible; cuando ninguno es seleccionable o se agotan sus intentos y `agentTaskRecovery` está activado, recupera una vez el `NEW_TASK` cifrado antes de enviarlo al destino enrutado. La recuperación de Combos solo se ejecuta en turnos de subagentes creados; la ruta enrutada directa también recupera tareas al cambiar de modelo en medio de un hilo.
 
 ```json
 {
@@ -133,24 +110,17 @@ opencodex omite los candidatos deshabilitados, no enrutables, poco saludables, d
 
 <a id="plaintext-v2-agent-messages"></a>
 
-## Mensajes de agente de texto sin formato v2
+## Mensajes de agentes v2 en texto sin cifrar
 
-`plaintextV2AgentMessages` es unset en una nueva configuración y se ejecuta solo cuando se establece explícitamente a `true`. La persona que llama debe usar el cable Responses, y el destino final debe usar el cable canónico ChatGPT. Codex transporte directo: `adapter: "openai-responses"`, `authMode: "forward"`y la base exacta URL
-`https://chatgpt.com/backend-api/codex`. OpenAI API-proveedores clave, personalizados OpenAIpasarelas compatibles, rutas cuyo destino final es otro proveedor, yResponses Las llamadas nunca se reescriben.
+`plaintextV2AgentMessages` no está configurado en una instalación nueva y solo se ejecuta al establecerlo explícitamente en `true`. El cliente debe usar el protocolo Responses y el destino final debe usar el transporte canónico de reenvío de ChatGPT Codex: `adapter: "openai-responses"`, `authMode: "forward"` y la URL base exacta `https://chatgpt.com/backend-api/codex`. Nunca se reescriben los proveedores de OpenAI con clave API, las pasarelas personalizadas compatibles con OpenAI, las rutas cuyo destino final sea otro proveedor ni las solicitudes que no usen Responses.
 
-Para una solicitud v2 elegible, opencodex reconoce el catálogo por un `collaboration`
-espacio de nombres con un `spawn_agent` niño. El catálogo puede estar en el nivel superior `tools`En el desarrollador del primer elemento de entrada `additional_tools` cuando `tools` está ausente (Responses Lite). Un catálogo explícito de nivel superior tiene prioridad; los catálogos de rol de usuario y posteriores no tienen prioridad. Activa la opción. Elimina
-`parameters.properties.message.encrypted: true`Cuando está presente, sólo de `spawn_agent`,
-`send_message`, y `followup_task`. ChatGPT se reserva tanto el `collaboration` El espacio de nombres y aquellos tres nombres de herramienta, por lo que la solicitud utiliza alias privados fijos para las cuatro identidades. Antes de hacer ese cambio, opencodex comprueba el nivel superior y `additional_tools` catálogos, espacios de nombres anidados,
-`tool_search_output` declaraciones, `tool_choice`, y los elementos de llamada anteriores para el espacio de nombres privado y Alias fijos. Cualquier conflicto deja toda la solicitud sin cambios. OpenCodex restaura solo el Alias con alcance de solicitud en respuestas JSON, SSE y WebSocket antes de que Codex reciba la llamada a la herramienta. Los `encrypted_function_args: []` El campo se conserva de manera que los clientes Codex compatibles reconocen el mensaje como texto plano.
+Para una solicitud v2 apta, opencodex reconoce el catálogo por un espacio de nombres `collaboration` de nivel superior con un hijo directo `spawn_agent`. El catálogo puede estar en `tools` de nivel superior o, cuando no existe `tools`, en `additional_tools` del primer elemento de entrada de desarrollador (Responses Lite). El catálogo explícito de nivel superior tiene prioridad; los catálogos de rol de usuario y los posteriores del historial no activan la opción. Se elimina `parameters.properties.message.encrypted: true`, si existe, únicamente de `spawn_agent`, `send_message` y `followup_task`. ChatGPT reserva tanto `collaboration` como esos tres nombres de herramientas, por lo que la solicitud usa alias privados fijos para las cuatro identidades. Antes del cambio, opencodex comprueba los catálogos de nivel superior y de `additional_tools`, los espacios de nombres anidados, las declaraciones `tool_search_output`, `tool_choice` y las llamadas anteriores para detectar conflictos con los alias o el espacio de nombres privado. Ante cualquier conflicto, toda la solicitud se conserva sin cambios. OpenCodex restaura solo los alias correspondientes a esa solicitud en las respuestas JSON, SSE y WebSocket antes de que Codex reciba la llamada. Se conserva `encrypted_function_args: []` para que los clientes compatibles reconozcan el mensaje como texto sin cifrar.
 
-Esta ruta no agrega ninguna solicitud de recuperación y, por lo tanto, no gasta la cuota adicional ChatGPT utilizada por un cache miss in `agentTaskRecovery`. No puede cambiar las tareas que ya están cifradas. Si la petición ya declara el alias privado o una referencia conflictiva, opencodex deja esa solicitud Sin cambios; la recuperación habilitada por separado aún puede manejar una tarea enrutada que luego se cifra. Si ChatGPT rechaza o ignora el esquema modificado, o el cliente Codex no reconoce el texto sin formato campos de respuesta, la llamada puede fallar. OpenCodex no vuelve a intentar la solicitud principal con el original esquema porque al hacerlo podría duplicar el uso de la cuota o las llamadas a herramientas.
+Esta ruta no añade solicitudes de recuperación y, por tanto, no consume la cuota adicional de ChatGPT asociada a una entrada ausente de la caché de `agentTaskRecovery`. No puede cambiar tareas que ya estén cifradas. Si la solicitud ya declara el alias privado o una referencia conflictiva, opencodex la conserva sin cambios; la recuperación activada por separado aún puede atender una tarea enrutada que se cifre después. Si ChatGPT rechaza o ignora el esquema modificado, o si el cliente no reconoce los campos de respuesta de texto sin cifrar, la llamada puede fallar. OpenCodex no reintenta la solicitud principal con el esquema original, porque podría duplicar el consumo de cuota o las llamadas a herramientas.
 
-La restauración utiliza un presupuesto transversal de 10.000 identidades para cada carga útil de respuesta. Si una carga útil se agota ese presupuesto, JSON delimitado devuelve HTTP 502 y devuelve un flujo `response.failed`; ni camino envía los alias privados a Codex o guarda la `previous_response_id`
-continuación.
+La restauración recorre un máximo de 10.000 identidades por respuesta. Si se agota ese presupuesto, la respuesta JSON acotada devuelve HTTP 502 y una transmisión devuelve `response.failed`; ninguna ruta envía los alias privados a Codex ni guarda la respuesta rechazada para continuar mediante `previous_response_id`.
 
-Para las llamadas reescritas correctamente, la opción elimina el cifrado de la capa de aplicación del agente argumentos de mensaje. HTTPS todavía cifra el transporte de la red, pero el texto del mensaje puede aparecer en Codex historial de tareas, solicitudes de proveedores enrutados, `responses-state.json` o sus archivos de derrame, y
-`usage-debug.jsonl` cuando la captura de depuración está habilitada. El comportamiento depende de ChatGPT indocumentado campos de esquema y respuesta y puede dejar de funcionar después de una actualización de cliente o backend. Startup imprime un aviso mientras esté habilitado.
+En las llamadas reescritas correctamente, la opción elimina el cifrado de aplicación de los argumentos de mensaje de agentes. HTTPS sigue cifrando el transporte de red, pero el texto puede aparecer en el historial de tareas de Codex, las solicitudes al proveedor enrutado, `responses-state.json` o sus archivos auxiliares y, si está activada la captura de depuración, `usage-debug.jsonl`. El comportamiento depende de campos no documentados del esquema y de la respuesta de ChatGPT y puede dejar de funcionar tras actualizar el cliente o el backend. Al iniciar se muestra una advertencia mientras la opción esté activada.
 
 ```json
 {
@@ -158,41 +128,37 @@ Para las llamadas reescritas correctamente, la opción elimina el cifrado de la 
 }
 ```
 
-El comando equivalente CLI es `ocx config set plaintextV2AgentMessages true`. Reiniciar el proxy Después de cambiar la configuración.
-
+El comando equivalente es `ocx config set plaintextV2AgentMessages true`. Reinicia el proxy después de cambiar la configuración.
 
 <a id="encrypted-v2-task-recovery"></a>
 
-## Recuperación de tareas cifradas v2
+## Recuperación de tareas v2 cifradas
 
-`agentTaskRecovery` es una ruta de compatibilidad experimental para tareas v2 cifradas en backend que alcanzan un proveedor encaminado. Dos formas de solicitud califican: un padre nativo ChatGPT que genera un hijo v2 enrutado, y un hilo en vivo cambió de un modelo nativo ChatGPT a uno enrutado, cuyo historial reproduce una mensaje de agente encriptado en cada turno posterior ([#4089](https://github.com/lidge-jun/opencodex/issues/4089)) Está deshabilitado por defecto. Cuando explícitamente habilitada y la tarea enrutada final contiene una carga útil de Fernet ilegible, opencodex utiliza una solicitud de paso Responses sin procesar a la
-`https://chatgpt.com/backend-api/codex/responses` extremo con autenticación en modo directo. ChatGPT devuelve la asignación de texto plano a través de una llamada a función forzada; opencodex luego convierte solo ese elemento de tarea a un mensaje de usuario estándar antes del envío del proveedor encaminado. Direct enrutado recuperación, repetición del historial en caché y el detector de tareas ilegibles reconocen los cuatro codex-rs tipos de agente-mensaje: `NEW_TASK`, `MESSAGE`, `FOLLOWUP_TASK`, y `FINAL_ANSWER`. Combo recuperación sigue limitado a los giros de niños engendrados. A `FINAL_ANSWER` El envoltorio puede omitir `Task name` línea. La recuperación entonces no tiene ninguna dirección del encabezado para comparar con el destinatario del artículo, de modo que la sola comprobación cruzada no se ejecuta; la comparación del remitente y el alcance de la caché, que aún vincula al destinatario estructurado, No han cambiado.
+`agentTaskRecovery` es una ruta experimental de compatibilidad para tareas v2 cifradas por el backend que llegan a un proveedor enrutado. Admite dos casos: un agente principal nativo de ChatGPT que crea un subagente v2 enrutado, y un hilo activo que cambia de un modelo nativo de ChatGPT a uno enrutado y reproduce en cada turno posterior un mensaje de agente cifrado por el backend ([#4089](https://github.com/lidge-jun/opencodex/issues/4089)). Está desactivada de forma predeterminada. Al activarla explícitamente, si la tarea final enrutada contiene una carga Fernet ilegible, opencodex hace una solicitud de paso directo de Responses al destino fijo `https://chatgpt.com/backend-api/codex/responses`, con autenticación de reenvío. ChatGPT devuelve la tarea en texto sin cifrar mediante una llamada a función forzada; opencodex convierte únicamente ese elemento en un mensaje de usuario estándar antes de enviarlo al proveedor enrutado. La recuperación directa, la reproducción del historial en caché y el detector de tareas ilegibles reconocen los cuatro tipos de mensajes de agentes de codex-rs: `NEW_TASK`, `MESSAGE`, `FOLLOWUP_TASK` y `FINAL_ANSWER`. La recuperación de Combos sigue limitada a turnos de subagentes creados. La envoltura de `FINAL_ANSWER` puede omitir la línea `Task name`; en ese caso no existe una dirección de cabecera que comparar con el destinatario del elemento y se omite solo esa comprobación. Se mantienen la comparación del remitente y el ámbito de la caché, que sigue incluyendo al destinatario estructurado.
 
-Esto no es descifrado local y no corrige el protocolo de cable Codex. Depende de los indocumentados Comportamiento del backend ChatGPT y puede dejar de funcionar después de un cambio en el backend. La asignación recuperada es salida del modelo, no es un texto plano criptográficamente verificado, por lo que la fidelidad byte por byte no es garantizado. Un error de caché con alcance puede agregar una solicitud ChatGPT autenticada, consumir cuota de cuenta y agregar latencia antes de la solicitud enrutada. Solicitudes concurrentes para la misma tarea de ámbito comparten una solicitud de recuperación. El inicio imprime una advertencia cada vez que la función está habilitada.
+Esto no descifra localmente ni corrige el protocolo de Codex. Depende de comportamiento no documentado del backend de ChatGPT y puede dejar de funcionar si cambia. La tarea recuperada es salida de un modelo, no texto sin cifrar verificado criptográficamente: no se garantiza fidelidad byte por byte. Una entrada ausente de la caché puede añadir una solicitud autenticada a ChatGPT, consumir cuota de la cuenta y aumentar la latencia antes de la solicitud enrutada. Las solicitudes concurrentes para la misma tarea y el mismo ámbito comparten una sola recuperación. Al iniciar se muestra una advertencia mientras la función esté activada.
 
-La admisión y la retención son deliberadamente estrechas:
+La admisión y la conservación están limitadas deliberadamente:
 
-- La recuperación solo está disponible mientras el proxy está vinculado al bucle de retorno;
-- Solo es elegible un llamador nativo de Codex con un par portador/cuenta ChatGPT coincidente. Este es el forma de credencial utilizada por el canónico `openai` proveedor con `authMode: "forward"`; usos de recuperación solo el par en la solicitud entrante y nunca sustituye la autenticación de clave API, otra credencial de proveedor u otra cuenta Codex;
-- Llamadas usando `x-opencodex-api-key`, `x-api-key`, credenciales genéricas API o una admisión proxy mantener en secreto lo existente `unreadable_encrypted_agent_task` fracaso;
-- Las credenciales ChatGPT sin procesar se envían solo al punto final ChatGPT codificado y nunca se colocan en el cuerpo de la solicitud, registros, claves de caché o solicitud del proveedor; el ámbito de caché en memoria usa solo un resumen de claves aleatorias de proceso de la credencial y cuenta de la persona que llama;
-- La solicitud de recuperación solo se envía `authorization`, la coincidencia `chatgpt-account-id`,
-  `originator`, y opcional `openai-beta` y `user-agent` metadatos; Conjuntos de opencodex `content-type`
-  y `accept` en sí mismo, y ningún otro encabezado de llamada cruza este límite;
-- El texto plano recuperado nunca se registra ni persiste; la caché local del proceso es credencial, padre o thread-, y ciphertext-scoped, expira después de 15 minutos, y está limitado por ambas entradas configuradas cuenta (200 por defecto, 512 máximo) y 8 MiB total;
-- cualquier sobre mal formado, recuperación fallida, tiempo de espera o error de validación conserva el error cerrado; la cancelación del cliente devuelve 499. Ninguno de los dos caminos reenvía texto cifrado a la proveedor de servicios.
+- La recuperación solo está disponible mientras el proxy esté vinculado a loopback.
+- Solo se admite un cliente nativo de Codex con un par de token bearer y cuenta de ChatGPT coincidente. Es el tipo de credencial del proveedor canónico `openai` con `authMode: "forward"`. La recuperación usa únicamente el par recibido y nunca lo sustituye por autenticación con clave API, credenciales de otro proveedor ni otra cuenta de Codex.
+- Los clientes que usen `x-opencodex-api-key`, `x-api-key`, credenciales API genéricas o un secreto de acceso al proxy siguen recibiendo `unreadable_encrypted_agent_task`.
+- Las credenciales originales de ChatGPT solo se envían al destino fijo de ChatGPT; nunca se incluyen en el cuerpo, los registros, las claves de caché ni la solicitud al proveedor. El ámbito de la caché en memoria usa un resumen de la credencial y la cuenta del cliente, calculado con una clave aleatoria por proceso.
+- La recuperación solo reenvía `authorization`, el `chatgpt-account-id` coincidente, `originator` y, opcionalmente, `openai-beta` y `user-agent`. opencodex establece `content-type` y `accept`; ningún otro encabezado del cliente cruza ese límite.
+- El texto recuperado nunca se registra ni persiste. La caché del proceso está delimitada por credencial, hilo principal y texto cifrado, caduca a los 15 minutos y tiene dos límites: la cantidad configurada de entradas (200 de forma predeterminada, 512 como máximo) y 8 MiB en total.
+- Una envoltura mal formada, una recuperación fallida, un tiempo de espera agotado o un error de validación conservan el rechazo seguro existente; la cancelación del cliente devuelve 499. Ninguna de esas rutas reenvía el texto cifrado al proveedor enrutado.
 
-La recuperación acepta una ejecución consecutiva de hasta 32 partes cifradas en forma de Fernet completas, con como máximo 2 MiB de texto cifrado combinado. Las partes conservan su orden y sus límites en un solicitud. La identidad de caché incluye la secuencia; la entrada original se revalida antes de la asignación reemplazo. Los fallos HTTP conservan la razón de diagnóstico limitada existente. No desencadenan una Intento interno a menos que `retries` se establece: con un valor de 1 a 2, opencodex vuelve a enviar el mismo solicitud admitida solo en un estado transitorio ascendente (500/502/503/504/52x) o un estado de transporte fracaso, después de un corto retroceso, y aún dentro de la misma credencial, fecha límite y vuelo compartido. Los estados de terminal y la salida de recuperación no válida nunca vuelven a intentarlo.
+La recuperación acepta una secuencia consecutiva de hasta 32 partes cifradas completas con estructura Fernet, con un máximo de 2 MiB de texto cifrado combinado. Las partes conservan su orden y sus límites en una sola solicitud autenticada. La identidad de caché incluye la secuencia; la entrada original vuelve a validarse antes de sustituir la tarea. Los fallos HTTP conservan la razón de diagnóstico acotada existente. No generan reintentos internos salvo que se configure `retries`: con un valor de 1 a 2, opencodex repite la misma solicitud admitida solo ante un estado transitorio del proveedor (500/502/503/504/52x) o un fallo de transporte, tras una espera breve con variación aleatoria y dentro de la misma credencial, plazo y operación compartida. Los estados terminales y las salidas de recuperación inválidas nunca se reintentan.
 
-Split tokens no se reconstruyen para la recuperación. Una carrera acotada cuya concatenación exacta tiene La estructura de Fernet permanece clasificada como texto cifrado a través de la normalización de la ranura de texto plano. Si la tarea no tiene texto legible independiente, falla cerrado sin una recuperación o solicitud de proveedor de ruta. El texto legible independiente conserva la política de contenido mixto existente. Otras representaciones de fragmentos permanecer sin soporte; esto no establece la recuperación general token-split o multipart de origen fidelidad.
+Los tokens divididos no se reconstruyen para recuperarlos. Una secuencia acotada cuya concatenación exacta tenga estructura Fernet sigue clasificada como texto cifrado al normalizar los campos de texto sin cifrar. Si la tarea no contiene texto legible independiente, se rechaza sin hacer una recuperación ni una solicitud al proveedor enrutado. El texto legible independiente conserva la política existente de contenido mixto. Otras representaciones fragmentadas no están admitidas; esto no ofrece recuperación general de tokens divididos ni garantiza fidelidad multipart del proveedor.
 
 <a id="threat-model"></a>
 
 ### Modelo de amenazas
 
-Esta ruta de acceso supone que el llamador nativo local Codex ya tiene una credencial válida ChatGPT y que el punto final fijo ChatGPT es de confianza para autenticarlo. Protege contra proxy genérico/API-clave los llamantes que utilizan la función como un oráculo de texto plano, redireccionando las credenciales a otro destino, Reutilización de caché entre cuentas o entre hilos, y registro o persistencia de datos sensibles. Admisión comprueba el emisor token, la audiencia, el cliente Codex, los límites de caducidad/no antes y la coincidencia exacta de la cuenta antes cada búsqueda de caché; el punto final sigue siendo la autoridad de firma.
+Esta ruta presupone que el cliente nativo local de Codex ya tiene una credencial válida de ChatGPT y que se confía en el destino fijo de ChatGPT para autenticarla. Protege frente a clientes genéricos del proxy o con clave API que intenten usar la función como un oráculo de texto sin cifrar, el envío de credenciales a otro destino, la reutilización de caché entre cuentas o hilos y el registro o la persistencia de datos sensibles. Antes de cada consulta a la caché, la admisión comprueba emisor, audiencia, cliente Codex, fechas de validez y coincidencia exacta de cuenta; el destino sigue siendo la autoridad que valida la firma.
 
-No protege contra otro proceso que se ejecuta como el mismo usuario del sistema operativo, un ChatGPT comprometido modelo de backend o recuperación, inyección rápida dentro de la tarea cifrada, errores de transcripción del modelo, o inspección de memoria del proxy en ejecución. Por lo tanto, la salida de recuperación debe tratarse como no confiable. modelo en lugar de texto plano autenticado.
+No protege frente a otro proceso del mismo usuario del sistema operativo, un backend de ChatGPT o un modelo de recuperación comprometido, la inyección de instrucciones dentro de la tarea cifrada, errores de transcripción del modelo ni la inspección de memoria del proxy. Por ello, la salida recuperada debe tratarse como salida de modelo no confiable y no como texto autenticado.
 
 ```json
 {
@@ -206,29 +172,27 @@ No protege contra otro proceso que se ejecuta como el mismo usuario del sistema 
 }
 ```
 
-Habilite esto solo cuando la solicitud autenticada adicional, el uso de cuota, el límite de texto en proceso plano, y la dependencia del backend privado son aceptables. Prefiero un hijo nativo ChatGPT o v1 heterogéneo delegación cuando no lo son.
+Activa esta opción solo si aceptas la solicitud autenticada adicional, el consumo de cuota, la presencia de texto sin cifrar en el proceso y la dependencia del backend privado. En caso contrario, prefiere un subagente nativo de ChatGPT o la delegación heterogénea v1.
 
-Esta ruta de recuperación se aplica a los niños con enrutamiento directo y el combo cifrado. `NEW_TASK` desove. En más de 32 solicitudes de recuperación pueden estar activas a la vez; errores adicionales fallan cerrado. Un combo con un El objetivo nativo canónico disponible todavía envía texto cifrado directamente; la recuperación se ejecuta solo cuando no El objetivo nativo es seleccionable. Después de la actualización de una cuenta Pool almacenada y la repetición de la misma cuenta se agotado, la recuperación puede usar la credencial de llamada entrante para un destino enrutado disponible sin Probar otra cuenta nativa. Las denegaciones de políticas siguen siendo terminales. Recuperación fallida, objetivos agotados, o los objetivos no disponibles aún no se cierran sin reenviar el texto cifrado a un proveedor enrutado.
+Esta recuperación se aplica a subagentes enrutados directamente y a la creación de `NEW_TASK` cifrados en Combos. Puede haber **como máximo 32 solicitudes de recuperación activas a la vez**; las solicitudes adicionales sin entrada de caché se rechazan. Un Combo con un destino nativo canónico disponible sigue enviándole el texto cifrado directamente: la recuperación solo se ejecuta cuando no se puede seleccionar ningún destino nativo. Después de agotar la actualización de la cuenta guardada de Pool y la repetición con esa misma cuenta, la recuperación puede usar la credencial del cliente entrante para un destino enrutado disponible sin probar otra cuenta nativa. Los rechazos por política siguen siendo terminales. Una recuperación fallida o la falta o el agotamiento de destinos provocan el rechazo sin reenviar texto cifrado a un proveedor enrutado.
 
 <a id="effort-caps"></a>
 
-## Tapas de esfuerzo
+## Límites de esfuerzo
 
-Las tapas se aplican solo a la función de colaboración v2: un turno principal califica cuando sus herramientas exponen v2, mientras que un niño califica cuando lleva codex-rs exacto `x-openai-subagent: collab_spawn` o
-`"subagent_kind": "thread_spawn"` Marcadores en `x-codex-turn-metadata`, incluso si las herramientas de hoja ya no exponen la colaboración. V1 giros principales, `multiAgentMode: "v1"`, compactación, revisión, y la consolidación de memoria gira tapas de derivación.
+Los límites solo se aplican a la colaboración v2: un turno principal cumple los requisitos cuando sus herramientas exponen v2; un subagente los cumple si lleva los marcadores exactos de codex-rs `x-openai-subagent: collab_spawn` o `"subagent_kind": "thread_spawn"` en `x-codex-turn-metadata`, aunque sus herramientas ya no expongan colaboración. Los turnos principales v1, `multiAgentMode: "v1"`, la compactación, la revisión y la consolidación de memoria quedan exentos.
 
-Los topes solo reducen el esfuerzo. Se ajustan al peldaño más alto anunciado en o por debajo de la tapa. Si un modelo tiene sin control de esfuerzo o sin configuración de peldaño compatibles, opencodex elimina el esfuerzo y permite que el proveedor predeterminado aplicar. `max` y `ultra` son aceptados, mientras que el panel ofrece `low` a través `xhigh`.
+Los límites solo reducen el esfuerzo. Se elige el nivel anunciado más alto que no supere el límite. Si el modelo no tiene control de esfuerzo o no admite ningún nivel que cumpla el límite, opencodex omite el esfuerzo y deja que se aplique el valor predeterminado del proveedor. Se aceptan `max` y `ultra`, aunque el panel ofrece de `low` a `xhigh`.
 
-Las tapas configuradas también se aplican a los giros Chat Completions nativos elegibles que no llevan ningún pin de esfuerzo del modelo. La asignación de cable del proveedor se ejecuta cuando se aplica un pin o cuando un límite cambia el valor; un valor nativo de la persona que llama mantiene su ortografía original de cable cuando no ocurre nada.
+Los límites configurados también se aplican a turnos nativos aptos de Chat Completions que no lleven una asignación de esfuerzo por modelo. La conversión al formato del proveedor se ejecuta al aplicar una asignación o al cambiar el valor por un límite; si no ocurre ninguna de esas cosas, se conserva la representación original enviada por el cliente nativo.
 
-Para obtener una explicación orientada a los principiantes de v1, por defecto y v2 comportamiento, consulte
-[Superficies de los subagentes](/es/guides/sub-agent-surface/).
+Consulta [Modos de subagentes](/es/guides/sub-agent-surface/) para una explicación inicial de v1, default y v2.
 
 <a id="global-model-effort-pins"></a>
 
-## Pins de esfuerzo modelo global
+## Asignaciones globales de esfuerzo por modelo
 
-La raíz opcional `modelPinnedEfforts` mapa llena o anula las opciones de esfuerzo entrantes cuando ni se configura un pin de modelo de proveedor ni un pin de todo el proveedor. Por ejemplo:
+El mapa opcional de nivel raíz `modelPinnedEfforts` completa o sustituye el esfuerzo recibido cuando no existe una asignación por modelo del proveedor ni una asignación para todo el proveedor. Por ejemplo:
 
 ```json
 {
@@ -238,8 +202,6 @@ La raíz opcional `modelPinnedEfforts` mapa llena o anula las opciones de esfuer
 }
 ```
 
-La búsqueda comprueba el selector final antes de la normalización del proveedor-prefijo, entonces el
-`provider/model` destino, luego su ID de modelo ascendente desnudo. Alias combo originales y ID de selector de fila de esfuerzo sintético no son claves de pin globales; configure el destino concreto. Los valores predeterminados de esfuerzo y combo de fila sintética se conservan como la entrada efectiva antes de fijar. Cada destino seleccionado resuelve su propio pin, a continuación, tapas aplicables y la normalización del cable. Las solicitudes de compactación están exentas. `none` significa omisión de esfuerzo y comportamiento predeterminado del proveedor, No garantiza la incapacidad de razonamiento.
+La búsqueda consulta primero el selector final antes de normalizar el prefijo del proveedor; después, el destino completo `provider/model`; y, por último, el identificador del modelo de origen sin prefijo. Los alias originales de Combos y los identificadores sintéticos de filas de esfuerzo no son claves de asignaciones globales: configura el destino concreto. Los valores predeterminados de esfuerzo de filas sintéticas y de Combos se conservan como entrada efectiva antes de aplicar la asignación. Cada destino elegido resuelve su propia asignación, luego los límites aplicables y la normalización del protocolo. Las solicitudes de compactación quedan exentas. `none` omite el esfuerzo y usa el comportamiento predeterminado del proveedor; no garantiza que se desactive el razonamiento.
 
-`GET /api/effort-caps` Incluye el mapa. `PUT /api/effort-caps` acepta `modelPinnedEfforts`
-junto con los límites existentes: los campos omitidos permanecen sin cambios, `null` Despeja el mapa, y un mapa entrada establecida para `null` o `""` Elimina solo esa clave. Las actualizaciones combinadas no válidas dejan ambas tapas y pines sin cambios. Guardar un pin no altera la lista de subagentes destacados.
+`GET /api/effort-caps` incluye el mapa. `PUT /api/effort-caps` acepta `modelPinnedEfforts` junto con los límites existentes: los campos omitidos no cambian, `null` borra el mapa y una entrada con `null` o `""` elimina solo esa clave. Una actualización combinada inválida no modifica los límites ni las asignaciones. Guardar una asignación no cambia la lista de subagentes destacados.

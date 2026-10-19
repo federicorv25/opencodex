@@ -710,7 +710,6 @@ region-pinned EU routes, is at [opper.ai/models](https://opper.ai/models). Opper
 | Umans AI · Neuralwatt | `https://api.code.umans.ai` · `https://api.neuralwatt.com/v1` |
 | Mistral | `https://api.mistral.ai/v1` |
 | MiniMax · MiniMax (CN) | `https://api.minimax.io/v1` · `https://api.minimaxi.com/v1` |
-
 | DeepSeek | `https://api.deepseek.com` |
 | Cerebras | `https://api.cerebras.ai/v1` |
 | Chutes | `https://llm.chutes.ai/v1` |
@@ -753,7 +752,6 @@ region-pinned EU routes, is at [opper.ai/models](https://opper.ai/models). Opper
 | GitLab Duo | `https://cloud.gitlab.com/ai/v1/proxy/openai/v1` |
 | Cloudflare AI Gateway | `https://gateway.ai.cloudflare.com/v1/{account-id}/{gateway}/anthropic` |
 | …and more | opencode zen, Vercel AI Gateway, Venice, NanoGPT, Synthetic, Qianfan, Alibaba, Parallel, ZenMux, LiteLLM |
-
 **OpenGateway** is an OpenAI-compatible gateway operated by Sionic AI at
 `https://apis.opengateway.ai/v1`. Its public catalog contains about 80 active models
 (as verified on 2026-10-02); the preset automatically refreshes the live model list from

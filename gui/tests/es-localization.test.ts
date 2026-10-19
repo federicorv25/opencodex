@@ -22,7 +22,7 @@ const identicalValues = new Set([
   "Manual: {mode}", "{active}/{total} visible", " · local", "arena {total}",
   "Pool", "Direct", "Home", "Child", "Hub", "Proxy", "Backend", "Combos", "Combo", "Round-robin", "Suite",
   "Anthropic", "Anthropic · Pool 2", "OpenAI", "Claude", "Codex", "GitHub", "Google", "Grok", "Grok Build",
-  "Claude Code", "Claude Desktop", "Kiro CLI", "Cursor", "OpenCode", "Pi", "OMP", "Hermes", "OpenClaw",
+  "Claude Code", "Claude Desktop", "Kiro CLI", "Builder ID", "Cursor", "OpenCode", "Pi", "OMP", "Hermes", "OpenClaw",
   "gjc", "DSH", "DeepSeek Harness (DSH)", "ZCode", "Aside", "Raycast", "omo", "Qoder", "Cline CLI", "Kilo",
   "Factory Droid", "GentleShell", "Kimi CLI", "MCode", "Prime CLI", "Codex CLI", "TypeSafe",
   "Gentle Shell", "Kimi Code", "MiniMax Code", "Command Code", "Prime Agent", "Command Code - Auth",
@@ -110,6 +110,9 @@ describe("Spanish localization contract", () => {
     expect(labSupplement("es", "selectVerdict", { subject: "probe-a" })).toContain("probe-a");
     expect(labSupplement("es", "community.notLocalVerdict")).toContain("local");
     expect(logGuardLabel("es", "cancel")).toBe("Cancelar");
+    expect(logGuardLabel("es", "compact")).toBe("Compactar");
+    expect(logGuardLabel("es", "repair")).toBe("Reparar protección");
+    expect(DICTS.es["lab.subjectKind"]).toBe("Tipo");
     expect(logGuardOperationLabel("es", "error.generic")).not.toBe(logGuardOperationLabel("en", "error.generic"));
     expect(visionReasoningLabel("es", "xhigh")).toBe("Muy alto");
     expect(ROUTING_COMPATIBILITY_FIELD_LABELS.es.unknownEvidence).toBe("Evidencia desconocida");
@@ -121,6 +124,9 @@ describe("Spanish localization contract", () => {
     expect(statusCodeInfo(200, "es")).toBeNull();
     for (const locale of ["es", "es-BO", "es-MX", "es-ES", "ES-ar"]) {
       expect(statusCodeInfo(401, locale)?.label).toBe("Sin autorización");
+      expect(statusCodeInfo(404, locale)?.label).toBe("No encontrado");
+      expect(statusCodeInfo(408, locale)?.label).toBe("Tiempo de espera de la solicitud agotado");
+      expect(statusCodeInfo(429, locale)?.label).toBe("Límite de solicitudes alcanzado");
       expect(statusCodeInfo(418, locale)?.label).toBe("Error en la solicitud");
       expect(statusCodeInfo(599, locale)?.label).toBe("Error del servidor o del proveedor de origen");
     }

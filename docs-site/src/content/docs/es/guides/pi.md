@@ -1,22 +1,22 @@
 ---
 title: "Pi"
-description: "Utilice cualquier modelo enrutado de Pi — ocx export escribe un bloque de proveedor personalizado para el models.json de Pi, conectado al proxy en ejecución."
+description: "Usa modelos enrutados desde Pi: ocx export genera un proveedor personalizado para models.json conectado al proxy."
 ---
 
-Pi lee a sus proveedores desde un único archivo global JSON en lugar de variables de entorno, por lo que opencodex no lo lanza. En cambio, `ocx export` serializa el `opencodex` bloque de proveedores — base URL, la lista de modelos y la referencia env Pi interpolan — y usted lo fusiona en su propio config.
+Pi lee sus proveedores de un archivo JSON global, por lo que opencodex no lo inicia. `ocx export` genera el bloque del proveedor `opencodex`, con la URL base, la lista de modelos y un marcador de clave local que no es secreto. Debes combinarlo con tu propia configuración.
 
 <a id="quickstart"></a>
 
 ## Inicio rápido
 
-Inicie el proxy y, a continuación, imprima la configuración:
+Inicia el proxy y muestra la configuración:
 
 ```bash
 ocx start
 ocx export --client pi
 ```
 
-La salida lleva con el JSON, entonces imprime la ruta de destino, el aviso de fusión, el env línea de exportación, y cuántos modelos llevan límites de contexto autorizados.
+La salida comienza con el JSON e indica después la ruta de destino, la advertencia para combinar la configuración, la indicación de uso local y cuántos modelos tienen límites de contexto confirmados. Esta exportación solo admite un proxy de loopback sin autenticación; no configura el acceso remoto.
 
 ```json
 {
@@ -24,7 +24,7 @@ La salida lleva con el JSON, entonces imprime la ruta de destino, el aviso de fu
     "opencodex": {
       "baseUrl": "http://127.0.0.1:10100/v1",
       "api": "openai-completions",
-      "apiKey": "$OPENCODEX_API_KEY",
+      "apiKey": "opencodex-loopback",
       "compat": {
         "sendSessionAffinityHeaders": true,
         "supportsDeveloperRole": false
@@ -43,26 +43,24 @@ La salida lleva con el JSON, entonces imprime la ruta de destino, el aviso de fu
 }
 ```
 
-Los proveedores de Pi generados permiten `compat.sendSessionAffinityHeaders`. Mantenga este indicador al fusionar o editar manualmente el proveedor: Pi proporciona una identidad de sesión estable y OpenCodex deriva afinidad canónica OpenCode Go de ella. Pi puede omitir la identidad cuando `cacheRetention` es `none`.
+Los proveedores generados para Pi activan `compat.sendSessionAffinityHeaders`. Conserva esta opción al combinar o editar el proveedor: Pi aporta una identidad estable de sesión y OpenCodex deriva de ella la afinidad canónica de OpenCode Go. Pi puede omitir esa identidad cuando `cacheRetention` es `none`.
 
-Los proveedores de Pi generados también se establecen `compat.supportsDeveloperRole` a `false`, por lo que Pi envía su mensaje de sistema como `system` en lugar de `developer`. OpenCodex reenvía los roles Chat Completions tal como se envían, y varios flujos ascendentes compatibles con OpenAI rechazan `developer` con un 400; cada corriente ascendente acepta `system`.
+También establecen `compat.supportsDeveloperRole` en `false`, para que Pi envíe su prompt de sistema como `system` en lugar de `developer`. OpenCodex reenvía los roles de Chat Completions tal como llegan; varios proveedores compatibles con OpenAI rechazan `developer` con HTTP 400, mientras que todos aceptan `system`.
 
-Los ID de modelo son los selectores canónicos del proxy, por lo que los modelos enrutados aparecen como `provider/model`
-(`anthropic/claude-opus-5`) y las babosas nativas OpenAI permanecen sin prefijar (`gpt-5.6-sol`) Los `name`
-sufijo — `(anthropic)`, `(native)`, `(routed)` — es lo que hace que dos modelos con el mismo nombre de diferentes de origen distinguibles en el selector de Pi.
+Los identificadores son los selectores canónicos del proxy. Los modelos enrutados aparecen como `provider/model` (`anthropic/claude-opus-5`), y los modelos nativos de OpenAI conservan su identificador sin prefijo (`gpt-5.6-sol`). El sufijo de `name` —`(anthropic)`, `(native)` o `(routed)`— permite distinguir modelos con el mismo nombre de distintos proveedores en el selector de Pi.
 
 <a id="where-it-goes"></a>
 
-## A donde va
+## Dónde se guarda
 
-La configuración del modelo global de Pi es:
+El archivo global de modelos de Pi es:
 
 ```text
 ~/.pi/agent/models.json
 ```
 
 :::caution[Combina la configuración; no la reemplaces]
-`ocx export` Nunca escribe ese archivo. Combinar el `providers.opencodex` bloque en él — reemplazar el El archivo destruye todos los demás proveedores que haya configurado allí. `--out` existe para un camino de rasguño y se niega a sobrescribir un archivo existente sin `--force`:
+`ocx export` nunca escribe ese archivo. Combina el bloque `providers.opencodex` con el contenido existente: reemplazar todo el archivo destruye los demás proveedores configurados. `--out` sirve para una ruta temporal y no sobrescribe archivos existentes salvo que se indique `--force`:
 
 ```bash
 ocx export --client pi --out ~/opencodex-pi-models.json
@@ -70,71 +68,52 @@ ocx export --client pi --json > ~/opencodex-pi-models.json   # or redirect the b
 ```
 :::
 
-El bloque exportado es una instantánea estática, no una vista en vivo. Relanzamiento `ocx export` Después de añadir a proveedor o cambiar la visibilidad del modelo, y combinar el nuevo bloque sobre el antiguo.
+El bloque exportado es una instantánea estática. Vuelve a ejecutar `ocx export` después de añadir un proveedor o cambiar la visibilidad de modelos y combina el bloque nuevo con el anterior.
 
 <a id="the-admission-key"></a>
 
-## La clave de admisión
+## La clave de acceso
 
-Dos claves diferentes son fáciles de confundir aquí, y solo la primera aparece en este archivo:
-
-| Clave | Qué es | Donde vive |
-| --- | --- | --- |
-| Clave de admisión proxy | La credencial propia de opencodex, generada en el panel **API** ficha | referenciado por `apiKey` como `$OPENCODEX_API_KEY`; el valor permanece en su entorno |
-| Clave del proveedor | su clave Anthropic / OpenAI / OpenRouter | La propia configuración de opencodex, por [Proveedores](/es/guides/providers/) |
-
-La configuración exportada lleva solo la referencia, nunca un secreto. Pi interpola a bare `$NAME`, así La variable es:
-
-```bash
-export OPENCODEX_API_KEY=<your key>
-```
-
-Ese nombre es solo de Pi. opencode utiliza una variable diferente (`OPENCODEX_OPENCODE_API_KEY`, en `{env:…}` forma) — ver el [Guía de código abierto](/es/guides/opencode/).
-
-**Un proxy loopback no necesita ninguna clave.** opencodex se une `127.0.0.1` por defecto y autentica No hay nada allí, así que el `$OPENCODEX_API_KEY` referencia es inerte y puede dejar la variable sin establecer. Importa sólo cuando `hostname` se establece más allá de loopback, que también es el caso donde el proxy se niega a iniciar sin un token — ver [Acceso remoto](/es/reference/configuration/server/#remote-access).
+El `apiKey` exportado es el marcador no secreto `opencodex-loopback`. No se genera ni se requiere una variable `OPENCODEX_API_KEY`. El exportador solo admite un proxy local de loopback sin autenticación y rechaza servidores remotos o protegidos con token. Las credenciales de los proveedores permanecen en la configuración de opencodex, como explica [Proveedores](/es/guides/providers/); nunca pongas una clave del proveedor de origen en este bloque de Pi. Para acceso remoto, usa una integración que admita credenciales de acceso al proxy. Cambiar el marcador no habilita la exportación remota de Pi.
 
 <a id="model-metadata"></a>
 
-## Metadatos modelo
+## Metadatos de modelos
 
-`contextWindow` y `maxTokens` solo se emiten cuando el catálogo informa de un contexto autorizado ventana. Cuando no lo hace, ambos campos se omiten para ese modelo y Pi aplica sus propios valores predeterminados;
-`ocx export` imprime cuántas filas cayeron en ese caso.
+`contextWindow` y `maxTokens` solo se incluyen cuando el catálogo informa una ventana de contexto confirmada. Si no hay una, se omiten ambos y Pi aplica sus valores predeterminados; `ocx export` indica cuántas entradas están en ese caso.
 
-Los límites de salida utilizan el máximo conocido del modelo a partir del catálogo o metadatos generados. Solo los límites desconocidos vuelven a caer `32000`. El límite de salida siempre está sujeto a la ventana de contexto, incluidos los límites conocidos a continuación. `32000`.
+Los límites de salida usan el máximo conocido del modelo en el catálogo o los metadatos generados. Solo si ese límite se desconoce se usa `32000`. La salida siempre se limita a la ventana de contexto, incluso cuando los límites conocidos son inferiores a `32000`.
 
-Dos campos están deliberadamente ausentes. `cost` requiere los cuatro campos de precio y opencodex no tiene Los datos de precios para los modelos enrutados — que emiten ceros afirmarían que cada modelo es gratuito.
+El campo `cost` se omite porque requiere cuatro precios y opencodex no tiene esos datos para los modelos enrutados; emitir ceros afirmaría que todos son gratuitos.
 
-`reasoning` es el único campo que solía estar ausente y ahora no lo está: Pi almacena un booleano mientras el El catálogo lleva una escalera de esfuerzo, y mapear uno sobre el otro solía ser una suposición. Desde el La escalera del catálogo es la propia declaración del proxy sobre si un modelo acepta parámetros de razonamiento. (adaptadores honor `reasoning_effort`), una fila de exportación con un **no vacío** La escalera ahora emite
-`"reasoning": true`y una fila sin uno (o con una escalera explícitamente vacía) se queda Razonamiento libre. Pi ofrece su control de esfuerzo para exactamente los modelos que opencodex aceptará encendido. La exportación también emite un `thinkingLevelMap` que oculta todos los niveles de pi sin objetivo declarado (`null`), por lo que pi nunca ofrece — y nunca envía — un esfuerzo que la escalera no contiene. Uno fallback mantiene el modelo utilizable: cuando `ultra` Se declara sin `max`, pi's `max` mapas de nivel a `ultra` (todavía un miembro de la escalera). Si necesita un mapeo diferente, edite a mano `thinkingLevelMap` Según lo documentado por Pi.
+`reasoning`, que antes se omitía, ahora se deriva de los niveles de esfuerzo del catálogo. Pi guarda un booleano: una lista **no vacía** genera `"reasoning": true`; sin lista, o con una explícitamente vacía, no se anuncia razonamiento. Así Pi ofrece el control solo para modelos cuyo catálogo declara que aceptan parámetros de razonamiento (`reasoning_effort`). La exportación también genera `thinkingLevelMap`, que oculta con `null` los niveles de Pi sin un destino declarado, para que no se ofrezca ni envíe un esfuerzo ajeno a la lista. Si se declara `ultra` sin `max`, el nivel `max` de Pi se asigna a `ultra`, que sí pertenece a la lista. Si necesitas otra asignación, edita `thinkingLevelMap` según la documentación de Pi.
 
-Tratar `reasoning` como metadatos Pi-UI: se deriva de la escala de catálogo, no prueba que el upstream soporta de forma nativa un parámetro de razonamiento. Lo que el proxy realmente envía para un determinado
-`reasoning_effort` el valor depende del adaptador del proveedor y del modelo — puede pasar el valor a través de él, traducirlo (alias de alambre), sujetarlo a la escalera configurada, emularlo u omitirlo completamente (e.g. `noReasoningModels`) El booleano solo controla si Pi ofrece el control en Todo.
+Trata `reasoning` como un metadato de interfaz de Pi, no como prueba de compatibilidad nativa del proveedor. Lo que el proxy envía para un valor `reasoning_effort` depende del adaptador y el modelo: puede reenviarlo, convertirlo a otro nombre del protocolo, limitarlo a los niveles configurados, emularlo u omitirlo (por ejemplo, con `noReasoningModels`). El booleano solo decide si Pi ofrece el control.
 
 <a id="attachment-and-request-compatibility"></a>
 
-## Compatibilidad con archivos adjuntos y solicitudes
+## Compatibilidad de adjuntos y solicitudes
 
 :::note[Comportamiento pendiente de publicación]
-Los cambios de paridad de proveedor descritos aquí están en la pila de relaciones públicas de desarrollo; una pila instalada más antigua. release puede seguir teniendo el comportamiento de conversión anterior.
+Los cambios de paridad de proveedores descritos aquí están en la cadena de PR de desarrollo; una versión instalada anterior puede conservar la conversión previa.
 :::
 
-OpenCodex normaliza las imágenes de usuario en forma de Pi/MCP y Anthropic antes de elegir el Chat nativo o ruta traducida. Las imágenes devueltas por las herramientas utilizan un portador de mensaje de usuario traducido después de la resultados de herramientas emparejadas; las imágenes de usuario ordinarias y los resultados de herramientas solo de texto pueden mantener la ruta nativa. Usar moderno `tool_calls` y `role: "tool"` con `tool_call_id`: legado `function`-resultado de la imagen la traducción es rechazada en lugar de descartar silenciosamente el resultado.
+OpenCodex normaliza las imágenes de usuario con formato Pi/MCP o Anthropic antes de elegir una ruta Chat nativa o traducida. Las imágenes devueltas por herramientas pasan a un mensaje de usuario traducido después de los resultados de herramientas emparejados; las imágenes normales de usuario y los resultados de texto pueden conservar la ruta nativa. Usa `tool_calls` y `role: "tool"` con `tool_call_id`: se rechaza la traducción de imágenes en resultados antiguos `function`, en lugar de descartar el resultado silenciosamente.
 
-Un razonamiento explícito de `none` Sobrevive a la conversión de chat. Límites de salida y muestreo Los controles se conservan para los objetivos genéricos API-key Responses; el objetivo canónico ChatGPT sigue aplicando sus propias restricciones. Esto no hace que los controles de todos los proveedores sean equivalentes.
+Un esfuerzo explícito `none` se conserva al convertir a Chat. Los límites de salida y controles de muestreo se conservan para destinos Responses genéricos con clave API; el destino canónico de ChatGPT sigue aplicando sus restricciones. Esto no hace equivalentes los controles de todos los proveedores.
 
-El audio WAV/MP3 en línea de un mensaje de usuario o de un resultado de herramienta se conserva al convertirlo a OpenAI Chat como una parte `input_audio`. El audio de herramientas se coloca en un mensaje de usuario posterior a los resultados emparejados, porque los mensajes de herramienta de Chat solo admiten texto. También se conservan los documentos que incluyen sus propios bytes base64 en un mensaje de usuario: llegan a Anthropic, OpenAI Chat y Google como documento nativo, parte de archivo o datos en línea. El resto devuelve un error explícito, en lugar de continuar sin el adjunto: audio remoto o incompatible, identificadores de archivo o referencias remotas que el proxy no pueda resolver, adjuntos en mensajes de sistema, documentos en resultados de herramientas y documentos enviados a protocolos sin un soporte para sus bytes. Las imágenes que solo tienen un identificador de archivo comparten esa restricción, porque los adaptadores de conversión no pueden resolverlo. Convierte primero el adjunto a texto o usa un protocolo nativo y un modelo que lo admitan. Chat nativo y Responses sin conversión, incluido Azure, mantienen su comportamiento; esto no garantiza que todos los modelos admitan esos medios. Los límites de conversión de video siguen dependiendo del adaptador.
+El audio WAV/MP3 incluido en un mensaje de usuario o resultado de herramienta se conserva al convertir a OpenAI Chat como contenido `input_audio`. El audio de herramientas pasa a un mensaje de usuario posterior a los resultados emparejados, porque los mensajes de herramienta de Chat solo admiten texto. Un documento con sus propios bytes base64 en un mensaje de usuario también se conserva: llega a Anthropic, OpenAI Chat y Google como documento nativo, parte de archivo y datos en línea, respectivamente. Los demás casos devuelven un error explícito: audio remoto o incompatible, referencias remotas o identificadores de archivo que el proxy no pueda resolver, adjuntos en mensajes de sistema, documentos en resultados de herramientas y documentos enviados a un protocolo sin soporte para bytes. Las imágenes con solo identificador de archivo tienen la misma limitación. Convierte el adjunto a texto o usa un protocolo nativo y un modelo que lo admitan. Chat nativo y Responses sin conversión (incluido Azure) conservan su comportamiento; esto no promete compatibilidad multimedia de todos los modelos. Los límites de conversión de video dependen del adaptador.
 
 <a id="schema-status"></a>
 
 ## Estado del esquema
 
 :::note[Sin verificar en una instalación real]
-La forma anterior sigue la documentación personalizada de Pi. Tiene **no** ha sido verificado contra un real `~/.pi/agent/models.json` en una máquina con Pi instalado. Si Pi rechaza la exportación bloque, el desajuste está de nuestro lado — por favor
-[abrir un problema](https://github.com/lidge-jun/opencodex/issues) Lo que dice Pi.
+La estructura anterior sigue la documentación pública de proveedores personalizados de Pi. **No se ha verificado** con un archivo `~/.pi/agent/models.json` real de una instalación de Pi. Si Pi rechaza el bloque exportado, el error está de nuestro lado: [abre una issue](https://github.com/lidge-jun/opencodex/issues) con el mensaje que muestra Pi.
 :::
 
 <a id="requirements"></a>
 
-## Necesidades
+## Requisitos
 
-Un proxy opencodex en ejecución (`ocx start`) y Pi instalado. `ocx export` lee el catálogo en vivo a través de la administración del proxy API, por lo que nunca se puede emitir una configuración con una lista de modelos vacía.
+Un proxy opencodex en ejecución (`ocx start`) y Pi instalado. `ocx export` lee el catálogo activo mediante la API de administración del proxy, por lo que no genera una configuración con la lista de modelos vacía.

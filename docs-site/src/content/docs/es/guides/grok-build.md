@@ -1,9 +1,9 @@
 ---
 title: "Grok Build"
-description: "Utilice cualquier modelo opencodex-enrutado de xAI Grok Build CLI modelos — se auto-registran en ~/.grok/config.toml mientras se ejecuta el proxy."
+description: "Usa modelos enrutados por opencodex desde Grok Build CLI de xAI; se registran en ~/.grok/config.toml mientras el proxy está activo."
 ---
 
-opencodex sirve un OpenAI-compatible `POST /v1/responses` en su puerto local, y Grok Build admite modelos personalizados contra servidores compatibles con OpenAI. Comenzando con esta integración, opencodex registra todo su catálogo visible en Grok Build automáticamente — sin configuración manual Se requiere edición.
+opencodex sirve un OpenAI -compatible `POST /v1/responses` en su puerto local, y Grok Build soporta modelos personalizados contra OpenAI -compatible con servidores. A partir de esta integración, opencodex registra todo su catálogo visible en Grok Build automáticamente, sin necesidad de edición de configuración manual.
 
 <a id="auto-registration"></a>
 
@@ -38,14 +38,13 @@ default = true
 # <<< opencodex managed block <<<
 ```
 
-- **Aditivo:** su propia configuración fuera de la cerca nunca se toca. Antes de la primera inyección en un archivo preexistente, se escribe una copia de seguridad única
-  `~/.grok/config.toml.bak-opencodex`.
-- **Idempotente:** cada `ocx start` (y `ocx ensure` mientras el inicio automático está habilitado) reemplaza el bloque vallado con el catálogo actual.
-- **Eliminado en desmontaje:** `ocx stop`, `ocx eject`, `ocx uninstall`, y graciosa daemon shutdown sin servicio desmonta el bloque cercado y restaura tu archivo byte por byte. Bajo un gerente de servicio, el desmontaje pasa por `ocx stop`/`ocx
-  uninstall` (los procesos en modo servicio mantienen intencionalmente el bloque en respawns).
-- **Conflict-safe:** Alias ya definidos por su propio `[model.*]` Las mesas son respetadas (opencodex sufijos sus propias entradas); una valla dañada (comienza marcador sin marcador final) rechaza cualquier cambio automático y pide la reparación manual.
+- **Aditivo:** su propia configuración fuera de la valla nunca se toca. Antes de la primera inyección en un archivo preexistente, se escribe una copia de seguridad de una sola vez en `~/.grok/config.toml.bak-opencodex`.
+- **Idempotente:** cada `ocx start` (y `ocx ensure` mientras el inicio automático está habilitado) reemplaza el bloque cercado con el catálogo actual.
+- **Eliminado en desmontaje:** `ocx stop`, `ocx eject`, `ocx uninstall`, y el elegante daemon sin servicio de apagado desmonta el bloque vallado y restaura tu archivo byte por byte. Bajo un administrador de servicios, el desmontaje pasa por `ocx stop` / `ocx
+  uninstall` (los procesos en modo servicio mantienen el bloque intencionalmente en todas las reapariciones).
+- **Conflict-safe:** alias ya definidos por sus propias mesas `[model.*]` (opencodex sufijos de sus propias entradas); una valla dañada (marcador de inicio sin marcador final) rechaza cualquier cambio automático y pide reparación manual.
 
-A continuación, elija un modelo dentro de Grok Build:
+A continuación, elija un modelo dentro Grok Build:
 
 ```bash
 grok models          # lists ocx-* entries alongside native grok models
@@ -57,30 +56,21 @@ grok -m ocx-anthropic-claude-opus-4-8 -p "hello"
 
 ## Esfuerzo de razonamiento
 
-Grok Build `/effort` (y `--effort`) solo funciona para modelos cuya entrada en el catálogo anuncia la escalera: su lista de modelos fetch lee el crudo `GET /v1/models` respuesta, y Las entradas deben llevar `supports_reasoning_effort` más `reasoning_efforts` menú opciones. Una proyección compatible con Grok de esa escalera se escribe en cada uno administrado
-`[model.*]` cuadro (`supports_reasoning_effort`, por defecto `reasoning_effort`, y
-`[[model.<alias>.reasoning_efforts]]` filas del selector) para que el menú esté presente cuando Grok Lee el modelo de `config.toml`. Para las entradas del modelo enrutado, opencodex refleja el niveles de proveedores configurados (`reasoningEfforts` / `modelReasoningEfforts`, y el valor predeterminado Desde `modelDefaultReasoningEfforts`) Este metadata describe el proxy configurado Escalera enrutada. Los adaptadores pueden emular el razonamiento o mapear niveles en proveedores específicos campos. Los modelos enrutados con una escalera configurada muestran el control de esfuerzo en Grok Build como en Codex. Los modelos con una lista de niveles vacía no mantienen ningún control de esfuerzo, lo que coincide con el comportamiento Codex. Nativo Las entradas GPT-5.6 están separadas: preservan y exponen su razonamiento ascendente anclado más que los metadatos enrutados configurados por el proveedor. peldaños válidos Grok, incluyendo
-`none` y `minimal`, se conservan cuando se anuncian. peldaños no soportados o duplicados, incluyendo Codex-solamente `ultra`, se omiten del archivo, guardando cada recolector emitido opción seleccionable.
+Grok Build 's `/effort` (y `--effort`) sólo funciona para los modelos cuya entrada de catálogo anuncia la escalera: su lista de modelos lee la respuesta cruda `GET /v1/models`, y las entradas allí deben llevar `supports_reasoning_effort` más `reasoning_efforts` opciones de menú. Una proyección compatible con Grok de esa escalera se escribe en cada tabla `[model.*]` administrada ( filas `supports_reasoning_effort`, `reasoning_effort` predeterminadas y `[[model.<alias>.reasoning_efforts]]` de selector) de modo que el menú está presente cuando Grok lee el modelo desde `config.toml`. Para las entradas de modelo enrutadas, opencodex refleja los niveles de proveedor configurados ( `reasoningEfforts` / `modelReasoningEfforts`, y el valor predeterminado de `modelDefaultReasoningEfforts`). Estos metadatos describen la escalera enrutada configurada por proxy. Los adaptadores pueden emular el razonamiento o mapear niveles en campos específicos del proveedor. Los modelos enrutados con una escalera configurada muestran el control de esfuerzo en Grok Build al igual que lo hacen en Codex. Los modelos con una lista de niveles vacía no mantienen ningún control de esfuerzo, igualando el comportamiento de Codex. Las entradas nativas de GPT-5.6 están separadas: preservan y exponen sus escalas de razonamiento ascendente ancladas en lugar de los metadatos enrutados configurados por el proveedor. Los Grok peldaños válidos, incluidos los `none` y `minimal`, se conservan cuando se anuncian. Los peldaños no soportados o duplicados, incluyendo Codex -sólo `ultra`, se omiten del archivo, manteniendo cada opción de selector emitida seleccionable.
 
-Grok Build habla con opencodex sobre la Responses API. Cuando la ruta anuncia un razonamiento ladder, el Responses pasa a través hacia adelante `reasoning.summary` como se configura, así que pensar Las trazas alcanzan Grok de forma nativa como elementos de razonamiento Responses. Establecer `reasoning.summary: "none"` si un cliente quiere que el modelo piense sin devolver el rastro. Una explícita `reasoning.summary`
-gana sobre la ruta predeterminada.
+Grok Build habla con opencodex sobre el Responses API. Cuando la ruta anuncia una escalera de razonamiento, el paso Responses avanza `reasoning.summary` según lo configurado, por lo que las trazas de pensamiento alcanzan Grok de forma nativa como Responses elementos de razonamiento. Establecer `reasoning.summary: "none"` si un cliente quiere que el modelo piense sin devolver el rastro. Un `reasoning.summary` explícito gana sobre el valor predeterminado de la ruta.
 
 <a id="authentication-note"></a>
 
 ## Nota de autenticación
 
-Grok Build requiere una clave API no vacía para los modelos personalizados, incluso en loopback. El inyectado las entradas llevan un marcador de posición (`opencodex-loopback`) — opencodex ignora las claves de admisión conexiones loopback, por lo que no hay secreto real está involucrado.
+Grok Build requiere una clave API no vacía para modelos personalizados incluso en bucle. Las entradas inyectadas llevan un marcador de posición (`opencodex-loopback`) - opencodex ignora las claves de admisión para las conexiones de bucle invertido, por lo que no hay ningún secreto real involucrado.
 
-**El registro automático es solo loopback.** Cuando opencodex se une a un host que no es loopback, — incluye los comodines `0.0.0.0` y `::`, que exponen todas las solicitudes de interfaz — necesitan su real admission token, y un bloque administrado no puede llevar uno de forma segura. Escribir el literal token sería Pon tu secreto en `~/.grok/config.toml` y sobrescribir lo que sea que establezcas allí en el siguiente
-`ocx start`/`ensure`/`restart`. Así que opencodex no escribe nada en absoluto en ese caso (y elimina cualquier bloque sobrante de un enlace de bucle de retorno anterior), y configurar los modelos usted mismo fuera de los marcadores administrados, donde nada de lo que hace opencodex puede golpearlos. Véase
-[Receta manual](#manual-recipe-without-auto-registration) para la tabla exacta, y establecer ambos
-`base_url` (un host que es realmente accesible desde donde corres `grok`) `api_key`
-(tu `OPENCODEX_API_AUTH_TOKEN`).
+**El registro automático es solo loopback.** Cuando opencodex enlaza un host no loopback - incluyendo los comodines `0.0.0.0` y `::`, que exponen todas las interfaces - las solicitudes necesitan su token de admisión real, y un bloque administrado no puede llevar uno de forma segura. Escribir el token literal pondría tu secreto en `~/.grok/config.toml` y sobrescribiría lo que establezcas allí en el siguiente `ocx start` / `ensure` / `restart`. Por lo tanto, opencodex no escribe nada en ese caso (y elimina cualquier bloque sobrante de un enlace de bucle de retroceso anterior), y configura los modelos usted mismo fuera de los marcadores administrados, donde nada opencodex puede golpearlos. Vea [Receta manual](#manual-recipe-without-auto-registration) para la tabla exacta, y establezca `base_url` (un host que es realmente accesible desde donde ejecuta `grok`) y `api_key` (su `OPENCODEX_API_AUTH_TOKEN`).
 
-No reemplazar `api_key` con `env_key` Aquí. Un `env_key` El que no se resuelve no detener la solicitud — Grok cae a su sesión xAI token y lo envía a cualquier `base_url` los nombres de entrada, que para una implementación LAN es un punto final HTTP de texto plano que no es xAI.
+No reemplace `api_key` con `env_key` aquí. Un `env_key` que no se resuelve no detiene la solicitud - Grok cae a través de su token de sesión xAI y lo envía a cualquier `base_url` los nombres de entrada, que para una implementación de LAN es un punto final HTTP de texto plano que no es xAI.
 
-El inyectado `api_key` en la entrada del proveedor ocupa el primer lugar en la cadena de credenciales de Grok para estos modelos, por lo que se vuelve en contra de opencodex no necesitan ningún inicio de sesión adicional Grok. Mantenga su normalidad
-`grok login` / `XAI_API_KEY` configuración para los modelos nativos de gruk y cualquier arnés características que Póngase en contacto directamente con xAI.
+El `api_key` inyectado en la entrada del proveedor se encuentra primero en la cadena de credenciales de Grok para estos modelos, por lo que las vueltas contra opencodex no necesitan un inicio de sesión Grok adicional. Mantenga su configuración normal `grok login` / `XAI_API_KEY` para los modelos de gruk nativos y cualquier función de arnés que contacte directamente con xAI.
 
 <a id="manual-recipe-without-auto-registration"></a>
 
@@ -100,7 +90,7 @@ model = "anthropic/claude-opus-4-8"
 model_provider = "opencodex"
 ```
 
-Para un proxy accesible a través de la red, `base_url` en la dirección `grok` puede en realidad marque y use su admisión token:
+Para un proxy accesible a través de la red, el punto `base_url` en la dirección `grok` puede marcar y usar su token de admisión:
 
 ```toml
 [model_providers.opencodex]
@@ -113,24 +103,22 @@ model = "anthropic/claude-opus-4-8"
 model_provider = "opencodex"
 ```
 
-Esto usa `[model_providers.<id>]` herencia, que requiere Grok Build 0.2.109 o posterior (publicado 2026-07-21). En versiones anteriores, los herederos `base_url` No se aplica a la inferencia encaminar la actualización —, o volver a los campos directos por modelo (`base_url`/`api_backend`/`api_key`
-en cada `[model.*]` tabla).
+Esto usa la herencia `[model_providers.<id>]`, que requiere Grok Build 0.2.109 o posterior (liberado 2026-07-21). En versiones anteriores, el heredado `base_url` no se aplica al enrutamiento de inferencia - actualización, o volver a los campos directos por modelo (`base_url` / `api_backend` / `api_key` en cada tabla `[model.*]`).
 
-Citar cualquier alias que contenga un punto: bare `[model.grok-4.5]` es un camino clave de tres segmentos, no El ID `grok-4.5`. Los alias generados evitan los puntos completamente por esta razón.
+Citar cualquier alias que contenga un punto: bare `[model.grok-4.5]` es una ruta clave de tres segmentos, no el id `grok-4.5`. Los alias generados evitan los puntos completamente por esta razón.
 
 <a id="known-limitations"></a>
 
 ## Limitaciones conocidas
 
-- **Instalación de servicio `ocx restart`:** el proxy en ejecución posee la autorización de reinicio y drena coordinación, mientras que el administrador de servicios instalado inicia el reemplazo después del proceso anterior salidas. La supervisión del servicio permanece instalada. En el registro automático de loopback, el bloque administrado también se mantiene en su lugar a través de la transferencia; despliegues no loopback uso gestionado manualmente Grok configuración en su lugar. El comando tiene éxito solo después de que un proceso diferente, verificado por la identidad, es saludable en el mismo puerto.
-- **Configure el tiempo de lectura:** iniciar opencodex primero, luego iniciar `grok` Para los más resultados predecibles. Relojes Grok Build `~/.grok/config.toml` y se recarga cuando el
-  `[model]` La tabla cambia (aproximadamente un segundo de rebote, en comparación con el contenido), por lo que un bloque actualizado llega a una sesión abierta sin reiniciarse. Para confirmar lo que Grok analizó, ejecutar `grok inspect`: enumera las fuentes de configuración que cargó y advierte sobre cualquier campo que haya rechazado. No imprime la lista de modelos resueltos. Informes y saltos actuales de Grok Build campos de modelo no válidos mientras se conserva el resto de la entrada del modelo. Un error de sintaxis TOML todavía Evita que el archivo se cargue. opencodex escribe atómicamente, por lo que Grok observa una documento en cada recarga.
-- **Actualizaciones del catálogo:** el bloque vallado refleja el catálogo en el memento de la inyección. Después agregar proveedores o modelos, ejecutar `ocx ensure` (o reiniciar el proxy) para actualizarlo.
+- **Instalación del servicio `ocx restart`:** el proxy en ejecución posee la autorización de reinicio y la coordinación de drenaje, mientras que el administrador de servicios instalado inicia el reemplazo después de que finalice el proceso anterior. La supervisión del servicio permanece instalada. En el registro automático de bucle de retorno, el bloque administrado también permanece en su lugar a través del traspaso; en su lugar, las implementaciones que no son de bucle de retorno utilizan la configuración administrada manualmente Grok. El comando solo tiene éxito después de que un proceso diferente verificado por identidad esté activo en el mismo puerto.
+- **Configure el tiempo de lectura:** inicia primero opencodex, luego lanza `grok` para obtener los resultados más predecibles. Grok Build observa `~/.grok/config.toml` y se recarga cuando la tabla `[model]` realmente cambia (aproximadamente un segundo de rebote, en comparación con el contenido), por lo que un bloque actualizado alcanza una sesión abierta sin reiniciar. Para confirmar lo que Grok analizó, ejecute `grok inspect`: enumera las fuentes de configuración que cargó y advierte sobre cualquier campo que rechazó. No imprime la lista de modelos resueltos. El modelo Grok Build actual informa y omite campos de modelo no válidos mientras conserva el resto de la entrada del modelo. Un error de sintaxis TOML aún evita que el archivo se cargue. opencodex escribe atómicamente, por lo que Grok observa un documento completo en cada recarga.
+- **Actualizaciones del catálogo:** el bloque vallado refleja el catálogo en el momento de la inyección. Después de agregar proveedores o modelos, ejecute `ocx ensure` (o reinicie el proxy) para actualizarlo.
 
 <a id="devin-rate-limits"></a>
 
 ## Límites de tarifas Devin
 
-Si Devin rechaza una solicitud directa con un límite de velocidad antes de producir una acción, OpenCodex devuelve HTTP 429 con un error JSON. Grok puede entonces reconocer el límite en lugar de mostrar un error genérico 500 de un flujo HTTP 200 fallido. Si la respuesta incluye `Retry-After`, siga ese retraso antes de volver a intentarlo. Cuotas agotadas sin reinicio No reciba un retraso predeterminado. La conmutación por error de la cuenta OAuth existente aún se aplica. Esto El manejo de HTTP 429 también se aplica a las solicitudes Responses que no son de transmisión.
+Si Devin rechaza una solicitud directa con un límite de velocidad antes de producir una salida o realizar una acción, OpenCodex devuelve HTTP 429 con un error JSON. Grok puede reconocer entonces el límite en lugar de mostrar un error genérico 500 de un flujo de HTTP 200 fallido. Si la respuesta incluye `Retry-After`, siga ese retraso antes de volver a intentarlo. Las cuotas agotadas sin una sugerencia de reinicio no reciben un retraso predeterminado. La conmutación por error de la cuenta OAuth existente todavía se aplica. Este manejo HTTP 429 también se aplica a las solicitudes Responses que no son de transmisión.
 
-Para las solicitudes de transmisión, OpenCodex espera hasta el tiempo de espera configurado para este inicio. Rechazo. Si eso espera expira, abre la respuesta SSE y permite que el stream watchdog existente maneje las paradas. Después de que se envían las cabeceras HTTP, un fallo posterior permanece en el flujo como `response.failed`.
+Para las solicitudes de transmisión, OpenCodex espera hasta el tiempo de espera configurado para este rechazo temprano. Si esa espera expira, se abre la respuesta SSE y permite que el supervisor de flujo existente maneje las paradas. Después de que se envían las cabeceras HTTP, un fallo posterior permanece en la secuencia como `response.failed`.
