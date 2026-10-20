@@ -15,7 +15,7 @@ Las versiones anteriores de OpenCodex incluían Bun **1.3.14**. La tabla siguien
 |---|---|
 | [#28035](https://github.com/oven-sh/bun/issues/28035) - `fetch()` reciben contrapresión no acoplada al consumo de JS | Corregido por [P.R.:29831](https://github.com/oven-sh/bun/pull/29831); **que la liberación lleva no está verificada** - suponemos que el paquete 1.3.14 no |
 | [#32111](https://github.com/oven-sh/bun/issues/32111) - se bloquea cuando un cliente aborta un flujo de asincronización-pull | Corrección [PR +32120](https://github.com/oven-sh/bun/pull/32120) fusionó 2026-06-21; no se asume presente en 1.3.14. Nota: esta caída es **no Windows -específico** (también reproducido en macOS / Linux) |
-| [P.R.:31654](https://github.com/oven-sh/bun/pull/31654) - `node:net` agujero de la manija del enchufe | Todavía **abierto** aguas arriba |
+| [PR #31654](https://github.com/oven-sh/bun/pull/31654) — fuga de handles de sockets en `node:net` | Todavía **abierto** en Bun |
 
 En entornos antiguos, Windows usaba la ruta conservadora basada en tee para evitar el fallo de cancelación async-pull; un cliente lento podía dejar datos en memoria nativa que JavaScript no podía limitar. Con el entorno estable actual, Windows selecciona el relé acotado en `auto` cuando no hace falta reescribir la respuesta para el cliente. Un `legacy-tee` explícito conserva la ruta anterior. En macOS, `auto` sigue usando tee y el relé requiere activación explícita. Comprueba el entorno seleccionado y la decisión efectiva de transmisión antes de diagnosticar el crecimiento de memoria.
 
