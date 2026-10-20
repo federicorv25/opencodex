@@ -7,27 +7,27 @@ description: "Generar vídeos con Grok Imagine Video a través de un modelo que 
 
 ## Descripción general
 
-El puente de vídeo le permite utilizar xAI 's Grok Imagine Generación de vídeo a través de cualquier modelo no OpenAI enrutado por opencodex. Cuando se activa, se inyecta una herramienta sintética `video_gen` en la conversación. El modelo lo llama como cualquier herramienta de función; opencodex intercepta la llamada, envía un trabajo de generación de video a xAI, encuesta hasta su finalización y descarga el resultado.
+El puente de video permite generar videos con Grok Imagine Video de xAI desde cualquier modelo ajeno a OpenAI enrutado mediante opencodex. Al activarlo, se añade la herramienta sintética `video_gen` a la conversación. El modelo la llama como una función; opencodex intercepta la llamada, envía el trabajo a xAI, consulta su estado hasta que termina y descarga el resultado.
 
 <a id="prerequisites"></a>
 
 ## Requisitos previos
 
-- Una entrada de proveedor `xai` con un **API clave** (`ocx login xai` solo no es suficiente - el puente de vídeo requiere autenticación clave, no OAuth)
-- Un modelo no OpenAI como su proveedor de rutas (p. ej. Anthropic Claude, Google Gemini)
-- opencodex configurado para enrutar a través del proveedor no OpenAI
+- Un proveedor `xai` con una **clave API**: `ocx login xai` por sí solo no basta; el puente requiere autenticación con clave.
+- Un modelo de otro proveedor, como Anthropic Claude o Google Gemini.
+- opencodex configurado para enrutar mediante ese proveedor.
 
-> **⚠ Se requiere clave de proveedor:** El puente de vídeo solo se activa cuando el proveedor `xai` usa API clave de autenticación. Añade esto a tu configuración:
+> **⚠ Se requiere una clave del proveedor:** El puente solo se activa cuando `xai` utiliza autenticación con clave API. Añada esta referencia a su configuración:
 >
 > ```json
 > {
 >   "providers": {
->     "xai": { "adapter": "openai-chat", "apiKey": "xai-…", "authMode": "key" }
+>     "xai": { "adapter": "openai-chat", "apiKey": "${XAI_API_KEY}", "authMode": "key" }
 >   }
 > }
 > ```
 >
-> Si ha embarcado a través de `ocx login xai` (OAuth), el proveedor se queda en `authMode: "oauth"` y el puente no se activará en silencio. Establecer `XAI_API_KEY` en el entorno **o** código duro de la clave como se muestra anteriormente.
+> Si configuró el proveedor con `ocx login xai` (OAuth), permanece en `authMode: "oauth"` y el puente no se activa. Para usarlo, establezca `XAI_API_KEY` en el entorno, conserve la referencia `${XAI_API_KEY}` del ejemplo y configure explícitamente `authMode: "key"`. Mantenga las claves literales fuera de commits, registros e informes compartidos.
 
 <a id="configuration"></a>
 

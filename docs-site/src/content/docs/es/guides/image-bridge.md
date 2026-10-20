@@ -78,6 +78,6 @@ Desde la perspectiva del modelo, nada cambió: llamó a una herramienta y obtuvo
 ## Limitaciones
 
 - **Solo xAI Grok Imagine es compatible.** DALL-E y otros proveedores de imágenes se pueden agregar más tarde.
-- **La búsqueda web tiene prioridad** en adaptadores que soportan el bucle de sidecar de búsqueda web. Si tanto la búsqueda web como la generación de imágenes se solicitan en el mismo turno, se omiten las carreras de búsqueda web y la generación de imágenes. Los adaptadores Cursor / `runTurn` no pueden usar ese sidecar hoy en día, por lo que el puente de imagen aún puede funcionar para esos giros de doble herramienta.
+- **La búsqueda web tiene prioridad** cuando la solicitud es apta para el bucle de búsqueda web. Si se solicitan búsqueda y generación de imágenes en el mismo turno apto, se ejecuta la búsqueda y se omite la generación de imágenes. Esto incluye adaptadores `runTurn` aptos, como Cursor, mediante `runTurnWebSearchLoop`. El puente de imágenes solo puede atender esos turnos con ambas herramientas si la búsqueda web no resulta elegible.
 - **Se aplican costos de xAI.** La generación de imágenes a través de xAI requiere una suscripción activa a xAI o créditos API.
 - **Sólo streaming.** El puente funciona interceptando el flujo de respuesta SSE; las solicitudes con `stream: false` se rechazan con un error 400.

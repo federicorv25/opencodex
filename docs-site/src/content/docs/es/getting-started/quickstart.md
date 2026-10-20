@@ -101,7 +101,7 @@ codex -m "ollama-cloud/glm-5.2"      "Write a SQL migration"
 
 ## Elegir modelos de subagentes, opcional
 
-Una configuración nueva destaca cinco modelos nativos en el selector de subagentes de Codex: `gpt-5.5`, `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna` y `gpt-6-astra`. Abre `ocx gui` para reemplazar o reordenar hasta cinco modelos nativos o enrutados. El dashboard también permite definir un modelo preferido para subagentes y su esfuerzo de razonamiento. Consulta [Interfaz de subagentes](/es/guides/sub-agent-surface/) para elegir v1/base/v2 y saber cuándo se aplican las instrucciones, los valores nativos predeterminados y las alternativas de respaldo.
+Una configuración nueva incluye `gpt-6-astra`, `gpt-6.1-sol` y `gpt-6-luna` en el selector de subagentes de Codex. Abra `ocx gui` para sustituirlos o reordenar hasta cinco modelos nativos o enrutados. El panel también permite elegir un modelo preferido de subagentes y su esfuerzo de razonamiento. Consulte [Interfaz de subagentes](/es/guides/sub-agent-surface/) para elegir v1/base/v2 y conocer cuándo se aplican las instrucciones, los valores nativos predeterminados y las alternativas.
 
 <a id="logging-in-instead-of-pasting-a-key"></a>
 

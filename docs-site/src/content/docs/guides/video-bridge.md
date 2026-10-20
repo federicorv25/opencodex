@@ -22,14 +22,12 @@ job to xAI, polls until completion, and downloads the result.
 > ```json
 > {
 >   "providers": {
->     "xai": { "adapter": "openai-chat", "apiKey": "xai-…", "authMode": "key" }
+>     "xai": { "adapter": "openai-chat", "apiKey": "${XAI_API_KEY}", "authMode": "key" }
 >   }
 > }
 > ```
 >
-> If you onboarded via `ocx login xai` (OAuth), the provider stays in `authMode: "oauth"`
-> and the bridge silently won't activate. Set `XAI_API_KEY` in the environment **or**
-> hard-code the key as shown above.
+> If you onboarded via `ocx login xai` (OAuth), the provider remains in `authMode: "oauth"` and the bridge does not activate. Set `XAI_API_KEY` in the environment, keep the `${XAI_API_KEY}` reference shown above, and explicitly select `authMode: "key"`. Keep literal keys out of commits, logs, and shared reports.
 
 ## Configuration
 

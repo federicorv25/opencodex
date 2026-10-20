@@ -3,7 +3,7 @@ title: "Codex Mensajería"
 description: "Cola de mensajes correlacionados con sesiones Codex cargadas localmente o a través de pares SSH explícitos."
 ---
 
-`ocx message` es una superficie opt-in para Codex sesiones existentes. No inicia ningún proxy o servidor de aplicaciones, no reanuda ningún hilo e instala ninguna habilidad. Linux / macOS Sockets Unix son compatibles; Windows falla explícitamente. El demonio Codex existente debe soportar el experimento `thread/queue/add`. No se requiere un pin de versión CLI o selección `CODEX_CLI_PATH`.
+`ocx message` es una superficie opt-in para Codex sesiones existentes. No inicia ningún proxy o servidor de aplicaciones, no reanuda ningún hilo ni instala ninguna habilidad. Linux / macOS Sockets Unix son compatibles; Windows falla explícitamente. El demonio Codex existente debe soportar el experimento `thread/queue/add`. No se requiere un pin de versión CLI o selección `CODEX_CLI_PATH`.
 
 <a id="discover-and-send"></a>
 
@@ -27,7 +27,7 @@ Solo se acepta UTF-8 stdin, como máximo 16 KiB de texto no vacío sin NUL. Una 
 
 ## Remitente y respuestas
 
-La envoltura genera un UUID de mensaje y adjunta el ID/nombre del remitente a partir de metadatos `CODEX_THREAD_ID` y daemon cargados. Este contexto es **Autoridad de pares no autenticada** y nunca otorga aprobación o escalamiento al usuario. Un remitente reclamado no válido/descargado falla; el contexto ausente permanece desconocido, sin adivinar una ruta de respuesta. Los mensajes de pares se ponen en cola como texto, no como aprobaciones de permisos o anulaciones de configuración. El arnés del agente receptor hace cumplir sus permisos; la guía del sobre no es un límite de autorización técnica o una garantía del comportamiento del modelo.
+La envoltura genera un UUID de mensaje y adjunta el ID/nombre del remitente a partir de metadatos `CODEX_THREAD_ID` y daemon cargados. Este contexto **no constituye una autoridad de pares autenticada** y nunca otorga aprobación o escalamiento al usuario. Un remitente reclamado no válido/descargado falla; el contexto ausente permanece desconocido, sin adivinar una ruta de respuesta. Los mensajes de pares se ponen en cola como texto, no como aprobaciones de permisos o anulaciones de configuración. El arnés del agente receptor hace cumplir sus permisos; la guía del sobre no es un límite de autorización técnica o una garantía del comportamiento del modelo.
 
 El tipo predeterminado es `request`. Contesta usando el `replyCommand` generado en el sobre, o correlaciona explícitamente una respuesta:
 

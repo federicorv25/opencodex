@@ -81,20 +81,17 @@ ocx combo set main \
   --strategy failover
 ```
 
-Uso de objetivos `provider/model` sintaxis y están separados por comas. El modelo virtual resultante es
-`combo/main`. Véase [Combos](/es/guides/combos/) para estrategias, pesos, enrutamiento pegajoso y fallas comportamiento.
+Los destinos usan la sintaxis `provider/model` y se separan con comas. El modelo virtual resultante es `combo/main`. Consulte [Combos](/es/guides/combos/) para conocer las estrategias, los pesos, la afinidad de enrutamiento y el comportamiento ante fallos.
 
 <a id="remote-and-lan-binds"></a>
 
-## Control remoto y LAN se une
+## Escucha remota y en la red local
 
-El enlace de bucle de retorno predeterminado no requiere un API token. Un enlace no loopback, tal como `0.0.0.0`, requiere `OPENCODEX_API_AUTH_TOKEN`; el proxy se niega a comenzar sin él. Establecer la variable antes
-`ocx start`o antes `ocx service install` El servicio lo recibe:
+Las rutas normales de modelos en loopback no requieren un token de datos. Un enlace fuera de loopback, como `0.0.0.0`, requiere una credencial de admisión de datos: se resuelve desde `OPENCODEX_API_AUTH_TOKEN`, `OCX_API_TOKEN_FILE` o el archivo privado `service-api-token`. `ocx service install` puede generar ese archivo si no existe. Si proporciona el token mediante una variable de entorno, establézcala antes de `ocx start` o `ocx service install`:
 
 ```bash
 export OPENCODEX_API_AUTH_TOKEN="your-secret-token"
 ocx service install
 ```
 
-Los clientes deben autenticar sus solicitudes de gestión y modelo. Lea las reglas de acceso remoto en
-[Configuración](/es/reference/configuration/) antes de exponer opencodex más allá de la máquina local.
+Las solicitudes de modelos usan la autenticación del plano de datos. La administración utiliza una credencial independiente: `OPENCODEX_ADMIN_AUTH_TOKEN` o el token administrativo generado en un archivo protegido; el token de datos no concede acceso de administración. El panel utiliza las sesiones y reglas de acceso descritas en [API de administración](/es/reference/management-api/#authentication-model). No comparta el token administrativo con clientes de modelos. Lea [Acceso remoto](/es/reference/configuration/server/#remote-access) antes de exponer el proxy fuera de la máquina local.

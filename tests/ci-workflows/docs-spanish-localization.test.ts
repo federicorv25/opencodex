@@ -62,6 +62,8 @@ describe("Spanish documentation localization", () => {
       expect(spanish, path).toMatch(/\ndescription:\s*\S/);
       expect(codeBlocks(spanish), `${path} code examples`).toEqual(codeBlocks(english));
       const spanishCode = inlineCode(spanish);
+      const modelIds = [...english.matchAll(/\b(?:gpt-[\w.-]+|whisper-\d|claude-(?:opus|sonnet|haiku)-[\w.-]+)\b/g)].map(match => match[0]);
+      expect([...new Set(modelIds)].filter(id => !spanish.includes(id)), `${path} model identifiers`).toEqual([]);
       expect([...inlineCode(english)].filter(value => !spanishCode.has(value)), `${path} inline identifiers`).toEqual([]);
       const htmlCode = (text: string): string[] => [...text.matchAll(/<code\b[^>]*>([\s\S]*?)<\/code>/g)].map(match => match[1]!);
       expect(htmlCode(spanish), `${path} HTML code`).toEqual(htmlCode(english));

@@ -480,7 +480,7 @@ El éxito solo dice: "La solicitud sin credenciales fue rechazada; la solicitud 
 
 #### Transcripción y preparación en vivo
 
-La transcripción requiere un archivo regular no vacío de como máximo 25.000.000 bytes con un límite de lectura local de 30 segundos y un cuerpo de varias partes con un límite de 32 MiB. Los modelos son gpt-4o-transscribe, gpt-4o-mini-transscribe o susurro-1, sujeto a soporte objetivo. Compartir carga/respuesta 130 segundos; la respuesta se limita a 2 MiB. El éxito devuelve solo `{text}`, incluido el texto vacío, con una redacción de clave exacta. El fallo deja stdout vacío e imprime stderr/nonzero fijo; no hay sobre de error JSON o cuerpo sin procesar.
+La transcripción requiere un archivo regular no vacío de como máximo 25.000.000 bytes con un límite de lectura local de 30 segundos y un cuerpo de varias partes con un límite de 32 MiB. Los modelos son `gpt-4o-transcribe`, `gpt-4o-mini-transcribe` o `whisper-1`, sujeto a soporte objetivo. Compartir carga/respuesta 130 segundos; la respuesta se limita a 2 MiB. El éxito devuelve solo `{text}`, incluido el texto vacío, con una redacción de clave exacta. El fallo deja stdout vacío e imprime stderr/nonzero fijo; no hay sobre de error JSON o cuerpo sin procesar.
 
 El audio utiliza la admisión de clave explícita sin el control del modelo. La verificación en vivo envía solo session.update y session.close fijas. La preparación requiere session.started o session.updated con ID de sesión nativa no en blanco en 15 segundos; el socket abierto o session.created solo es insuficiente. Después de la preparación, espera como máximo 2 segundos para el cierre normal del código-1000. Cada cuadro UTF-8 tiene un límite de 64 KiB, suma 2 MiB; no hay un historial de cuadros retenidos.
 

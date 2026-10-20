@@ -5,7 +5,7 @@ description: "Cómo una solicitud en el Responses, Chat Completions o Messages A
 
 opencodex sirve a tres API de cliente: **Responses** (`/v1/responses`), **Chat Completions** (`/v1/chat/completions`) y **Messages** (`/v1/messages`). Cada proveedor recibe un cable ascendente, decidido por su adaptador. Cuando el cliente API y el cable ascendente difieren, la solicitud se convierte en el camino de entrada y la respuesta se convierte en el camino de regreso. Esta página explica cómo se nombra esa ruta, cómo verla antes y después de una solicitud y qué ajustes la cambian.
 
-Todos los ajustes de esta página están desactivados por defecto. Con los valores predeterminados, las solicitudes viajan exactamente como lo hacían antes de que existieran estas configuraciones.
+Los ajustes de esta página están desactivados de forma predeterminada, salvo `antigravityDirect`, que está activado. Esta excepción permite la ruta directa de Antigravity cuando corresponde; las demás opciones requieren activación explícita.
 
 <a id="delivery-modes"></a>
 

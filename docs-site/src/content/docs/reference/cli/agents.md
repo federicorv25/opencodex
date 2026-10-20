@@ -763,7 +763,7 @@ about a newly selected key.
 
 Transcription requires a nonempty regular file of at most 25,000,000 bytes with a
 30-second local read limit, and a multipart body capped at 32 MiB. Models are
-gpt-4o-transcribe, gpt-4o-mini-transcribe or whisper-1, subject to target support.
+`gpt-4o-transcribe`, `gpt-4o-mini-transcribe` or `whisper-1`, subject to target support.
 Upload/response share 130 seconds; response is capped at 2 MiB. Success returns
 only `{text}`, including empty text, with exact-key redaction. Failure leaves
 stdout empty and prints fixed stderr/nonzero; no JSON error envelope or raw body.

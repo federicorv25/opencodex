@@ -114,6 +114,8 @@ describe("Spanish localization contract", () => {
     expect(logGuardLabel("es", "compact")).toBe("Compactar");
     expect(logGuardLabel("es", "repair")).toBe("Reparar protección");
     expect(DICTS.es["lab.subjectKind"]).toBe("Tipo");
+    expect(DICTS.es["lab.verdict.CLAIMED"]).toBe("Declarado");
+    expect(DICTS.es["lab.verdict.DEGRADED"]).toBe("Degradado");
     expect(logGuardOperationLabel("es", "error.generic")).not.toBe(logGuardOperationLabel("en", "error.generic"));
     expect(visionReasoningLabel("es", "xhigh")).toBe("Muy alto");
     expect(ROUTING_COMPATIBILITY_FIELD_LABELS.es.unknownEvidence).toBe("Evidencia desconocida");

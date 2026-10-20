@@ -37,10 +37,17 @@ ocx restore
 
 Esto elimina el enrutamiento inyectado, la anulación en tiempo real y el puntero de catálogo opencodex, y no necesita proxy en ejecución, ninguna sesión de panel de control ni red. Codex se registra y corre normalmente después. Cuando se quiere opencodex atrás, `ocx restore back` vuelve a señalar Codex en el proxy.
 
-**O traer el proxy de vuelta en su lugar:**
+**O vuelva a iniciar el proxy:**
+
+En una primera terminal, inicie el proxy en primer plano y déjela abierta:
 
 ```bash
 ocx start
+```
+
+En una segunda terminal, compruebe que `ocx ready --json` indique `ready: true` antes de instalar el servicio. Después, repita las comprobaciones para verificar el servicio resultante:
+
+```bash
 ocx ready --json
 ocx status --json
 ocx service install   # keep it running across restarts

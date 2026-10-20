@@ -171,13 +171,13 @@ The refreshed `12025981e` base contains upstream #7408 and #7414. The Spanish Co
 | Review check | Result |
 | --- | --- |
 | Full GUI suite | 3,493 passed, zero failures; 58,734 assertions across 354 files |
-| Three final Spanish/parity/mounted-switch GUI files after terminology corrections | 17 passed, zero failures; 33,119 assertions |
+| Final Spanish/parity/mounted-switch/Lab GUI files after review corrections | 19 passed, zero failures; 33,175 assertions across four files |
 | GUI lint, i18n lint and production build | Passed; pre-existing chunk-size warning remains |
 | Root typecheck on `12025981e` base | Passed |
-| Final docs/README/hygiene/structure/layout set | 443 passed, zero failures; 3,445 assertions across 18 files |
-| Changed-import suite on the refreshed base | 492 passed, zero failures; 3,936 assertions across 24 files |
+| Final docs/README/hygiene/structure/layout set | 443 passed, zero failures; 3,518 assertions across 18 files |
+| Changed-import suite on the refreshed base | 492 passed, zero failures; 4,009 assertions across 24 files |
 | Upstream duplicate-main and Pool caller-fallback regressions after synchronization | 34 passed, zero failures; 78 assertions across two files |
-| Final offline documentation build | Passed; 658 pages, 95,626 internal links, Pagefind search and sitemap |
+| Final offline documentation build | Passed; 658 pages, 95,628 internal links, Pagefind search and sitemap |
 | Final privacy scan and structure SSOT check | Passed |
 | React Doctor 0.9.11 against `upstream/dev`, changed GUI scope | No issues |
 
@@ -188,3 +188,5 @@ Actual-browser evidence uses the built GUI and built docs with isolated client h
 CodeRabbit was explicitly requested on the Draft. A manual Codex review request returned its account rate-limit message without a code review; this is an unavailable review, not a clean result. The contributor readiness checklist must describe this limitation accurately. Required fork Actions still need maintainer authorization and successful results on the exact final PR head, plus maintainer approval, before integration. The PR description carries the final head/tree, build, scan, browser and review-thread evidence.
 
 Follow-through review resolved the 34 original inline threads and recorded the corrections in the PR conversation. A full CodeRabbit review was explicitly requested after its incremental checkpoint recovery failed. A consistency pass also corrected rate-limit versus pricing terminology, API-key labels, disabled/type labels, Claude Desktop branding, restore-point labels and the v1 encrypted-task guide. The Spanish catalog guard now rejects the specific mistranslation classes found in both raw and effective catalogs and preserves the executable `[codex].agents.{role}` configuration path. The revised guide preserves all canonical executable examples, technical identifiers, tables and stable section anchors. Final real-browser checks cover the integration/API-key screen and rewritten guide.
+
+The full review then identified 12 additional issues. Corrections distinguish independent management/data credentials, refresh the quickstart roster, document eligible runTurn search precedence and Antigravity's default-on exception, use an environment reference for the xAI video key, preserve transcription model IDs, restore the unauthenticated-sender negation, reject unavailable exact-account routes, include ten-minute spent-quota cooldowns, split foreground startup and service checks into two terminals, reconcile current Windows stream-mode guidance and correct Lab verdict states. Canonical English pages were synchronized where the same stale claim existed. Model IDs mentioned outside code spans now have parity coverage too.
