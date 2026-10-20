@@ -3654,7 +3654,7 @@ export const es = {
   "lab.filter.verdict": "Veredicto",
   "lab.filter.subject": "Identificación del sujeto",
   "lab.filter.all": "Todos",
-  "lab.col.subject": "Asunto",
+  "lab.col.subject": "Sujeto",
   "lab.col.layer": "Capa",
   "lab.col.suite": "Suite",
   "lab.col.verdict": "Veredicto",

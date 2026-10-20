@@ -577,7 +577,7 @@ const es: Record<LabCatalogKey, string> = {
   "lab.filter.verdict": "Veredicto",
   "lab.filter.subject": "Identificación del sujeto",
   "lab.filter.all": "Todos",
-  "lab.col.subject": "Asunto",
+  "lab.col.subject": "Sujeto",
   "lab.col.layer": "Capa",
   "lab.col.suite": "Suite",
   "lab.col.verdict": "Veredicto",
@@ -645,7 +645,7 @@ const supplements: Record<LabLocale, Record<LabSupplementKey, string>> = {
   es: {
     subjectKindUnknown: "Desconocido",
     "artifact.present": "Presente",
-    "artifact.corrupt": "Corruptos",
+    "artifact.corrupt": "Corrupto",
     "artifact.purged_unavailable": "Purgado / no disponible",
     selectVerdict: "Ver veredicto para {subject}",
     "community.title": "Pruebas comunitarias",

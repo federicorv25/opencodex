@@ -171,7 +171,7 @@ The refreshed `12025981e` base contains upstream #7408 and #7414. The Spanish Co
 | Review check | Result |
 | --- | --- |
 | Full GUI suite | 3,493 passed, zero failures; 58,734 assertions across 354 files |
-| Final Spanish/parity/mounted-switch/Lab GUI files after review corrections | 19 passed, zero failures; 33,175 assertions across four files |
+| Final Spanish/parity/mounted-switch/Lab GUI files after review corrections | 19 passed, zero failures; 33,177 assertions across four files |
 | GUI lint, i18n lint and production build | Passed; pre-existing chunk-size warning remains |
 | Root typecheck on `12025981e` base | Passed |
 | Final docs/README/hygiene/structure/layout set | 444 passed, zero failures; 3,455 assertions across 18 files |
@@ -192,3 +192,5 @@ Follow-through review resolved the 34 original inline threads and recorded the c
 The full review then identified 12 additional issues. Corrections distinguish independent management/data credentials, refresh the quickstart roster, document eligible runTurn search precedence and Antigravity's default-on exception, use an environment reference for the xAI video key, preserve transcription model IDs, restore the unauthenticated-sender negation, reject unavailable exact-account routes, include ten-minute spent-quota cooldowns, split foreground startup and service checks into two terminals, reconcile current Windows stream-mode guidance and correct Lab verdict states. Canonical English pages were synchronized where the same stale claim existed. Transcription model names were formatted as literal code identifiers.
 
 The next incremental review reported four observations: qualify default v2 delegation failure and its explicit exceptions, repair the provider-policy paragraph, state the shared 130-second audio timeout, and remove a partial model-family regex that accepted substring matches. The documentation now states the defaults and exceptions in both English and Spanish. Identifier parity reuses exact inline-code spans across all model families/namespaces, alongside existing fenced-example parity; regression examples include o1/o3/o4, codex, slash namespaces and colon tags and reject longer substituted tokens. No GUI implementation changed in this follow-up.
+
+That review also included two outside-diff copy findings: the Lab subject column now uses `Sujeto`, matching the represented entity, and the singular corrupt-artifact status uses `Corrupto`. The raw/effective catalog and supplemental-label regression checks cover both corrections.

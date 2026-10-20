@@ -109,11 +109,13 @@ describe("Spanish localization contract", () => {
   test("auxiliary surfaces retain their localized meaning", () => {
     expect(DICTS.es["lab.title"]).toBe("Laboratorio de compatibilidad");
     expect(labSupplement("es", "selectVerdict", { subject: "probe-a" })).toContain("probe-a");
+    expect(labSupplement("es", "artifact.corrupt")).toBe("Corrupto");
     expect(labSupplement("es", "community.notLocalVerdict")).toContain("local");
     expect(logGuardLabel("es", "cancel")).toBe("Cancelar");
     expect(logGuardLabel("es", "compact")).toBe("Compactar");
     expect(logGuardLabel("es", "repair")).toBe("Reparar protección");
     expect(DICTS.es["lab.subjectKind"]).toBe("Tipo");
+    expect(DICTS.es["lab.col.subject"]).toBe("Sujeto");
     expect(DICTS.es["lab.verdict.CLAIMED"]).toBe("Declarado");
     expect(DICTS.es["lab.verdict.DEGRADED"]).toBe("Degradado");
     expect(logGuardOperationLabel("es", "error.generic")).not.toBe(logGuardOperationLabel("en", "error.generic"));
