@@ -44,6 +44,10 @@ function inlineCode(markdown: string): Set<string> {
   }
   return values;
 }
+function missingInlineIdentifiers(english: string, spanish: string): string[] {
+  const translated = inlineCode(spanish);
+  return [...inlineCode(english)].filter(value => !translated.has(value));
+}
 
 describe("Spanish documentation localization", () => {
   test("registers Spanish and covers every current canonical documentation path", () => {
@@ -61,10 +65,8 @@ describe("Spanish documentation localization", () => {
       expect(spanish, path).toMatch(/^---\ntitle:\s*\S/);
       expect(spanish, path).toMatch(/\ndescription:\s*\S/);
       expect(codeBlocks(spanish), `${path} code examples`).toEqual(codeBlocks(english));
-      const spanishCode = inlineCode(spanish);
-      const modelIds = [...english.matchAll(/\b(?:gpt-[\w.-]+|whisper-\d|claude-(?:opus|sonnet|haiku)-[\w.-]+)\b/g)].map(match => match[0]);
-      expect([...new Set(modelIds)].filter(id => !spanish.includes(id)), `${path} model identifiers`).toEqual([]);
-      expect([...inlineCode(english)].filter(value => !spanishCode.has(value)), `${path} inline identifiers`).toEqual([]);
+      // Exact code spans cover every model family and namespace without a family allowlist.
+      expect(missingInlineIdentifiers(english, spanish), `${path} inline and model identifiers`).toEqual([]);
       const htmlCode = (text: string): string[] => [...text.matchAll(/<code\b[^>]*>([\s\S]*?)<\/code>/g)].map(match => match[1]!);
       expect(htmlCode(spanish), `${path} HTML code`).toEqual(htmlCode(english));
       const directives = (text: string): string[] => [...text.matchAll(/^:::(\w*)/gm)].map(match => match[1]!);
@@ -82,6 +84,17 @@ describe("Spanish documentation localization", () => {
       expect(spanish, path).not.toMatch(/ZXQ\d|QXZ|\u2047|\uFFFD/);
       expect(spanish, path).not.toMatch(/locale=["']en["']/);
       expect(relative(root, join(root, "es", path)).replaceAll("\\", "/")).toBe(`es/${path}`);
+    }
+  });
+
+  test("model identifier parity rejects extended tokens across families and namespaces", () => {
+    const identifiers = ["gpt-6-astra", "whisper-1", "claude-opus-5", "o1-mini", "o3-mini", "o4-mini",
+      "codex-mini-latest", "qwen/qwen3-coder-plus", "tev1:4b"];
+    const canonical = identifiers.map(id => `\`${id}\``).join(", ");
+    expect(missingInlineIdentifiers(canonical, canonical)).toEqual([]);
+    for (const id of identifiers) {
+      const extended = canonical.replace(`\`${id}\``, `\`${id}-translated\``);
+      expect(missingInlineIdentifiers(canonical, extended)).toEqual([id]);
     }
   });
 

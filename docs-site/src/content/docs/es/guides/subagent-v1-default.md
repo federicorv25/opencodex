@@ -5,7 +5,7 @@ description: "Qué impide la limitación de tareas cifradas de v2, por qué Open
 
 OpenCodex se instala con la interfaz de subagentes en **v1**. Las páginas Panel, Modelos y Subagentes solicitan confirmación antes de cambiar a **base** o **v2** y enlazan esta explicación. La CLI no solicita esa confirmación.
 
-El motivo es concreto: en v2, un modelo enrutado no puede leer una tarea que recibe de un modelo nativo de ChatGPT. Esto afecta al caso habitual de un agente GPT que crea un subagente Grok, Claude o GLM; en v2 esa delegación falla siempre.
+El motivo es concreto: de forma predeterminada, en v2 un modelo enrutado no puede leer la tarea cifrada que recibe de un modelo nativo de ChatGPT. Esto afecta al caso habitual de un agente GPT que crea un subagente Grok, Claude o GLM. Hay dos excepciones explícitas: un destino autorizado que pueda procesar la tarea cifrada mediante `allowEncryptedV2AgentTasks: true`, o la recuperación experimental `agentTaskRecovery`, descritas más abajo.
 
 <a id="what-you-see-when-it-happens"></a>
 
@@ -38,7 +38,7 @@ La comparación de estas tres combinaciones muestra dónde aparece el límite:
 
 | Combinación | v1 | v2 |
 | --- | --- | --- |
-| Agente ChatGPT a subagente enrutado | funciona | **falla** |
+| Agente ChatGPT a subagente enrutado | funciona | **falla de forma predeterminada**; excepciones: destino autorizado con `allowEncryptedV2AgentTasks: true` o recuperación experimental `agentTaskRecovery` |
 | Agente enrutado a subagente enrutado | funciona | funciona |
 | Agente ChatGPT a subagente ChatGPT | funciona | funciona: el backend puede descifrar lo que generó |
 
