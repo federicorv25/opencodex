@@ -244,9 +244,7 @@ ocx start     # 또는 `ocx service`
 ocx init      # 대화형 설정: ~/.opencodex/config.json을 쓰고 Codex를 연결합니다
 ```
 
-`ocx init`은 프록시를 시작하지 않습니다. 먼저 시작하세요. 나중이어도 순서는 상관없지만,
-`ocx provider add`와 `ocx combo set` 같은 헤드리스 명령은 **실행 중인** 프록시와 통신하며
-닿지 않으면 nonzero로 종료합니다. `ocx status` / `ocx doctor` / `ocx health`는 실행 상태를 보고합니다.
+`ocx init`은 프록시를 시작하지 않습니다. 설정 전이나 후에 시작할 수 있습니다. `ocx provider add`는 로컬 설정을 기록하므로 실행 중인 프록시가 필요하지 않습니다. `ocx combo set` 같은 실시간 관리 명령은 **실행 중인** 프록시와 통신하며, 접근할 수 없으면 0이 아닌 종료 코드를 반환합니다. `ocx status` / `ocx doctor` / `ocx health`는 실행 상태를 보고합니다.
 
 > **opencodex를 설치하거나 실행하는 에이전트:**
 > [`AGENTS_INSTALL.md`](../AGENTS_INSTALL.md)를 읽으세요. 대화형 `ocx start`는 이 저장소를 star할지

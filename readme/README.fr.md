@@ -257,9 +257,7 @@ ocx start     # ou `ocx service`
 ocx init      # configuration interactive : écrit ~/.opencodex/config.json et relie Codex
 ```
 
-`ocx init` ne démarre jamais le proxy ; démarrez-le d'abord (ou après — les deux ordres fonctionnent, mais les commandes
-sans interface comme `ocx provider add` et `ocx combo set` communiquent avec le proxy **actif** et se terminent avec un code différent de zéro
-s'il est inaccessible). `ocx status` / `ocx doctor` / `ocx health` indiquent l'état d'exécution.
+`ocx init` ne démarre jamais le proxy ; vous pouvez le démarrer avant ou après la configuration. `ocx provider add` écrit la configuration locale et ne nécessite pas de proxy en cours d’exécution. Les commandes de gestion en direct comme `ocx combo set` communiquent avec le proxy **actif** et se terminent avec un code différent de zéro s’il est inaccessible. `ocx status` / `ocx doctor` / `ocx health` indiquent l'état d'exécution.
 
 > **Agents qui installent ou exécutent opencodex :** lisez
 > [`AGENTS_INSTALL.md`](../AGENTS_INSTALL.md). Une exécution interactive de `ocx start` peut demander une

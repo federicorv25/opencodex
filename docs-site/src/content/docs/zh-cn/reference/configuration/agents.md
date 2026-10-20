@@ -68,13 +68,13 @@ opencodex 会跳过已禁用、不可路由、不健康、处于冷却中，或�
 ```json
 {
   "multiAgentMode": "v2",
-  "subagentModels": ["gpt-5.5", "anthropic/claude-sonnet-5"],
-  "injectionModel": "gpt-5.5",
+  "subagentModels": ["gpt-6.1-sol", "anthropic/claude-sonnet-5"],
+  "injectionModel": "gpt-6.1-sol",
   "injectionEffort": "high",
   "syncCodexSubagentDefaults": true,
-  "subagentModelFallback": ["gpt-5.6-luna"],
+  "subagentModelFallback": ["gpt-6-luna"],
   "subagentModelFallbackByModel": {
-    "gpt-5.5": ["gpt-5.6-luna"]
+    "gpt-6.1-sol": ["gpt-6-luna"]
   },
   "subagentModelFallbackPollMs": 60000,
   "subagentEffortCap": "high"

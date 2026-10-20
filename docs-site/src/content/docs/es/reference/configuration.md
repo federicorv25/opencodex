@@ -61,7 +61,7 @@ La retención de texto cifrado de razonamiento nativo en los cambios de modelo y
 ### Filas rápidas
 
 `fastRows` es un booleano opcional y por defecto `true`. El estilo crudo OpenAI
-`/v1/models` lista, descubrimiento Claude Code y exportación de configuración de cliente (incluyendo pi, OpenCode, OMP, Hermes, OpenClaw, Kimi, gjc, DSH, MCode, ZCode, Prime, Aside, Raycast, omo, Cline, Kilo y Código de Comando) `<base-id>--fast` Selector para cada modelo cuyo La política de Fast Resuelto es elegible. Seleccionando una ruta el modelo base y solicita la `priority`
+`/v1/models` lista, descubrimiento Claude Code y exportación de configuración de cliente (incluyendo pi, OpenCode, OMP, Hermes, OpenClaw, Kimi, gjc, DSH, MCode, ZCode, Prime, Aside, Raycast, omo, Cline, Kilo y Command Code) `<base-id>--fast` Selector para cada modelo cuyo La política de Fast Resuelto es elegible. Seleccionando una ruta el modelo base y solicita la `priority`
 nivel de servicio — el mismo Rápido la aplicación Codex expone a través de su palanca de selección. La fila base se queda Enumerado, por lo que la fila es una adición en lugar de un reemplazo.
 
 Establecer `"fastRows": false` para ocultar los selectores rápidos generados. Los valores erróneos también los desactivan. El Panel de Modelos expone la misma configuración y actualiza las integraciones conectadas cuando es posible. Si un selector externo no cambia después de guardar, actualice su integración o catálogo de clientes. Los clientes conectados usan los metadatos de disponibilidad del proxy de servicio; los proxys más antiguos sin esos metadatos no obtienen entradas rápidas adivinadas. Codex mantiene su palanca rápida nativa.

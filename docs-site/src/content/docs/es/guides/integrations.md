@@ -1,6 +1,6 @@
 ---
 title: "Integraciones"
-description: "Conectar opencodex a OpenCode, Pi, Concha suave, OMP, Hermes, OpenClaw, Kimi Código, gjc, DeepSeek Harness, MiniMax Código, ZCode, Primer Agente, Aside, Raycast, omo, Cline CLI, Kilo, Código de Comando y Factory Droid desde el panel — un interruptor por cliente, con una copia de seguridad tomada antes de cada escritura."
+description: "Conectar opencodex a OpenCode, Pi, Gentle Shell, OMP, Hermes, OpenClaw, Kimi Code, gjc, DeepSeek Harness, MiniMax Code, ZCode, Prime Agent, Aside, Raycast, omo, Cline CLI, Kilo, Command Code y Factory Droid desde el panel — un interruptor por cliente, con una copia de seguridad tomada antes de cada escritura."
 ---
 
 La página **Conectar** escribe el bloque de proveedor de opencodex en el propio archivo de configuración de un cliente y lo elimina de nuevo. Veinte clientes trabajan de esta manera, cada uno con un interruptor:
@@ -9,17 +9,17 @@ La página **Conectar** escribe el bloque de proveedor de opencodex en el propio
 |---|---|---|---|---|
 | OpenCode | `~/.config/opencode/opencode.json` | JSON | Próximo lanzamiento directo | `OPENCODEX_OPENCODE_API_KEY` |
 | Pi | `~/.pi/agent/models.json` | JSON | Nuevas sesiones | marcador de posición loopback |
-| Concha suave | `~/.gentle-shell/agent/models.json` (hogar seleccionado persistente) | JSON | después de reiniciar Gentle Shell | marcador de posición loopback |
+| Gentle Shell | `~/.gentle-shell/agent/models.json` (hogar seleccionado persistente) | JSON | después de reiniciar Gentle Shell | marcador de posición loopback |
 | OMP | `~/.omp/agent/models.yml` | YAML | después de reiniciar OMP | `opencodex-loopback` marcador de posición |
 | Hermes | `~/.hermes/config.yaml` | YAML | Nuevas sesiones | `OPENCODEX_HERMES_API_KEY` |
 | OpenClaw | `~/.openclaw/openclaw.json` | JSON5 | inmediatamente, en una puerta de enlace en ejecución | `OPENCODEX_OPENCLAW_API_KEY` |
-| Código Kimi | `~/.kimi-code/config.toml` | TOML | en el reinicio, o `/reload` | marcador de posición loopback |
+| Kimi Code | `~/.kimi-code/config.toml` | TOML | en el reinicio, o `/reload` | marcador de posición loopback |
 | gjc | `~/.gjc/agent/models.yml` | YAML | nuevas sesiones, o cuando abres `/model` |marcador de posición de bucle de retroceso no secreto |
 | DeepSeek Harness (DSH) | `$DSH_HOME/profiles/desktop/cordis.patch.yml` (por defecto `~/.dsh/profiles/desktop/cordis.patch.yml` ); `$DSH_HOME/settings.yaml` hasta que DSH Desktop cree ese perfil | YAML | recarga caliente | marcador de posición portador de bucle de retorno no secreto |
-| Código MiniMax | `~/.minimax/config.yaml` | YAML | nuevas sesiones, o después de abrir el selector de modelos | marcador de posición loopback |
-| Primer agente | `~/.prime/agent/models.json` | JSON | Nuevas sesiones | marcador de posición loopback |
+| MiniMax Code | `~/.minimax/config.yaml` | YAML | nuevas sesiones, o después de abrir el selector de modelos | marcador de posición loopback |
+| Prime Agent | `~/.prime/agent/models.json` | JSON | Nuevas sesiones | marcador de posición loopback |
 | ZCode | `~/.zcode/v2/provider_config.json` (schemaVersion 1); retroceso legado: `~/.zcode/v2/config.json` | JSON | al reiniciar | marcador de posición loopback |
-| Aparte | `~/.aside/u/<account>/models.json` | JSON | después de dejar de fumar completamente y reabrir | marcador de posición loopback |
+| Aside | `~/.aside/u/<account>/models.json` | JSON | después de cerrar Aside por completo y volver a abrirlo | marcador de posición loopback |
 | Raycast | `~/.config/raycast/ai/providers.yaml` | YAML | inmediatamente en guardar - Raycast mira el archivo | ninguno - solo loopback |
 | omo (Pi / senpi) | `~/.omo/agent/models.json` | JSON | Nuevas sesiones | marcador de posición loopback |
 | Qoder | `settings.json` en `$QODER_CONFIG_DIR`, por defecto `~/.qoder` | JSON | Nuevas sesiones | marcador de posición loopback |
@@ -30,7 +30,7 @@ La página **Conectar** escribe el bloque de proveedor de opencodex en el propio
 
 <a id="gentle-shell"></a>
 
-## Concha suave
+## Gentle Shell
 
 Elija **Conectar → Gentle Shell**, o utilice los mismos comandos de integración administrada:
 
@@ -80,7 +80,7 @@ Ambos fragmentos se construyen a partir de los metadatos del modelo canónico ef
 
 El soporte de DSH administrado tiene un piso de compatibilidad de **DSH 0.1.0-rc.6**. DSH 0.1.7+ lee las rutas del proveedor desde `[id=llm-pi-ai].config.providers.opencodex` en el parche de perfil de escritorio, `$DSH_HOME/profiles/desktop/cordis.patch.yml`, que recarga DSH en caliente. OpenCodex escribe esa fila cuando existe el perfil de escritorio y su parche. Si existe `$DSH_HOME/profiles/desktop/package.json` pero falta `cordis.patch.yml`, Aplicar se niega: cree `cordis.patch.yml` que contiene `[]` (el parche vacío que DSH escribe para un nuevo perfil), luego habilite la integración nuevamente. Solo cuando no hay perfil de Escritorio, OpenCodex usa `llm-pi-ai.providers.opencodex` en `$DSH_HOME/settings.yaml`. OpenCodex solo posee ese fragmento de proveedor: Aplicarlo y Actualizarlo, Desactivarlo lo elimina y Restaurar devuelve una instantánea grabada. Estas operaciones no cambian el modelo predeterminado del usuario o el proveedor nativo `deepseek-official`. La integración DSH administrada es actualmente solo loopback y nunca escribe una credencial real.
 
-MiniMax Código sigue `MINIMAX_DATA_DIR`, luego `MAVIS_DATA_DIR`, antes de caer de nuevo a `~/.minimax`. Su bloque administrado posee solo `custom_provider.opencodex`. No cambia `defaultModel`, la fuente de credenciales MiniMax seleccionada o el inicio de sesión MiniMax del usuario. Elija una entrada `custom_provider:opencodex/<provider/model>` en MCode después de conectarla. La actualización de la integración también actualiza las ventanas de contexto autorizadas por modelo y las opciones de esfuerzo de razonamiento; se omiten las capacidades desconocidas y se conserva el esfuerzo actual de MCode.
+MiniMax Code sigue `MINIMAX_DATA_DIR`, luego `MAVIS_DATA_DIR`, antes de caer de nuevo a `~/.minimax`. Su bloque administrado posee solo `custom_provider.opencodex`. No cambia `defaultModel`, la fuente de credenciales MiniMax seleccionada o el inicio de sesión MiniMax del usuario. Elija una entrada `custom_provider:opencodex/<provider/model>` en MCode después de conectarla. La actualización de la integración también actualiza las ventanas de contexto autorizadas por modelo y las opciones de esfuerzo de razonamiento; se omiten las capacidades desconocidas y se conserva el esfuerzo actual de MCode.
 
 Prime Agent sigue a `PRIME_AGENT_CODING_AGENT_DIR` antes de caer de nuevo a `~/.prime/agent`; un valor relativo es rechazado por lo que el proxy y el agente no pueden estar en desacuerdo sobre qué archivo se quiere decir. Su bloque administrado posee solo `providers.opencodex`, por lo que otros proveedores y cualquier `modelOverrides` que haya establecido permanecen intactos. Prime Agent lee `models.json` cuando se inicia una sesión, así que inicie una nueva sesión después de conectarla.
 
@@ -129,7 +129,7 @@ Cada escritura exitosa toma una instantánea de su archivo *primero*, por lo que
 
 Desactivar elimina solo las entradas opencodex registradas como propias. Si su archivo ha cambiado Después de que lo escribimos, lo que sucede depende de si nuestras propias entradas aún están intactas. y en el formato del archivo. Para configuración estrictas JSON (OpenCode, Pi), una edición **al lado**
 nuestro bloque — agregando un servidor MCP, un proveedor de su propio — se muestra como **Actualización necesaria**: refrescante se fusiona alrededor de sus entradas y las mantiene, aunque el formato puede ser normalizado. La excepción es algo JSON no puede reescribir exactamente — un no-finito número como `1e999`, un número que una reescritura redondearía (un entero muy grande, o un tan pequeño que colapsa a cero), `-0`, la misma clave escrita dos veces en un objeto, o anidando más profundamente que 1000 niveles — que bloquea el interruptor en su lugar, por lo que nada se cambia o se cae silenciosamente.
-**OMP, DSH y Hermes** no se ven afectados por las ediciones de hermanos también, por una razón diferente: sus escritores parchear solo sus propios rangos de proveedores administrados en byte, por lo que el resto de la El archivo nunca se reescribe. Para el resto de formatos que pueden contener comentarios (OpenClaw, Código Kimi, gjc, Código MiniMax, Raycast — JSON5 y TOML escritos como documentos completos, o genéricos YAML sin preservación de la fuente), o cada vez que nuestras propias entradas fueron editadas, el interruptor se bloquea y desactiva. que adivinar qué ediciones eran tuyas.
+**OMP, DSH y Hermes** no se ven afectados por las ediciones de hermanos también, por una razón diferente: sus escritores parchear solo sus propios rangos de proveedores administrados en byte, por lo que el resto de la El archivo nunca se reescribe. Para el resto de formatos que pueden contener comentarios (OpenClaw, Kimi Code, gjc, MiniMax Code, Raycast — JSON5 y TOML escritos como documentos completos, o genéricos YAML sin preservación de la fuente), o cada vez que nuestras propias entradas fueron editadas, el interruptor se bloquea y desactiva. que adivinar qué ediciones eran tuyas.
 
 Esa cerradura ya no es un callejón sin salida. Un cliente en conflicto muestra **Sustituir** al lado de su interruptor, tanto en la tarjeta de visión general como en la propia página del cliente. Reemplaza lo que contiene nuestra configuración con el bloque opencodex que escribiría, y pregunta primero: el diálogo nombra el archivo, dice lo que se pierde y señala la instantánea que permite deshacer el reemplazo. El switch en sí permanece bloqueado, porque el switch no puede saber qué ediciones pretende mantener, solo usted puede decirlo. Nada más está relajado: un archivo que no podemos analizar, o uno cuya estructura no podemos razonar, todavía se niega.
 
@@ -369,7 +369,7 @@ La descarga `cline-config-bundle.json` contiene dos miembros nativos del documen
 
 <a id="github-copilot-app"></a>
 
-## GitHub Aplicación de piloto conjunto
+## GitHub Copilot App
 
 La aplicación de escritorio GitHub Copilot puede usar opencodex como proveedor de modelos compatible con OpenAI. Esta es una configuración manual del cliente sin interruptor en **Conectar**, y es independiente del proveedor de `github-copilot` aguas arriba, que utiliza una suscripción Copilot como backend para opencodex.
 
@@ -449,17 +449,17 @@ ocx export --client kilo --out ./kilo.jsonc
 
 <a id="command-code"></a>
 
-## Código de comando
+## Command Code
 
 Command Code mantiene sus proveedores personalizados en `~/.commandcode/providers.json`. Esta integración escribe `provider.opencodex` en ese archivo y es solo loopback.
 
-**La raíz que escribe.** El código de comando resuelve su mapa de proveedor como
+**La raíz que escribe.** El Command Code resuelve su mapa de proveedor como
 `document.provider ?? document.providers`, así que la raíz singular gana siempre que existe. Por lo tanto, la integración lee primero el archivo de destino y escribe en el raíz que el archivo ya utiliza: un documento que ya lleva una `providers` mapa mantiene y sus otros proveedores se mantienen legibles. Un archivo fresco obtiene el singular `provider`
 raíz. Ambas raíces se declaran como rutas administradas, por lo que Deshabilitar elimina el bloque de Cualquiera que sea el texto en el que fue escrito.
 
 **La forma de credencial.** El proveedor está escrito con `apiKey: false`, la forma documentada para un punto final que no necesita clave. Command Code rechaza una cadena sin procesar, y esta integración no lee, hace referencia ni exporta ningún archivo de token de servicio.
 
-**Resolución Home.** No hay ninguna `COMMANDCODE_HOME` Anular aquí. El publicado El cliente resuelve `HOME ?? USERPROFILE` y luego añade `/.commandcode/providers.json`; no consulta esa variable. Una anulación de esta integración honrada, pero la cliente ignorado haría Aplicar éxito del informe en una ruta Código de comando nunca se abre, por lo que El camino es siempre `~/.commandcode/providers.json`. En Windows con el hogar predeterminado, la integración utiliza `HOME ?? USERPROFILE`
+**Resolución Home.** No hay ninguna `COMMANDCODE_HOME` Anular aquí. El publicado El cliente resuelve `HOME ?? USERPROFILE` y luego añade `/.commandcode/providers.json`; no consulta esa variable. Una anulación de esta integración honrada, pero la cliente ignorado haría Aplicar éxito del informe en una ruta Command Code nunca se abre, por lo que El camino es siempre `~/.commandcode/providers.json`. En Windows con el hogar predeterminado, la integración utiliza `HOME ?? USERPROFILE`
 solo cuando el valor seleccionado no está en blanco y Windows-absolute; de lo contrario, usa
 `homedir()`. Se conserva una casa suministrada por separado. A `HOME` establecido por Git para Por lo tanto, Windows o MSYS2 solo se respetan cuando pasan esas comprobaciones.
 

@@ -49,7 +49,7 @@ printf '%s\n' 'Review findings: ...' |
 | --- | --- | --- |
 | `not_sent` | 1 | Validación/descubrimiento/revalidación falló, no se escribió ningún marco de cola o el demonio lo rechazó explícitamente. |
 | `queued` | 0 | Una respuesta de demonio correlacionada reconoció la presentación, **no procesamiento** por el destinatario. |
-| `unknown` | 3 | Puede haber ocurrido una presentación, pero se perdió el reconocimiento, se malformó, no se coincidió o se canceló. **No vuelvas a jugar.** |
+| `unknown` | 3 | El mensaje puede haberse enviado a la cola, pero se perdió el acuse de recibo, estaba malformado, no correspondía a la solicitud o se canceló la operación. **No vuelvas a enviar el mensaje.** |
 
 El UUID de mensaje de aplicación es también el `clientUserMessageId` de la petición de cola. El ID de envío del daemon está separado; ninguno de los dos demuestra el procesamiento del destinatario. La cola no es la dirección y puede esperar a que un giro ocupado para terminar. OpenCodex no realiza ninguna repetición automática, sondeo de seguimiento, persistencia o monitoreo de entrega. La comprobación final del objetivo cargado y la presentación de la cola no son atómicas: si el objetivo se descarga después, un rechazo explícito es `not_sent` con `queue_rejected`; una respuesta perdida o inválida es `unknown`. OpenCodex no lo reanuda ni vuelve a intentarlo.
 

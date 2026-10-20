@@ -55,7 +55,7 @@ opencodex resuelve el modelo solicitado en este orden:
 8. Un modelo exacto de la lista `models` de un proveedor.
 9. `defaultProvider`, conservando el identificador solicitado.
 
-Se excluyen los proveedores desactivados. Un espacio de nombres explícito para un proveedor deshabilitado falla en lugar de fallar. Las entradas de proveedor se comprueban en su orden de inserción JSON para reglas que pueden coincidir con más de un proveedor, por lo que se deben usar espacios de nombres explícitos cuando un modelo desnudo podría ser ambiguo.
+Se excluyen los proveedores desactivados. Una solicitud con el espacio de nombres explícito de un proveedor deshabilitado se rechaza en lugar de continuar con las reglas siguientes. Las entradas de proveedor se comprueban en su orden de inserción JSON cuando una regla puede coincidir con varios proveedores; usa espacios de nombres explícitos si un modelo sin prefijo podría ser ambiguo.
 
 <a id="blocked-model-redirects"></a>
 

@@ -5,12 +5,12 @@ description: "Enrutar código MiniMax y comandos de texto MiniMax CLI a través 
 
 MiniMax publica dos productos de línea de comandos diferentes. OpenCodex integra cada uno en el límite del protocolo que realmente expone:
 
-- **Código MiniMax** (`mcode`) es un agente de codificación con proveedores personalizados Anthropic Messages.
+- **MiniMax Code** (`mcode`) es un agente de codificación con proveedores personalizados Anthropic Messages.
 - **MiniMax CLI** (`mmx`) es una plataforma multimodal CLI. Solo su recurso `text` habla del Anthropic -compatible API que OpenCodex puede encaminar.
 
 <a id="minimax-code"></a>
 
-## Código MiniMax
+## MiniMax Code
 
 En la página de Modelos OpenCodex, ambas regiones del Plan de Codificación MiniMax anuncian la entrada de imagen para `MiniMax-M3` y `MiniMax-M3.1-Flash-Preview`. El conmutador **Imagen / multimodal** de Combo solo está disponible cuando cada modelo seleccionado admite la entrada de imágenes. El interruptor controla los archivos adjuntos de la imagen; no permite la carga de vídeos.
 

@@ -251,9 +251,7 @@ ocx start     # または `ocx service`
 ocx init      # 対話式セットアップ: ~/.opencodex/config.json を書き、Codex を接続します
 ```
 
-`ocx init` はプロキシを起動しません。先に起動してください（後でもかまいません。順番は問いませんが、
-`ocx provider add` や `ocx combo set` のようなヘッドレスコマンドは**動作中の**プロキシと通信し、
-届かなければ非ゼロで終了します）。`ocx status` / `ocx doctor` / `ocx health` が動作状態を報告します。
+`ocx init` はプロキシを起動しません。設定の前後どちらで起動してもかまいません。`ocx provider add` はローカル設定を書き込むため、動作中のプロキシは不要です。`ocx combo set` などのライブ管理コマンドは**動作中の**プロキシと通信し、接続できない場合は非ゼロの終了コードを返します。 `ocx status` / `ocx doctor` / `ocx health` が動作状態を報告します。
 
 > **opencodex をインストールまたは実行するエージェントへ:**
 > [`AGENTS_INSTALL.md`](../AGENTS_INSTALL.md) を読んでください。対話的な `ocx start` は、このリポジトリ

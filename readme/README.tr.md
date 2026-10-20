@@ -254,9 +254,7 @@ ocx start     # ya da `ocx service`
 ocx init      # etkileşimli kurulum: ~/.opencodex/config.json yazar ve Codex'i bağlar
 ```
 
-`ocx init` proxy'yi hiçbir zaman başlatmaz; önce onu başlatın (ya da sonra — sıra fark etmez, ancak
-`ocx provider add` ve `ocx combo set` gibi başsız komutlar **çalışan** proxy ile konuşur ve ona
-ulaşamadıklarında sıfırdan farklı bir kodla çıkar). `ocx status` / `ocx doctor` / `ocx health`
+`ocx init` proxy’yi başlatmaz; kurulumdan önce veya sonra başlatabilirsiniz. `ocx provider add` yerel yapılandırmayı yazar ve çalışan bir proxy gerektirmez. `ocx combo set` gibi canlı yönetim komutları **çalışan** proxy ile iletişim kurar ve erişilemediğinde sıfırdan farklı bir çıkış kodu döndürür. `ocx status` / `ocx doctor` / `ocx health`
 çalışma durumunu bildirir.
 
 > **opencodex'i kuran ya da çalıştıran ajanlar:**

@@ -244,9 +244,7 @@ ocx start     # 或 `ocx service`
 ocx init      # 交互式设置：写入 ~/.opencodex/config.json 并接入 Codex
 ```
 
-`ocx init` 从不启动代理；先启动也可以，后启动也可以 —— 两种顺序都可行，但
-`ocx provider add`、`ocx combo set` 这类无头命令会连接**正在运行的**代理，无法访问时
-以非零状态退出。`ocx status` / `ocx doctor` / `ocx health` 报告运行状态。
+`ocx init` 不会启动代理；你可以在配置前或配置后启动代理。`ocx provider add` 写入本地配置，不要求代理正在运行。`ocx combo set` 等实时管理命令会连接**正在运行的**代理，无法访问时以非零状态退出。 `ocx status` / `ocx doctor` / `ocx health` 报告运行状态。
 
 > **正在安装或运行 opencodex 的代理：** 请阅读
 > [`AGENTS_INSTALL.md`](../AGENTS_INSTALL.md)。交互式 `ocx start` 可能会询问一次是否为

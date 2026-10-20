@@ -18,11 +18,12 @@ function pages(directory: string, canonical = false): string[] {
       : /\.mdx?$/.test(entry.name) ? [entry.name] : [];
   }).sort();
 }
+const fencedBlockPattern = (): RegExp => /^([ \t]*)(`{3,}|~{3,})[^\n]*\n([\s\S]*?)^[ \t]*\2[ \t]*$/gm;
 function codeBlocks(markdown: string): string[] {
-  return [...markdown.matchAll(/^(`{3,}|~{3,})[^\n]*\n([\s\S]*?)^\1\s*$/gm)].map(match => match[2]!);
+  return [...markdown.matchAll(fencedBlockPattern())].map(match => match[3]!);
 }
 function inlineCode(markdown: string): Set<string> {
-  const prose = markdown.replace(/^(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1\s*$/gm, "");
+  const prose = markdown.replace(fencedBlockPattern(), "");
   const values = new Set<string>();
   const escaped = (at: number): boolean => {
     let slashes = 0;
@@ -50,6 +51,17 @@ function missingInlineIdentifiers(english: string, spanish: string): string[] {
 }
 
 describe("Spanish documentation localization", () => {
+  test("compares list-indented command fences and excludes them from inline prose", () => {
+    for (const [indent, fence] of [["", "```"], ["  ", "```"], ["   ", "~~~"], ["\t", "````"]]) {
+      const canonical = ["1. Run `droid exec`:", "", `${indent}${fence}bash`,
+        `${indent}droid exec --model glm-5.2 'Reply with DROID_OK only.'`,
+        `${indent}printf '\`fenced-code-only\`'`, `${indent}${fence}`, ""].join("\n");
+      expect(codeBlocks(canonical)).toHaveLength(1);
+      expect(codeBlocks(canonical.replace("glm-5.2", "wrong-model"))).not.toEqual(codeBlocks(canonical));
+      expect([...inlineCode(canonical)]).toEqual(["droid exec"]);
+    }
+  });
+
   test("registers Spanish and covers every current canonical documentation path", () => {
     expect(localeFolders.has("es")).toBe(true);
     expect(config).toMatch(/es:\s*\{\s*label:\s*["']Español["'],\s*lang:\s*["']es["']/);
@@ -71,7 +83,7 @@ describe("Spanish documentation localization", () => {
       expect(htmlCode(spanish), `${path} HTML code`).toEqual(htmlCode(english));
       const directives = (text: string): string[] => [...text.matchAll(/^:::(\w*)/gm)].map(match => match[1]!);
       expect(directives(spanish), `${path} admonition structure`).toEqual(directives(english));
-      const prose = (text: string): string => text.replace(/^[ \t]*(`{3,}|~{3,})[^\n]*\n[\s\S]*?^[ \t]*\1[ \t]*$/gm, "");
+      const prose = (text: string): string => text.replace(fencedBlockPattern(), "");
       const tables = (text: string): number => [...prose(text).matchAll(/^\s*\|?\s*:?-{3,}:?\s*\|\s*:?-{3,}:?/gm)].length;
       const items = (text: string): number => [...prose(text).matchAll(/^\s*(?:[-*]|[1-9]\d*\.)\s+/gm)].length;
       expect(tables(spanish), `${path} complete tables`).toBe(tables(english));
@@ -110,6 +122,22 @@ describe("Spanish documentation localization", () => {
         expect(spanish.match(token)?.length ?? 0, `${path} model ${identifier}`)
           .toBeGreaterThanOrEqual(english.match(token)?.length ?? 0);
       }
+    }
+  });
+
+  test("keeps client product names recognizable in the integration table and metadata", () => {
+    const english = source(join(root, "guides/integrations.md"));
+    const spanish = source(join(root, "es/guides/integrations.md"));
+    const clientNames = (text: string): string[] => {
+      const table = text.split(/\n\s*\n/).find(block => /^\|[^\n]+\n\|[-:| \t]+\|/.test(block));
+      return table?.split("\n").slice(2).map(row => row.split("|")[1]?.trim() ?? "").filter(Boolean) ?? [];
+    };
+    const names = clientNames(english);
+    expect(names.length).toBeGreaterThan(10);
+    expect(clientNames(spanish)).toEqual(names);
+    const metadata = (text: string): string => text.match(/^---\n[\s\S]*?\n---/)?.[0] ?? "";
+    for (const name of names.filter(name => metadata(english).includes(name))) {
+      expect(metadata(spanish), `client product name ${name}`).toContain(name);
     }
   });
 
