@@ -171,7 +171,7 @@ The refreshed `12025981e` base contains upstream #7408 and #7414. The Spanish Co
 | Review check | Result |
 | --- | --- |
 | Full GUI suite | 3,493 passed, zero failures; 58,734 assertions across 354 files |
-| Three final Spanish/parity/mounted-switch GUI files after visible-copy corrections | 17 passed, zero failures; 24,962 assertions |
+| Three final Spanish/parity/mounted-switch GUI files after terminology corrections | 17 passed, zero failures; 33,119 assertions |
 | GUI lint, i18n lint and production build | Passed; pre-existing chunk-size warning remains |
 | Root typecheck on `12025981e` base | Passed |
 | Final docs/README/hygiene/structure/layout set | 443 passed, zero failures; 3,445 assertions across 18 files |
@@ -186,3 +186,5 @@ The root-suite resource exception was investigated further using an isolated non
 Actual-browser evidence uses the built GUI and built docs with isolated client homes and a disabled synthetic provider. Final inspection corrected a split reference table and additional technical terminology. No personal Desktop configuration, native Desktop build, live model request or human-executed acceptance test is claimed. Captures are uploaded separately to the fork's `pr-assets` branch and linked by immutable commit in the PR description.
 
 CodeRabbit was explicitly requested on the Draft. A manual Codex review request returned its account rate-limit message without a code review; this is an unavailable review, not a clean result. The contributor readiness checklist must describe this limitation accurately. Required fork Actions still need maintainer authorization and successful results on the exact final PR head, plus maintainer approval, before integration. The PR description carries the final head/tree, build, scan, browser and review-thread evidence.
+
+Follow-through review resolved the 34 original inline threads and recorded the corrections in the PR conversation. A full CodeRabbit review was explicitly requested after its incremental checkpoint recovery failed. A consistency pass also corrected rate-limit versus pricing terminology, API-key labels, disabled/type labels, Claude Desktop branding, restore-point labels and the v1 encrypted-task guide. The Spanish catalog guard now rejects the specific mistranslation classes found in both raw and effective catalogs and preserves the executable `[codex].agents.{role}` configuration path. The revised guide preserves all canonical executable examples, technical identifiers, tables and stable section anchors. Final real-browser checks cover the integration/API-key screen and rewritten guide.

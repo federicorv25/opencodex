@@ -1,17 +1,17 @@
 ---
-title: "Por qué v1 es la superficie de subagente predeterminada"
-description: "Qué rompe la limitación de tareas cifradas de v2, por qué OpenCodex ahora envía v1 y qué hacer si aún desea v2."
+title: "Por qué v1 es la interfaz de subagentes predeterminada"
+description: "Qué impide la limitación de tareas cifradas de v2, por qué OpenCodex utiliza v1 y qué opciones existen si prefiere v2."
 ---
 
-OpenCodex se instala con la superficie del subagente establecida en **v1**. Las páginas Panel de control, Modelos y Subagentes le piden que confirme antes de pasar a **base** o **v2**, y esta página es a la que se vincula esa confirmación. El CLI no lo solicita.
+OpenCodex se instala con la interfaz de subagentes en **v1**. Las páginas Panel, Modelos y Subagentes solicitan confirmación antes de cambiar a **base** o **v2** y enlazan esta explicación. La CLI no solicita esa confirmación.
 
-La razón es estrecha y específica: en la v2, una tarea transmitida desde un modelo nativo ChatGPT a un modelo enrutado no puede ser leída por el modelo enrutado. Esa es la forma más común en que las personas delegan: un padre GPT que genera un hijo Grok, Claude o GLM, y en v2 falla cada vez.
+El motivo es concreto: en v2, un modelo enrutado no puede leer una tarea que recibe de un modelo nativo de ChatGPT. Esto afecta al caso habitual de un agente GPT que crea un subagente Grok, Claude o GLM; en v2 esa delegación falla siempre.
 
 <a id="what-you-see-when-it-happens"></a>
 
-## Lo que ves cuando sucede
+## Qué ocurre cuando falla
 
-El engendro es rechazado en lugar de producir silenciosamente una tarea infantil vacía:
+La creación del subagente se rechaza para evitar que reciba una tarea vacía sin advertencia:
 
 ```json
 {
@@ -22,99 +22,99 @@ El engendro es rechazado en lugar de producir silenciosamente una tarea infantil
 }
 ```
 
-HTTP 400, y el texto cifrado nunca se repite. El fracaso es deliberado: reenviar una carga útil ilegible le daría al niño una instrucción vacía y una respuesta confiadamente incorrecta.
+La respuesta es HTTP 400 y nunca devuelve el texto cifrado. El rechazo es deliberado: reenviar una carga ilegible entregaría al subagente instrucciones vacías y podría producir una respuesta incorrecta presentada con seguridad.
 
 <a id="why-it-happens"></a>
 
-## Por qué sucede
+## Por qué ocurre
 
-![Comparación de la delegación: en v1, ChatGPT envía una tarea sin cifrar mediante OpenCodex y el subagente enrutado puede leerla. En v2 envía encrypted_content del backend de ChatGPT; OpenCodex no puede descifrarlo y la solicitud falla con unreadable_encrypted_agent_task al cruzar el límite de proveedores.](../../../../assets/subagent-v2-encrypted-task.svg)
+![Comparación de la delegación: en v1, ChatGPT envía una tarea sin cifrar mediante OpenCodex y el subagente enrutado puede leerla. En v2 envía encrypted_content del backend de ChatGPT; OpenCodex no puede descifrarlo y la solicitud falla con unreadable_encrypted_agent_task al cruzar el límite entre proveedores.](../../../../assets/subagent-v2-encrypted-task.svg)
 
-En v1, el padre emite la tarea del niño como texto plano. OpenCodex lo lee, lo encamina, y el niño derrotado recibe algo sobre lo que puede actuar.
+En v1, el agente principal emite la tarea del subagente como texto sin cifrar. OpenCodex la lee y la enruta; el subagente recibe instrucciones que puede ejecutar.
 
-En v2, el padre emite la tarea como `encrypted_content`, acuñada por el backend ChatGPT. La clave se queda en ese backend. OpenCodex nunca lo tuvo, por lo que no hay nada que un proxy pueda descifrar y nada que reescribir: el valor realmente es texto cifrado, no texto plano detrás de una bandera. Es por eso que esto es estructural en lugar de una configuración incorrecta, y por qué ninguna configuración del lado del proxy puede solucionarlo.
+En v2, el agente principal emite la tarea como `encrypted_content`, generado por el backend de ChatGPT. La clave permanece en ese backend; OpenCodex nunca la tuvo. El proxy no puede descifrar ni reescribir el contenido: es texto cifrado real. Es una limitación estructural y ningún ajuste del proxy puede eliminarla.
 
-Tres topologías no se ven afectadas, lo cual vale la pena señalar porque explica la forma del fracaso en lugar de que el fracaso sea misterioso:
+La comparación de estas tres combinaciones muestra dónde aparece el límite:
 
-| Topología | v1 | v2 |
+| Combinación | v1 | v2 |
 | --- | --- | --- |
-| ChatGPT padre a hijo enrutado | obras | **falla** |
-| Padre encaminado al hijo encaminado | obras | obras |
-| ChatGPT padre a ChatGPT hijo | obras | funciona - el backend puede descifrar lo que acuñó |
+| Agente ChatGPT a subagente enrutado | funciona | **falla** |
+| Agente enrutado a subagente enrutado | funciona | funciona |
+| Agente ChatGPT a subagente ChatGPT | funciona | funciona: el backend puede descifrar lo que generó |
 
-El backend siempre puede leer su propio texto cifrado. Sólo se rompe el cruce de fronteras.
+El backend puede leer su propio texto cifrado. El problema aparece al cruzar hacia otro proveedor.
 
 <a id="is-it-fixed-upstream"></a>
 
-## ¿Está fijado upstream?
+## ¿Está resuelto en Codex?
 
-Todavía no, y no para la mitad de lo que importa. Upstream fusionó [openai/códex: 35845](https://github.com/openai/codex/pull/35845), que agregó soporte para mensajes de colaboración de texto plano, pero ese es el lado *recibir*. Maneja el texto plano que ya se produjo; no hace que un padre OpenAI lo produzca.
+Todavía falta la parte necesaria para este caso. Codex integró [openai/codex#35845](https://github.com/openai/codex/pull/35845), que permite recibir mensajes de colaboración sin cifrar. Ese cambio afecta al receptor: procesa texto que ya fue generado sin cifrar, pero no hace que un agente de OpenAI lo emita de esa forma.
 
-El lado de envío todavía está abierto: [#36376](https://github.com/openai/codex/issues/36376), reproducido en CLI 0.146 a 0.151 en Windows, macOS y Linux, y [#37197](https://github.com/openai/codex/issues/37197), que establece la pieza que falta directamente: una política de entrega del lado de envío. Tampoco tiene un compromiso de mantenimiento o una ETA.
+La parte de envío sigue descrita en [#36376](https://github.com/openai/codex/issues/36376), reproducida con las versiones CLI 0.146 a 0.151 en Windows, macOS y Linux, y en [#37197](https://github.com/openai/codex/issues/37197), que solicita una política de entrega para el emisor. No hay un compromiso de implementación ni una fecha estimada del mantenedor.
 
-OpenCodex registró la consecuencia como [#92](https://github.com/lidge-jun/opencodex/issues/92), cerrado como no planeado: nada en este repositorio puede arreglarlo, por lo que el problema es un puntero al trabajo ascendente en lugar de una tarea que espera en un mantenedor aquí.
+OpenCodex registró esta consecuencia en [#92](https://github.com/lidge-jun/opencodex/issues/92), cerrada como no planificada: este repositorio no puede resolver el cifrado del emisor. La issue remite al trabajo en Codex.
 
 <a id="what-the-three-modes-do-now"></a>
 
-## Lo que los tres modos hacen ahora
+## Qué hace cada modo
 
-| Modo | Superficie | Cuándo elegirlo |
+| Modo | Interfaz | Cuándo elegirlo |
 | --- | --- | --- |
-| **v1** (por defecto) | Cada modelo anuncia las herramientas clásicas de generación de nombres. Una generación puede nombrar a otro modelo directamente. | Cualquier persona que delega a través de proveedores. Este es el valor predeterminado enviado. |
-| **base** | Alfileres de modelo aguas arriba: Sol y Terra usan v2, Luna usa v1, los modelos sin pines siguen la propia bandera de Codex. | Usted quiere Codex 's superficie por modelo previsto y delegar dentro de un solo proveedor. |
-| **v2** | Cada modelo anuncia las herramientas concurrentes planas. | Desea que el modelo de sesión concurrente más nuevo y su padre y su hijo estén en el mismo lado del límite. |
+| **v1** (predeterminado) | Todos los modelos anuncian las herramientas clásicas de creación con espacio de nombres. Cada creación puede indicar otro modelo directamente. | Si delega entre proveedores. Es el valor incluido en la instalación. |
+| **base** | Respeta la asignación de Codex por modelo: Sol y Terra usan v2, Luna usa v1 y los modelos sin asignación siguen la opción de Codex. | Si desea la interfaz prevista por Codex y delega dentro de un mismo proveedor. |
+| **v2** | Todos los modelos anuncian las herramientas concurrentes sin espacio de nombres. | Si desea las sesiones concurrentes nuevas y ambos agentes están del mismo lado del límite entre proveedores. |
 
-La base aparece en segundo lugar en lugar de primero porque sus pines ponen a Sol y Terra, los dos modelos que la mayoría de la gente delega en *Desde*, en v2. La base no es un ajuste medio para este problema; para un ChatGPT -enrutado se comporta como v2.
+base aparece en segundo lugar porque asigna v2 a Sol y Terra, modelos utilizados habitualmente como agentes principales. Para delegar de ChatGPT a un modelo enrutado, base tiene la misma limitación que v2.
 
 <a id="if-you-already-chose-base-or-v2"></a>
 
-## Si ya ha elegido base o v2
+## Si ya eligió base o v2
 
-Nada ha cambiado para ti. La actualización a una versión que envía este valor predeterminado no reescribe una configuración existente; el panel de control eleva el aviso una vez y espera una respuesta.
+La actualización no sobrescribe una elección existente. El panel muestra el aviso una vez y espera una respuesta.
 
-- **Continuar** mantiene el modo en el que estás y deja de preguntar.
+- **Continuar** conserva el modo actual y deja de preguntar.
 - **Cambiar a v1** aplica v1 y deja de preguntar.
 
-Cualquiera de las respuestas queda registrada y el aviso no regresa. Desestimarlo sin responder lo deja para la próxima vez que abra el tablero.
+Ambas respuestas quedan registradas. Cerrar el aviso sin responder lo deja pendiente para la siguiente apertura del panel.
 
-Los cambios de modo se aplican a **nuevo** Sesiones Codex. Iniciar una nueva sesión después de elegir; si se El anfitrión de la aplicación todavía muestra la superficie antigua, ejecuta `ocx sync` Reinicia esa superficie.
+El modo se aplica a las sesiones **nuevas** de Codex. Inicie otra sesión después del cambio. Si un proceso de la aplicación que lleva tiempo abierto todavía muestra la interfaz anterior, ejecute `ocx sync` y reinicie esa aplicación.
 
 <a id="if-you-want-v2-anyway"></a>
 
-## Si quieres v2 de todos modos
+## Si prefiere utilizar v2
 
-Cuatro rutas, en el orden en que la mayoría de la gente debería probarlas:
+Hay cuatro opciones, en el orden recomendado:
 
-1. **Mantenga ChatGPT en v1.** Dentro de la v2, el interruptor `keepNativeChatGptOnV1` deja a Sol y Terra en la superficie de la v1 para que aún puedan generar Grok o Claude, mientras que los padres enrutados obtienen la v2. Esto es lo más parecido a tener ambos.
-2. **Delegar dentro de un proveedor.** Un padre enrutado que genera un hijo enrutado es texto plano en v2 y funciona normalmente.
-3. **Confíe en un relé de llave-auth directo Responses.** Un proveedor que marque explícitamente con `allowEncryptedV2AgentTasks: true` recibe la carga útil opaca en lugar de la 400. Solo haz esto para un destino que sabes que puede consumirlo.
-4. **Habilitar `agentTaskRecovery`.** Experimental y apagado por defecto. Recupera ilegibles cifrados `NEW_TASK`, `MESSAGE`, `FOLLOWUP_TASK` y `FINAL_ANSWER` elementos a través de la ChatGPT backend, a costa de cuota, latencia y una dependencia de comportamiento indocumentado; Combo recuperación sigue siendo limitada a turnos engendrado-hijo, y fragmentos de token dividido permanecer sin soporte.
+1. **Mantener ChatGPT en v1.** Dentro de v2, `keepNativeChatGptOnV1` conserva Sol y Terra en v1 para que puedan crear subagentes Grok o Claude; los agentes principales enrutados utilizan v2.
+2. **Delegar dentro del mismo proveedor.** Un agente enrutado que crea otro subagente enrutado utiliza texto sin cifrar en v2 y funciona normalmente.
+3. **Confiar en un relay directo de Responses con clave API.** Un proveedor marcado explícitamente con `allowEncryptedV2AgentTasks: true` recibe la carga opaca en lugar de HTTP 400. Utilícelo únicamente con un destino que sepa que puede procesarla.
+4. **Activar `agentTaskRecovery`.** Es experimental y está desactivado de forma predeterminada. Recupera los elementos cifrados ilegibles `NEW_TASK`, `MESSAGE`, `FOLLOWUP_TASK` y `FINAL_ANSWER` mediante el backend de ChatGPT, con consumo de cuota, latencia y dependencia de un comportamiento no documentado. La recuperación de Combo sigue limitada a los turnos de subagentes creados; los fragmentos de tokens divididos no son compatibles.
 
-Vea [Superficie del subagente](/es/guides/sub-agent-surface/) para ver la mecánica completa de cada uno, y [Configuración del agente](/es/reference/configuration/agents/) para los ajustes en sí.
+Consulte [Interfaz de subagentes](/es/guides/sub-agent-surface/) para conocer su funcionamiento y [Configuración de agentes](/es/reference/configuration/agents/) para los ajustes.
 
 <a id="when-this-page-goes-away"></a>
 
-## Cuando esta página desaparece
+## Cuándo dejará de ser necesaria esta página
 
-Cuando una versión upstream hace que un padre nativo ChatGPT emita la tarea de un hijo enrutado como texto plano, la razón del valor predeterminado desaparece con él. En ese momento, el valor predeterminado vuelve a la base, la confirmación deja de aparecer y esta página se convierte en historia en lugar de consejo.
+Cuando Codex permita que un agente nativo de ChatGPT emita sin cifrar la tarea de un subagente enrutado, desaparecerá el motivo de este valor predeterminado. Entonces podrá volver a base, dejar de mostrar la confirmación y conservar esta página como registro histórico.
 
 <a id="changing-the-mode"></a>
 
 ## Cambiar el modo
 
-Panel de control, Modelos y Subagentes todos llevan el mismo switch v1/base/v2, y los tres preguntan antes de base o v2. Desde el CLI:
+Panel, Modelos y Subagentes comparten el selector v1/base/v2 y solicitan confirmación antes de pasar a base o v2. Desde la CLI:
 
 ```bash
 ocx v2 status
 ocx v2 mode v1
 ```
 
-El CLI no da respuesta. Es la misma configuración, así que elíjala sabiendo lo que describe esta página.
+La CLI no solicita confirmación. Modifica la misma configuración; elija el modo teniendo en cuenta estas limitaciones.
 
 <a id="concurrent-child-limit"></a>
 
-## Límite simultáneo por hijo
+## Límite de subagentes simultáneos
 
-En **Modelos → Ajustes del modelo**, el control de límite de subagente establece el número máximo de agentes secundarios concurrentes, excluyendo el agente primario. Sigue estando disponible en v1, base y v2, incluido el modo híbrido con la bandera global v2 desactivada. Elija el modo de superficie por separado de este límite.
+En **Modelos → Ajustes del modelo**, el control de subagentes establece el máximo de agentes secundarios simultáneos, sin contar al principal. Está disponible en v1, base y v2, incluido el modo híbrido con la opción global de v2 desactivada. El modo de interfaz y este límite se eligen por separado.
 
-Elevar la tapa permite más niños; no los crea automáticamente ni garantiza una ejecución más rápida. Inicie una nueva sesión Codex después de cambiar el límite. Si un host App de larga duración sigue utilizando el límite anterior, reinicie ese host.
+Aumentar el límite permite más subagentes; no los crea automáticamente ni garantiza mayor velocidad. Inicie una sesión nueva de Codex después de cambiarlo. Si un proceso de la aplicación que lleva tiempo abierto sigue usando el límite anterior, reinícielo.

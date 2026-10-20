@@ -211,7 +211,7 @@ No. La guía puede recomendar un modelo, y la sincronización nativa predetermin
 
 ### ¿Por qué mi hijo v2 usó el modelo de padre?
 
-Un fork v2 de historia completa hereda el modelo padre. Utilice un engendro que establece `fork_turns` a `"none"` o un recuento parcial positivo antes de pasar un modelo o anular esfuerzo.
+Una bifurcación v2 con el historial completo hereda el modelo del agente principal. Para indicar otro modelo o esfuerzo de razonamiento al crear el subagente, establezca `fork_turns` en `"none"` o en un recuento parcial positivo.
 
 <a id="why-is-a-configured-model-missing-from-the-v2-roster"></a>
 

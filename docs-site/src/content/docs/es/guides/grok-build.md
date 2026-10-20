@@ -117,7 +117,7 @@ Citar cualquier alias que contenga un punto: bare `[model.grok-4.5]` es una ruta
 
 <a id="devin-rate-limits"></a>
 
-## Límites de tarifas Devin
+## Límites de solicitudes Devin
 
 Si Devin rechaza una solicitud directa con un límite de velocidad antes de producir una salida o realizar una acción, OpenCodex devuelve HTTP 429 con un error JSON. Grok puede reconocer entonces el límite en lugar de mostrar un error genérico 500 de un flujo de HTTP 200 fallido. Si la respuesta incluye `Retry-After`, siga ese retraso antes de volver a intentarlo. Las cuotas agotadas sin una sugerencia de reinicio no reciben un retraso predeterminado. La conmutación por error de la cuenta OAuth existente todavía se aplica. Este manejo HTTP 429 también se aplica a las solicitudes Responses que no son de transmisión.
 

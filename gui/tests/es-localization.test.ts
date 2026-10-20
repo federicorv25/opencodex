@@ -47,6 +47,7 @@ describe("Spanish localization contract", () => {
         expect(catalog[key].trim(), key).not.toBe("");
         expect(placeholders(catalog[key]), key).toEqual(placeholders(en[key]));
         expect(catalog[key], key).not.toMatch(/ZXQ\d|QXZ|\u2047|\uFFFD/);
+        expect(catalog[key], key).not.toMatch(/tarifa limitada|teclas (?:API|activas)|rotación de teclas|discapacitad|\bAmable\b|escritorio Claude|Claude escritorio/i);
       }
     }
     for (const key of Object.keys(NATIVE_MAIN_EN) as (keyof typeof NATIVE_MAIN_EN)[]) {
@@ -118,6 +119,7 @@ describe("Spanish localization contract", () => {
     expect(ROUTING_COMPATIBILITY_FIELD_LABELS.es.unknownEvidence).toBe("Evidencia desconocida");
     expect(NATIVE_MAIN_TRANSLATIONS.es["nativeMain.recoveryHint"]).toContain("confirm");
     expect(DICTS.es["pws.completion.confirm"]).toContain("32 tokens");
+    expect(DICTS.es["integrations.lazycodexRoles.omoComments"]).toContain("[codex].agents.{role}");
   });
 
   test("specific and generic HTTP errors recognize Spanish regional variants", () => {
