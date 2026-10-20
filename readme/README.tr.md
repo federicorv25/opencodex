@@ -440,11 +440,14 @@ npm uninstall -g @bitkyc08/opencodex
 
 ## Uzaktan erişim
 
-opencodex varsayılan olarak `127.0.0.1` adresine bağlanır ve ek bir kimlik doğrulaması gerektirmez.
-Geri döngünün dışına bağlanmak (`"hostname": "0.0.0.0"`) bir bearer belirteci **gerektirir**: proxy
-`OPENCODEX_API_AUTH_TOKEN` olmadan başlamayı reddeder ve her istemci isteği bu belirteci
-`x-opencodex-api-key` olarak taşımalıdır. Ayrıntılar:
-[yapılandırma başvurusu](https://opencodex.me/tr/reference/configuration/).
+opencodex varsayılan olarak `127.0.0.1` adresine bağlanır ve veri düzlemi için ek kimlik doğrulaması gerektirmez.
+Geri döngü dışına bağlanmak (`"hostname": "0.0.0.0"`) **veri düzlemi kimlik bilgisi gerektirir**.
+Veri belirteci `OPENCODEX_API_AUTH_TOKEN`, `OCX_API_TOKEN_FILE` veya yalnızca sahibinin erişebildiği
+`service-api-token` dosyasından alınabilir; `ocx service install` bu dosyayı oluşturabilir.
+Yapılandırılmış istemci API anahtarları da veri düzlemine erişim sağlar. İstemciler kabul edilen
+kimlik bilgisini `x-opencodex-api-key` içinde gönderir. Yönetim için ayrı bir
+`OPENCODEX_ADMIN_AUTH_TOKEN` veya oluşturulmuş yönetici belirteci kullanılır; veri belirteci
+yönetim erişimi sağlamaz. Ayrıntılar: [yapılandırma başvurusu](https://opencodex.me/tr/reference/configuration/).
 
 ## Belgeler
 

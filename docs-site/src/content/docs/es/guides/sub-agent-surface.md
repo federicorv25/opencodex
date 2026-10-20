@@ -103,7 +103,7 @@ Para un trabajador generado, opencodex crea este orden de prioridad:
 2. Una cadena por modelo de `subagentModelFallbackByModel` en opencodex config, tecleada por el modelo primario solicitado.
 3. La lista global `subagentModelFallback` en opencodex config.
 
-Las cadenas de reserva per-rol pertenecen a la configuración opencodex, no a la `$CODEX_HOME/agents/*.toml`. Codex 0.146+ estrictamente deserializa los archivos de rol de agente y rechaza `model_fallback` como un campo desconocido, lo que omite toda la definición de rol (n.o 1190). opencodex todavía puede leer una línea `model_fallback` heredada del TOML para la compatibilidad con versiones anteriores, pero `ocx doctor` advierte al respecto y Codex en sí ignorará el rol afectado.
+Las cadenas de reserva per-rol pertenecen a la configuración opencodex, no a la `$CODEX_HOME/agents/*.toml`. Codex 0.146+ estrictamente deserializa los archivos de rol de agente y rechaza `model_fallback` como un campo desconocido, lo que omite toda la definición de rol (#1190). opencodex todavía puede leer una línea `model_fallback` heredada del TOML para la compatibilidad con versiones anteriores, pero `ocx doctor` advierte al respecto y Codex en sí ignorará el rol afectado.
 
 Los identificadores de modelos duplicados se eliminan mientras se conserva la primera aparición. Durante la selección, opencodex omite candidatos que están deshabilitados, no enrutables, respaldados por un proveedor deshabilitado, marcados como no saludables, dentro de un tiempo de reutilización, falta una cuenta Codex agrupada utilizable o más allá del umbral de cuota configurado. Las sondas de disponibilidad se almacenan en caché durante `subagentModelFallbackPollMs` (60 segundos por defecto).
 
@@ -113,7 +113,7 @@ Fallback no hace legibles las tareas cifradas incompatibles. Cuando la tarea hij
 
 ## Entrega de tareas cifradas v2
 
-Codex puede enviar una tarea hijo v2 nativa a enrutada solo como `encrypted_content` encriptado en el backend. Esa carga útil puede ser leída por el backend nativo ChatGPT, pero no por un proveedor externo. Este es el conocido [Limitación 92](https://github.com/lidge-jun/opencodex/issues/92).
+Codex puede enviar una tarea hijo v2 nativa a enrutada solo como `encrypted_content` encriptado en el backend. Esa carga útil puede ser leída por el backend nativo ChatGPT, pero no por un proveedor externo. Este es el conocido [limitación #92](https://github.com/lidge-jun/opencodex/issues/92).
 
 opencodex falla de manera segura en lugar de reenviar una tarea vacía o ilegible:
 

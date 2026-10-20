@@ -46,7 +46,7 @@ opencodex necesita estar en funcionamiento (`ocx service status`). Entonces cual
 | Campo | Valor |
 |---|---|
 | URL base | `http://127.0.0.1:10100/v1` (incluya `/v1`; se acepta el bucle de `http://`) |
-| API Llave | el valor de `OPENCODEX_API_AUTH_TOKEN` si su servicio usa API auth, de lo contrario cualquier marcador de posición como `opencodex-loopback` |
+| Clave API | una clave de OpenCodex aceptada por el servicio cuando está habilitada la admisión con clave API: puede ser `OPENCODEX_API_AUTH_TOKEN` o una clave de cliente configurada; use `opencodex-loopback` solo cuando la configuración permita ese marcador de posición |
 
 Haga clic en **Actualizar lista de modelos**. El selector se llena con opencodex `/v1/models`; encienda las filas que desee.
 
@@ -133,7 +133,7 @@ Esa elección de cable tiene un efecto secundario para Claude filas: Cursor env�
 
 | Síntoma | Comprobar |
 |---|---|
-| 401 desde la puerta de enlace | la Clave API no coincide con `OPENCODEX_API_AUTH_TOKEN`; para un enlace de bucle sin API auth funciona cualquier valor |
+| 401 desde la puerta de enlace | la credencial no coincide con un token de datos o una clave de cliente aceptados; use una clave autorizada. El marcador de posición solo sirve en loopback cuando la configuración admite solicitudes sin autenticación de datos |
 | El selector está vacío | opencodex no se está ejecutando, o falta la URL base `/v1`; presione Actualizar lista de modelos después de la fijación |
 | modelos enumerados pero sin control de razonamiento | opencodex más antiguo que v2.41, o el id no está en la tabla de Cursor (el panel lo marca - ); encienda `cursorEffortRows` o configure un proveedor predeterminado |
 | No se recoge un cambio de esquema | Cursor cachés `/models` por cadena de URL base sin caducidad; La lista de modelos de actualización la vuelve a leer, de lo contrario, reinicia la aplicación o guarda temporalmente una ortografía diferente de la URL (`localhost` vs `127.0.0.1`) |

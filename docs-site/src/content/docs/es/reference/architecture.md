@@ -92,9 +92,21 @@ Las llamadas a herramientas se desambiguan en tres tipos de elementos Responses 
 
 ## Administración API, OAuth y uso
 
-`server/management-api.ts` respalda el panel y envía grupos de rutas enfocadas a
-`server/management/*.ts`. Es `/api/*` las rutas cubren configuración/configuración seguros, proveedor CRUD y grupos de claves, selección de modelos/controles de v2 de mayúsculas/contexto, sincronización de catálogo, diagnósticos y Registros de depuración, uso y cuotas, configuración de sidecar, actualizaciones, claves API de cliente generadas, inicio de sesión / estado / OAuth cierre de sesión y selección de cuenta, gestión de cuentas Codex y stop elegante. `server/auth-cors.ts`
-requiere `OPENCODEX_API_AUTH_TOKEN` Para ambos `/api/*` y `/v1/*` cuando el poder se une más allá loopback; configurado `corsAllowOrigins` Las entradas amplían la lista de permisos de origen local.
+`server/management-api.ts` sirve al panel y delega los grupos de rutas en
+`server/management/*.ts`. Sus rutas `/api/*` cubren la configuración y los ajustes
+filtrados, la gestión de proveedores y grupos de claves, la selección de modelos,
+los límites de contexto y los controles v2, la sincronización del catálogo, los
+diagnósticos y registros de depuración, el uso y las cuotas, los sidecars, las
+actualizaciones, las claves API de cliente generadas, OAuth, la selección y gestión
+de cuentas Codex y la parada ordenada.
+
+El acceso de administración a `/api/*` utiliza la credencial independiente
+`OPENCODEX_ADMIN_AUTH_TOKEN` o el token administrativo generado; el panel utiliza
+sesiones de administración. La admisión de modelos en `/v1/*` usa credenciales del
+plano de datos, como `OPENCODEX_API_AUTH_TOKEN` o las claves API de cliente
+configuradas. `server/auth-cors.ts` exige una credencial de datos al escuchar fuera
+de loopback. Un token de modelos no concede acceso administrativo.
+Las entradas de `corsAllowOrigins` amplían la lista de orígenes locales permitidos.
 
 OAuth implementaciones en vivo en `oauth/`; tokens de acceso se cargan o actualizan inmediatamente antes de una llamada enrutada, mientras que `oauth/token-guardian.ts` puede actualizar proactivamente sólo los proveedores cuya política lo permite. Refresh se coordina con un solo vuelo en proceso, un bloqueo de archivos por cuenta y CAS de generación para que los escritores concurrentes no puedan bloquear una credencial más nueva. Una proyección de salud compartida (`oauth/health.ts`) alimenta `ocx status`, `ocx doctor`, la administración API y el tablero de instrumentos. Codex / ChatGPT credenciales de grupo y afinidad proceso-local hilo vivo por debajo de `codex/` y se mantienen fuera de las respuestas de gestión; afinidad borra en `401` / `403` / `429` (no fijado a través de límites de velocidad) y no persiste a través de reinicios. El uso de solicitudes se normaliza a `OcxUsage`, aparece en Responses eventos de terminal y se agrega por `usage/` para el panel de control y los diagnósticos JSONL opcionales.
 

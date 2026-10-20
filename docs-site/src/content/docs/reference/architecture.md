@@ -135,9 +135,12 @@ single non-streaming response object from the same events.
 `server/management/*.ts`. Its `/api/*` routes cover safe config/settings,
 provider CRUD and key pools, model selection/context caps/v2 controls, catalog sync, diagnostics and
 debug logs, usage and quotas, sidecar settings, updates, generated client API keys, OAuth login/status/
-logout and account selection, Codex account management, and graceful stop. `server/auth-cors.ts`
-requires `OPENCODEX_API_AUTH_TOKEN` for both `/api/*` and `/v1/*` when the proxy binds beyond
-loopback; configured `corsAllowOrigins` entries extend the local-origin allowlist.
+logout and account selection, Codex account management, and graceful stop. Management access to
+`/api/*` uses the separate `OPENCODEX_ADMIN_AUTH_TOKEN` or generated admin token; the dashboard
+uses management sessions. Model admission on `/v1/*` uses data-plane credentials, such as
+`OPENCODEX_API_AUTH_TOKEN` or configured client API keys. `server/auth-cors.ts` requires a data
+credential when binding beyond loopback; a model token does not grant management access.
+Configured `corsAllowOrigins` entries extend the local-origin allowlist.
 
 OAuth implementations live in `oauth/`; access tokens are loaded or refreshed immediately before a
 routed call, while `oauth/token-guardian.ts` can proactively refresh only providers whose policy

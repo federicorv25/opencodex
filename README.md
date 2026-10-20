@@ -432,10 +432,14 @@ npm uninstall -g @bitkyc08/opencodex
 
 ## Remote access
 
-By default opencodex binds to `127.0.0.1` and needs no extra authentication. Binding beyond
-loopback (`"hostname": "0.0.0.0"`) **requires** a bearer token — the proxy refuses to start
-without `OPENCODEX_API_AUTH_TOKEN`, and every client request must carry it as
-`x-opencodex-api-key`. Details: [configuration reference](https://opencodex.me/reference/configuration/).
+By default opencodex binds to `127.0.0.1` and needs no extra data-plane authentication.
+Binding beyond loopback (`"hostname": "0.0.0.0"`) **requires a data-plane credential**.
+The data token can come from `OPENCODEX_API_AUTH_TOKEN`, `OCX_API_TOKEN_FILE`, or the
+owner-only `service-api-token` file that `ocx service install` can provision.
+Configured client API keys also provide data-plane admission. Clients send an accepted
+credential in `x-opencodex-api-key`. Management uses a separate
+`OPENCODEX_ADMIN_AUTH_TOKEN` or generated admin token; a data token does not grant
+management access. Details: [configuration reference](https://opencodex.me/reference/configuration/).
 
 ## Documentation
 

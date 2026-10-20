@@ -359,8 +359,14 @@ npm uninstall -g @bitkyc08/opencodex
 
 ## Acceso remoto
 
-De forma predeterminada, opencodex escucha en `127.0.0.1` y no necesita autenticación adicional. Escuchar fuera del bucle local (`"hostname": "0.0.0.0"`) **requiere un token**: el proxy rechaza el inicio si falta `OPENCODEX_API_AUTH_TOKEN`, y cada solicitud del cliente debe enviarlo como
-`x-opencodex-api-key`. Detalles: [referencia de configuración](https://opencodex.me/es/reference/configuration/).
+De forma predeterminada, opencodex escucha en `127.0.0.1` y no necesita autenticación adicional del plano de datos.
+Escuchar fuera de loopback (`"hostname": "0.0.0.0"`) **requiere una credencial de datos**.
+El token puede proceder de `OPENCODEX_API_AUTH_TOKEN`, de `OCX_API_TOKEN_FILE` o del archivo privado
+`service-api-token`, accesible solo para su propietario, que puede crear `ocx service install`.
+Las claves API de cliente configuradas también permiten la admisión de datos. Los clientes envían una
+credencial aceptada en `x-opencodex-api-key`. La administración utiliza una credencial independiente:
+`OPENCODEX_ADMIN_AUTH_TOKEN` o el token administrativo generado. Un token de datos no concede acceso
+administrativo. Detalles: [referencia de configuración](https://opencodex.me/es/reference/configuration/).
 
 ## Documentación
 

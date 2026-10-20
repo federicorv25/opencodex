@@ -128,10 +128,10 @@ Las solicitudes de extracción de rebase son bienvenidas. Traer una rama rancia 
 ## Solicitudes de tirón
 
 - Objetivo **`dev`**. No abra la función ni fije las solicitudes de extracción en **`main`**.
-- Rama de la corriente **`dev`** Propina, no de **`main`**. El requerido **`enforce-target`** cheque rechaza cabezas cuya base de fusión se encuentra en el **`main`** tip mientras la rama está muy por detrás de la base de solicitud de extracción (el modo de fallo visto en el número 644).
+- Rama de la corriente **`dev`** Propina, no de **`main`**. El requerido **`enforce-target`** cheque rechaza cabezas cuya base de fusión se encuentra en el **`main`** tip mientras la rama está muy por detrás de la base de solicitud de extracción (el modo de fallo visto en #644).
 - Escribe una descripción real: a **Resumen** de lo que cambió y por qué, más un **Plan de ensayo** (o sustancia equivalente). Cuerpos vacíos, texto solo para marcadores de posición y descripciones que usan escape `\n` en lugar de roturas de línea reales fallar el cheque.
 - Si la solicitud de extracción cambia los archivos bajo `gui/`, incluir una captura de pantalla del cambio de interfaz de usuario en la descripción; el `enforce-target` comprobar las repeticiones en las ediciones de descripción hasta que la captura de pantalla esté presente. Arrastre la imagen al editor de descripciones en lugar de cometerlo: una imagen en su rama monta el squash se fusiona en `dev`. Los mantenedores que suben desde la línea de comandos usan el `pr-assets` ramificación y enlace por SHA de confirmación.
-- Cambios en el flujo de trabajo en este uso del repositorio **`pull_request_target`**. La lógica de aplicación actualizada se aplica solo después de que el flujo de trabajo se promocione a la rama predeterminada del repositorio —, la misma advertencia operativa documentada en .631.
+- Cambios en el flujo de trabajo en este uso del repositorio **`pull_request_target`**. La lógica de aplicación actualizada se aplica solo después de que el flujo de trabajo se promocione a la rama predeterminada del repositorio —, la misma advertencia operativa documentada en #631.
 
 <a id="project-maintainers"></a>
 

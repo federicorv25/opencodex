@@ -433,11 +433,14 @@ npm uninstall -g @bitkyc08/opencodex
 
 ## リモートアクセス
 
-opencodex は既定で `127.0.0.1` にバインドし、追加の認証を必要としません。ループバックの外へ
-バインドする場合（`"hostname": "0.0.0.0"`）は bearer トークンが**必須**です。
-`OPENCODEX_API_AUTH_TOKEN` がなければプロキシは起動を拒否し、すべてのクライアントリクエストは
-`x-opencodex-api-key` としてトークンを乗せる必要があります。詳細は
-[設定リファレンス](https://opencodex.me/ja/reference/configuration/)にあります。
+opencodex は既定で `127.0.0.1` にバインドし、データプレーンの追加認証は不要です。
+ループバックの外へバインドする場合（`"hostname": "0.0.0.0"`）は、**データプレーンの認証情報が必要**です。
+データトークンは `OPENCODEX_API_AUTH_TOKEN`、`OCX_API_TOKEN_FILE`、または所有者だけがアクセスできる
+`service-api-token` ファイルから取得できます。このファイルは `ocx service install` で作成できます。
+設定済みのクライアント API キーもデータプレーンへのアクセスに使用できます。クライアントは有効な認証情報を
+`x-opencodex-api-key` で送信します。管理用の認証情報は別で、`OPENCODEX_ADMIN_AUTH_TOKEN` または
+生成された管理トークンを使います。データトークンでは管理機能にアクセスできません。詳細は
+[設定リファレンス](https://opencodex.me/ja/reference/configuration/)を参照してください。
 
 ## ドキュメント
 

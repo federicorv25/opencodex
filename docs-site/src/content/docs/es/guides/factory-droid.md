@@ -110,7 +110,7 @@ ocx provider add droid \
   --allow-private-network
 ```
 
-Esto crea la entrada de configuración `providers.droid`. En el panel de control, abra **Proveedores → droide → Editar JSON** y reemplace el valor de ese proveedor con:
+Esto crea la entrada de configuración `providers.droid`. En el panel de control, abra **Proveedores → droid → Editar JSON** y reemplace el valor de ese proveedor con:
 
 ```json
 {

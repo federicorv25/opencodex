@@ -13,7 +13,7 @@ Antes de estas reglas, un `policy/<id>` explícito o un alias de perfil de enrut
 
 ## Precedencia
 
-1. **Selector de cuenta Exact Codex** - si el id es `<selector>/<native-openai-model>` y el selector está configurado en `codexAccountNamespaces`, la solicitud usa solo la cuenta almacenada asignada y envía el modelo nativo desnudo aguas arriba. Los objetivos exactos no disponibles no se cierran en lugar de continuar a través de Pool, Direct o enrutamiento del proveedor.
+1. **Selector de cuenta Exact Codex** - si el id es `<selector>/<native-openai-model>` y el selector está configurado en `codexAccountNamespaces`, la solicitud usa solo la cuenta almacenada asignada y envía el modelo nativo desnudo aguas arriba. Si el destino exacto no está disponible, la solicitud se rechaza sin recurrir a Pool, Direct ni al enrutamiento del proveedor.
 
    ```text
    side/gpt-5.6-sol → provider "openai", model "gpt-5.6-sol", account selector "side"
@@ -60,7 +60,7 @@ Cualquiera que sea la ruta elegida, el `apiKey` del proveedor se resuelve a trav
 
 El enrutamiento y la visibilidad del catálogo son controles separados:
 
-- `disabledModels` esconde identificadores de rutas de nombres del catálogo Codex y `/v1/models`; una babosa GPT nativa desnuda se mantiene en el catálogo con `visibility: "hide"`. El **no** rechaza una solicitud directa para ese modelo.
+- `disabledModels` esconde identificadores de rutas de nombres del catálogo Codex y `/v1/models`; una identificador GPT nativa desnuda se mantiene en el catálogo con `visibility: "hide"`. El **no** rechaza una solicitud directa para ese modelo.
 - El `selectedModels` no vacío de un proveedor es otra lista de permisos de catálogo. El descubrimiento en vivo y el enrutamiento directo aún funcionan; solo se reducen el catálogo y las emisiones de `/v1/models`.
 - Conjunto de instalaciones frescas `modelDiscovery.newModelPolicy` a `"off"`. Después de que el primer live fetch exitoso establece una línea de base, las llegadas posteriores se agregan a `disabledModels` y llevan una insignia de tablero **NUEVO** hasta que se habilita o se reconoce. Las instalaciones existentes permanecen en `"on"` hasta que se opta. La política se aplica antes de publicar modelos recién descubiertos a través de `/v1/models`, el panel de control, las exportaciones de configuración del cliente o una sincronización de catálogo Codex (incluido el inicio del servicio). Habilitar una llegada manualmente la mantiene habilitada en actualizaciones y exportaciones posteriores. Si la configuración del proveedor en ejecución difiere del disco, las listas de modelos siguen aplicando la directiva mediante una proyección temporal; dejan intacta la configuración en ejecución y las opciones guardadas. Utilice `ocx models new-policy off` a nivel mundial, agregue `--provider <name>` para una anulación e inspeccione `ocx models new-arrivals [--json]`. Los resultados fallidos/degradados nunca cambian la línea base. Los proveedores con un `selectedModels` no vacío (incluido el modo preestablecido) ya están curados, por lo que esta política es deliberadamente inerte para ellos.
 - `provider.disabled: true` elimina ese proveedor del descubrimiento de catálogo. Las solicitudes explícitas `provider/model` fallan y las exploraciones `defaultModel` / `models[]` las omiten.

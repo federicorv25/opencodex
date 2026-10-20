@@ -438,10 +438,14 @@ npm uninstall -g @bitkyc08/opencodex
 
 ## Accès distant
 
-Par défaut, opencodex se lie à `127.0.0.1` et ne nécessite aucune authentification supplémentaire. Une liaison au-delà
-de l'adresse de bouclage (`"hostname": "0.0.0.0"`) **nécessite** un jeton bearer — le proxy refuse de démarrer
-sans `OPENCODEX_API_AUTH_TOKEN`, et chaque requête cliente doit le fournir dans
-`x-opencodex-api-key`. Détails : [référence de configuration](https://opencodex.me/fr/reference/configuration/).
+Par défaut, opencodex écoute sur `127.0.0.1` sans authentification supplémentaire du plan de données.
+Une écoute au-delà de la boucle locale (`"hostname": "0.0.0.0"`) **exige un identifiant d'accès au plan de données**.
+Le jeton peut provenir de `OPENCODEX_API_AUTH_TOKEN`, de `OCX_API_TOKEN_FILE` ou du fichier
+`service-api-token`, accessible uniquement à son propriétaire et que `ocx service install` peut créer.
+Les clés API clientes configurées permettent également cet accès. Les clients envoient un identifiant
+accepté dans `x-opencodex-api-key`. L'administration utilise un jeton distinct :
+`OPENCODEX_ADMIN_AUTH_TOKEN` ou le jeton d'administration généré. Un jeton de données ne donne
+pas accès à l'administration. Détails : [référence de configuration](https://opencodex.me/fr/reference/configuration/).
 
 ## Documentation
 

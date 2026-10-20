@@ -3,14 +3,14 @@ title: "Combos: conmutación por error y equilibrio de carga"
 description: "Enruta un modelo virtual a varios proveedores, con respaldo ante fallos o reparto ponderado de carga."
 ---
 
-Un **combo** es un modelo virtual que muestra una lista ordenada de objetivos reales de proveedor/modelo. Su cliente solicita `combo/<id>`; opencodex elige un objetivo, reescribe la solicitud a ese concreto `provider/model` y puede probar otro objetivo cuando el primero tiene un fallo reintentable.
+Un **combo** es un modelo virtual que representa una lista ordenada de destinos reales de proveedor/modelo. El cliente solicita `combo/<id>`; opencodex elige un destino, reescribe la solicitud con ese `provider/model` concreto y puede probar otro destino si el primero tiene un fallo reintentable.
 
 Esto es útil cuando usted quiere:
 
-- **Failover:** prefiere un modelo, pero mantenga las copias de seguridad listas.
-- **Equilibrio de carga:** difunde solicitudes exitosas entre modelos o proveedores en lotes ponderados.
+- **Conmutación por error:** dar prioridad a un modelo y mantener otros como respaldo.
+- **Equilibrio de carga:** repartir las solicitudes correctas entre modelos o proveedores en lotes ponderados.
 
-Los combos se sientan frente al enrutamiento normal del proveedor. Lea primero [Enrutamiento de modelo](/es/guides/model-routing/) si los selectores `provider/model` son nuevos para usted.
+Los combos se evalúan antes del enrutamiento normal de proveedores. Consulta primero [Enrutamiento de modelos](/es/guides/model-routing/) si aún no conoces los selectores `provider/model`.
 
 <a id="metered-fallback-consent"></a>
 
@@ -23,7 +23,7 @@ Marque un objetivo combinado de pago por uso con `"metered": true` cuando siga l
 
 Los encabezados de solicitud no pueden otorgar consentimiento. Los alcances de modelo/proveedor todavía se aplican. Esto cubre la selección inicial, la conmutación por error y la recuperación a través de estrategias combinadas, compactación, Messages, Chat Completions y WebSocket, y un modelo de subagente alternativo que nombra un alias combinado. Una reserva colapsada intenta un objetivo no medido utilizable antes de rechazarlo. Los objetivos no marcados conservan el comportamiento existente; el operador declara la medición en lugar de detectarla automáticamente.
 
-Por ejemplo, una cadena de conmutación por error puede Anthropic OAuthEntonces, CursorEntonces, `{ "provider": "anthropic-apikey", "model": "claude-opus-5-5", "metered": true }`. Sin consentimiento, el agotamiento devuelve el último error no medido, con una excepción: un rechazo de cuota anterior 429 o 402 tiene prioridad sobre un 400, 401 o 403 posterior. Si el destino de la suscripción devuelve 429 y Cursor se niega con 401 o 403, la persona que llama recibe el 429 de la suscripción, porque la suscripción gastada explica el fallo y el rechazo de credenciales de Cursor no lo hace. El panel de control guarda la medición de destino omitida y el consentimiento combinado; si se establece explícitamente en false, se borra. Estos campos de consentimiento se configuran a través del archivo de configuración o API; el indicador combinado también está disponible a través del CLI, mientras que el panel de control no lo expone.
+Por ejemplo, una cadena de conmutación por error puede probar Anthropic OAuth, después Cursor y finalmente `{ "provider": "anthropic-apikey", "model": "claude-opus-5-5", "metered": true }`. Sin consentimiento, al agotar los destinos se devuelve el último error de un destino sin pago por uso, con una excepción: un rechazo de cuota anterior 429 o 402 tiene prioridad sobre un 400, 401 o 403 posterior. Si el destino de suscripción devuelve 429 y Cursor después rechaza con 401 o 403, el cliente recibe el 429 de la suscripción, porque la cuota agotada explica el fallo y el rechazo de credenciales de Cursor no. Al guardar desde el dashboard se conservan la marca de pago por uso del destino y el consentimiento del combo si se omiten; establecer cualquiera explícitamente en false lo borra. Estos campos de consentimiento se configuran mediante el archivo de configuración o la API. El indicador del combo también está disponible en la CLI; el dashboard no lo expone.
 
 <a id="60-second-quickstart"></a>
 
@@ -92,7 +92,7 @@ Los selectores explícitos de proveedor/combo y los alias combinados configurado
 
 Algunas versiones de escritorio Codex aplican una lista de permisos remota nativa `available_models` después de que el servidor de aplicaciones ya haya cargado `model_catalog_json`. Los identificadores encaminados normales tales como `Nova1/codex-gpt-5.6-sol` son entonces utilizables por el CLI pero ausentes del selector de escritorio. Este es el [Codex Error de escritorio](https://github.com/openai/codex/issues/19694) aguas arriba rastreado por [opencodex #241](https://github.com/lidge-jun/opencodex/issues/241).
 
-Cuando controlas un destino enrutado equivalente, un combo puede hacerse cargo explícitamente de una babosa nativa:
+Cuando controlas un destino enrutado equivalente, un combo puede hacerse cargo explícitamente de una identificador nativa:
 
 ```bash
 ocx combo set nova-sol \
@@ -102,12 +102,12 @@ ocx combo set nova-sol \
   --display-name 'Nova1 - codex-gpt-5.6-sol'
 ```
 
-Este modo es deliberadamente opt-in y requiere tanto `--native-alias` como una etiqueta de visualización no vacía. El alias debe ser uno de los identificadores de modelo nativos soportados por esta versión opencodex; no se acepta un prefijo de familia nativa solo porque la eliminación debe ser capaz de restaurar metadatos autorizados. Cuando la respuesta de descubrimiento del destino enrutado suministra solo un id de modelo, la fila de compatibilidad rellena los metadatos de contexto, modalidad y razonamiento faltantes del id nativo que reemplaza. Los límites explícitos de objetivos aún ganan, por lo que esta alternativa nunca plantea un límite de contexto o anula las capacidades declaradas. Cambia la precedencia exacta de enrutamiento: las solicitudes para `gpt-5.6-sol` se resuelven a `combo/nova-sol` antes de la ruta canónica de la familia nativa OpenAI. El catálogo contiene una fila desnuda con la etiqueta de visualización configurada, no filas nativas y combinadas duplicadas. Sólo la babosa `gpt-5.6-sol` desnuda es capturada. Las filas calificadas por cuenta, como `main/gpt-5.6-sol`, y las filas calificadas por proveedor, como `openai-apikey/gpt-5.6-sol`, siguen siendo rutas OpenAI distintas; la ruta API calificada por proveedor nunca llega al alias nativo.
+Este modo es deliberadamente opt-in y requiere tanto `--native-alias` como una etiqueta de visualización no vacía. El alias debe ser uno de los identificadores de modelo nativos soportados por esta versión opencodex; no se acepta un prefijo de familia nativa solo porque la eliminación debe ser capaz de restaurar metadatos autorizados. Cuando la respuesta de descubrimiento del destino enrutado suministra solo un id de modelo, la fila de compatibilidad rellena los metadatos de contexto, modalidad y razonamiento faltantes del id nativo que reemplaza. Los límites explícitos de objetivos aún ganan, por lo que esta alternativa nunca plantea un límite de contexto o anula las capacidades declaradas. Cambia la precedencia exacta de enrutamiento: las solicitudes para `gpt-5.6-sol` se resuelven a `combo/nova-sol` antes de la ruta canónica de la familia nativa OpenAI. El catálogo contiene una fila desnuda con la etiqueta de visualización configurada, no filas nativas y combinadas duplicadas. Sólo la identificador `gpt-5.6-sol` desnuda es capturada. Las filas calificadas por cuenta, como `main/gpt-5.6-sol`, y las filas calificadas por proveedor, como `openai-apikey/gpt-5.6-sol`, siguen siendo rutas OpenAI distintas; la ruta API calificada por proveedor nunca llega al alias nativo.
 
 Las claves de visibilidad permanecen inequívocas:
 
 - `combo/nova-sol` oculta el combo de compatibilidad del descubrimiento.
-- La entrada desnuda `gpt-5.6-sol` en `disabledModels` continúa significando la fila nativa latente OpenAI; no oculta el combo que actualmente posee esa babosa pública.
+- La entrada desnuda `gpt-5.6-sol` en `disabledModels` continúa significando la fila nativa latente OpenAI; no oculta el combo que actualmente posee esa identificador pública.
 - Mientras se configura al menos un alias nativo, las filas desnudas nativas deshabilitadas se omiten del catálogo efectivo Codex en lugar de conservarse como `visibility: "hide"`. Esto evita que la lista de permisos de Desktop resucite filas que no debería mostrar. La página Modelos todavía enumera los switches nativos no sombreados, y al volver a habilitar uno se restauran sus metadatos nativos conservados o actuales.
 
 :::caution
@@ -210,7 +210,7 @@ La opción de envío envía los niveles de cuota, y el porcentaje/ventana/reset 
 
 | Método | Selección combinada | Backend reportado en estadísticas |
 | --- | --- | --- |
-| TipoSeguridad (predeterminado) | Omita ambos selectores, o configure `decisionProvider: "jev"`. | `typesafe` |
+| TypeSafe (predeterminado) | Omita ambos selectores, o configure `decisionProvider: "jev"`. | `typesafe` |
 | Servidor compatible con System One | Establecer `decisionProvider` en un identificador de fila configurado `jev-decision` distinto de `jev`. | `systemone` |
 | Modelo opencodex | Establecer `decisionModel` a una ruta ordinaria opencodex, como `ollama/qwen3:4b`. | `model` |
 
@@ -222,7 +222,7 @@ La opción de envío envía los niveles de cuota, y el porcentaje/ventana/reset 
 
 La configuración más rápida es:
 
-1. Abra **Proveedores**, agregue **TipoJEV seguro**, ingrese la clave TypeSafe API y pruebe la conexión.
+1. Abra **Proveedores**, agregue **TypeSafe JEV**, ingrese la clave TypeSafe API y pruebe la conexión.
 2. En la vista general de ese proveedor, elija **Crear JEV Auto**. También puede usar la misma acción en **Modelos → Combos**.
 3. Revise los objetivos Astra → Sol → Luna precargados. Agregue, elimine, reordene o reemplace antes de crear el Combo. La primera fila actualmente elegible está marcada como el objetivo de apertura a prueba de fallos, y cada escalera de razonamiento conocida se muestra al lado de su fila.
 
@@ -297,13 +297,13 @@ Un JEV Combo puede solicitar un servidor alojado o autoalojado que implemente el
 }
 ```
 
-- El `baseUrl` de la fila debe ser el punto final de decisión completo. Los servicios HTTPS pueden usar cualquier ruta, como `/v1/decisions`; los puntos finales simples HTTP aún deben terminar en `/systemone`. Userinfo, cadenas de consulta y fragmentos no se aceptan en las URL de decisión. El modelo de decisión es `defaultModel`, si no la primera entrada `models`; una fila con ninguno se trata como inutilizable y falla al abrirse sin una solicitud (`jev-latest` es el modelo de TypeSafe y nunca se envía a un host autoalojado). La fila es solo un servicio de decisión: nunca se publica como un modelo enrutable y no puede ser un objetivo Combo.
-- Un loopback o punto final LAN necesita `allowPrivateNetwork: true` establecido explícitamente en esa fila. Utilice un bucle de retorno literal, RFC 1918, o dirección IPv6 ULA para el plano `http:`; cada dirección resuelta debe permanecer en el conjunto permitido y no se puede aplicar ningún proxy saliente (añada el host a `NO_PROXY`). Todos los demás destinos deben usar HTTPS. Las redirecciones aún no se abren.
+- El `baseUrl` de la fila debe ser la URL completa del servicio de decisión. HTTPS permite cualquier ruta, como `/v1/decisions`; HTTP sin cifrar sigue exigiendo el sufijo `/systemone`. No se aceptan credenciales de usuario en la URL, parámetros de consulta ni fragmentos. El modelo de decisión es `defaultModel` o, en su ausencia, la primera entrada de `models`. Si no hay ninguno, la fila no es utilizable y se aplica la alternativa fail-open sin enviar una solicitud (`jev-latest` es el modelo de TypeSafe y nunca se envía a un host autoalojado). La fila solo presta el servicio de decisión: nunca se publica como modelo enrutable ni puede ser un destino del combo.
+- Un punto final de loopback o LAN necesita `allowPrivateNetwork: true` explícito en esa fila. Para `http:` sin cifrar, usa una dirección literal de loopback, RFC 1918 o IPv6 ULA; todas las direcciones resueltas deben pertenecer al conjunto permitido y no debe aplicarse ningún proxy saliente (añade el host a `NO_PROXY`). Los demás destinos deben usar HTTPS. Una redirección activa la alternativa fail-open al primer destino elegible.
 - Solo se envía el propio `apiKey` de la fila, y solo cuando está establecido; una fila sin llave no envía la cabecera `Authorization`. Una fila cuyas referencias `apiKey` `${TYPESAFE_API_KEY}` / `${JEV_API_KEY}` u otra entrada de llavero del proveedor se rechazan como inutilizables, por lo que `TYPESAFE_API_KEY`, `JEV_API_KEY` y la clave de la fila `jev` nunca se envían a un punto final autoalojado. El identificador `jev` en sí (explícito u omitido) siempre significa el punto final TypeSafe con el modelo `jev-latest`.
 - Los servicios autoalojados reciben cada opción de destino/esfuerzo como una cadena de descripción simple (por ejemplo, `Target openai/gpt-5.6-sol (provider openai, model gpt-5.6-sol) with low reasoning
   effort.`), porque Ollama solo acepta descripciones de cadena o de opciones `null`. TypeSafe sigue recibiendo los objetos de opción estructurados.
-- OpenCodex ofrece 2-26 opciones para una fila compatible con System One. Cada objetivo contribuye con una opción por esfuerzo de razonamiento ofrecido; use `reasoningEfforts` por objetivo para recortarlos. Menos de 2 o más de 26 opciones no se abren sin una solicitud.
-- Una carga de modelo en frío puede tardar decenas de segundos, y una solicitud de decisión abortada hace que Ollama abandone la carga. Precalentar el modelo y mantenerlo residente (`OLLAMA_KEEP_ALIVE=-1` o `keep_alive`), y subir `decisionTimeoutMs` (1000-120000 ms, por defecto 4000) cuando el servicio es más lento que cuatro segundos. Cada tiempo de espera o error aún no se abre al primer objetivo elegible.
+- OpenCodex ofrece 2-26 opciones para una fila compatible con System One. Cada destino aporta una opción por nivel de esfuerzo de razonamiento ofrecido; usa `reasoningEfforts` en cada destino para limitar esas opciones. Si hay menos de 2 o más de 26 opciones, se aplica la alternativa fail-open al primer destino elegible sin enviar una solicitud de decisión.
+- Cargar un modelo en frío puede tardar decenas de segundos, y cancelar una solicitud de decisión hace que Ollama abandone la carga. Precarga el modelo, mantenlo residente (`OLLAMA_KEEP_ALIVE=-1` o `keep_alive`) y aumenta `decisionTimeoutMs` (1000-120000 ms, por defecto 4000) si el servicio tarda más de cuatro segundos. Cualquier error o tiempo de espera agotado sigue activando la alternativa al primer destino elegible.
 
 El **Conexión de prueba** del proveedor envía una decisión de sondeo limitada a su punto final. **Crear JEV Auto** en un proveedor de System One (incluidas las filas sin llave) rellena previamente esa fila como proveedor de decisiones. Las filas deshabilitadas, las URL de decisión no válidas y las filas sin modelo se muestran con una razón y no se pueden seleccionar.
 
@@ -388,9 +388,9 @@ El modelo recibe instrucciones fijas del router y un mensaje JSON:
 }
 ```
 
-`state` es la evidencia limitada que se describe a continuación; `options` mapas generaron claves de opción para descripciones simples. El contrato de respuesta es `{"choice":"<key>"}`, nombrando exactamente una opción ofrecida. Las instrucciones tratan el estado como evidencia, prefieren un menor uso de recursos entre las opciones adecuadas y solo requieren JSON. Una opción no válida o no listada, una respuesta malformada o una llamada fallida no se abre.
+`state` contiene la evidencia limitada que se describe a continuación; `options` asocia las claves generadas de las opciones con descripciones simples. La respuesta debe cumplir `{"choice":"<key>"}` y nombrar exactamente una opción ofrecida. Las instrucciones tratan el estado como evidencia, prefieren un menor uso de recursos entre las opciones adecuadas y exigen únicamente JSON. Una opción no válida o no ofrecida, una respuesta malformada o una llamada fallida activa la alternativa fail-open al primer destino elegible.
 
-El turno de decisión interna lleva **ninguna credencial de llamada**, encabezados de llamadas, herramientas, historial de sesiones o conversaciones. Debe usar credenciales almacenadas para el proveedor seleccionado, o un proveedor local genuinamente sin llave como Ollama. Las configuraciones de solo autenticación de llamada, como Cursor sin una credencial almacenada o un inicio de sesión de reenvío ChatGPT propiedad de la persona que llama, no pueden servir como modelos de decisión y no se abren. Seleccionar una ruta no es prueba de que su credencial sea utilizable; pruébela antes de confiar en ella.
+El turno interno de decisión **no recibe credenciales del cliente**, encabezados de la llamada, herramientas, historial de sesión ni conversación. Debe usar las credenciales almacenadas del proveedor seleccionado o un proveedor local que realmente no necesite clave, como Ollama. Las configuraciones que dependen exclusivamente de la autenticación del cliente, como Cursor sin una credencial almacenada o un inicio de sesión de ChatGPT reenviado por el cliente, no pueden actuar como modelos de decisión: se usa la alternativa fail-open al primer destino elegible. Seleccionar una ruta no demuestra que su credencial funcione; pruébala antes de depender de ella.
 
 Un Combo no-JEV puede ser usado como `decisionModel`, pero la ruta de decisión no puede nombrar este Combo o cualquier Combo con `strategy: "jev"`. Esto se aplica a los selectores y alias canónicos `combo/<id>`, incluidos los selectores con variantes de esfuerzo o Fast. La validación de tiempo de ahorro rechaza la recursión y el entorno de ejecución también bloquea la reentrada de JEV defensivamente. El turno de decisión tiene su propio presupuesto de envío y arrendamiento de turno; no se registra como una solicitud separada, y el uso de la decisión informada pertenece al `jevDecision` de la solicitud principal.
 
@@ -404,7 +404,7 @@ Para cada objetivo JEV, **Modelos → Combos → Config** tiene un campo opciona
 
 Cada llamada de modelo lógico se decide por su cuenta; no hay pin de conversación. Por lo tanto, los giros consecutivos de una sesión pueden aterrizar en diferentes objetivos, y cada switch inicia una caché rápida de proveedor en frío, por lo que una mezcla de objetivos muy diferentes puede costar más tokens de entrada de lo que ahorra. Mantenga la lista de objetivos que desea alternar. Los objetivos marcados con `lastResort` se retienen de JEV bajo `cooldownWaitPolicy: "before-last-resort"` mientras se ofrece cualquier objetivo normal, y se ofrecen solo cuando no se puede alcanzar nada más.
 
-El límite de decisión no se abre cuando falta la clave, no hay disponible un estado de decisión de tarea/herramienta/imagen seguro, expira la fecha límite de decisión configurada, el servicio redirige o devuelve un error, o la respuesta está mal formada o selecciona una opción no listada. En esos casos, OpenCodex utiliza el primer objetivo actualmente elegible, prefiriendo `medium` cuando ese objetivo lo admite. La cancelación de la llamada es diferente: cancela la decisión y la solicitud del modelo en lugar de enviar el objetivo de apertura por error.
+La decisión aplica la alternativa fail-open si falta la clave, no hay un estado seguro de tarea/herramienta/imagen, vence el plazo configurado, el servicio redirige o devuelve un error, o la respuesta está malformada o elige una opción no ofrecida. En esos casos, OpenCodex usa el primer destino actualmente elegible y prefiere `medium` cuando ese destino lo admite. Si el cliente cancela la llamada, se cancelan tanto la decisión como la solicitud al modelo, sin enviar nada al destino alternativo.
 
 El estado de decisión está deliberadamente limitado: hasta 500 caracteres de la tarea de usuario actual, una cola de asistente previo de 240 caracteres, una cola de salida de última herramienta de 520 caracteres, el nombre de la herramienta y las señales de imagen/herramienta booleanas pueden enviarse al backend de decisión seleccionado. Excluye credenciales, encabezados de solicitud, bytes de imagen en bruto, argumentos de herramientas, razonamiento cifrado e historial de conversación completo. Utilice un método de decisión solo para el contenido que está dispuesto a enviar a ese backend. Los sobres de contexto de máquina Codex reconocidos y los bloques Claude Code `<system-reminder>` se eliminan de las tres muestras de texto antes del recorte, por lo que los recordatorios inyectados no desplazan la tarea real. La solicitud del modelo original no se modifica. Esto no es un escáner secreto: el texto ordinario del asistente y de la salida de la herramienta aún puede contener contenido sensible. TypeSafe afirma que Jev no está capacitado en las solicitudes de los clientes, pero sus términos no establecen un período de retención fijo para el estado presentado y ofrecen cero retención de datos solo en los planes empresariales ([modelos](https://docs.typesafe.ai/models), [legal](https://docs.typesafe.ai/legal) ). TypeSafe también documenta el inglés como el idioma más preciso de Jev, así que revise las decisiones sobre el trabajo que no sea inglés antes de confiar en ellos. Los registros contienen solo el objetivo/esfuerzo seleccionado, una puerta de decisión aproximada, latencia, confianza/probabilidad opcional y uso numérico. Las pruebas automatizadas utilizan respuestas TypeSafe simuladas más un humo sin llave abierta; una decisión TypeSafe en vivo requiere una clave suministrada por el operador y no se ejecuta implícitamente.
 
@@ -507,9 +507,9 @@ La escalera anunciada del objetivo sigue siendo autorizada. Se conserva un valor
 
 ### Grupos de capacidades mixtas (`reasoningEffortMode`)
 
-Los niveles de esfuerzo que anuncia un combo son la intersección de lo que anuncian sus objetivos. Un objetivo que anuncia explícitamente el control de esfuerzo **no** participa en esa intersección, por lo que una sola copia de seguridad sin esfuerzo vacía el selector de esfuerzo para todo el combo, incluso para los objetivos que admiten la sintonización.
+En modo estricto, los niveles de esfuerzo publicados por un combo son la intersección de los niveles de sus destinos. Si un destino indica explícitamente que **no** admite control de esfuerzo, su conjunto vacío participa en la intersección y la deja vacía para todo el combo, aunque los demás destinos permitan ajustar el esfuerzo.
 
-Establecer `reasoningEffortMode: "adaptive"` para excluir esas escaleras vacías de la intersección publicada en su lugar. El selector muestra los niveles que comparten los objetivos restantes, y el objetivo sin esfuerzo sigue siendo elegible para el enrutamiento. Los objetivos cuya escalera es simplemente *Desconocido* se tratan como comodines en ambos modos.
+Configure `reasoningEffortMode: "adaptive"` para excluir esos conjuntos vacíos de la intersección publicada. El selector muestra los niveles comunes de los destinos restantes; el destino sin control de esfuerzo sigue siendo elegible para el enrutamiento. Los destinos cuyos niveles son simplemente *desconocidos* se tratan como comodines en ambos modos.
 
 ```json
 {
@@ -539,7 +539,7 @@ En el panel de control, el interruptor **Imagen / multimodal** se puede habilita
 
 ## Tareas de subagentes encriptadas v2
 
-Hay una limitación importante para los subagentes Codex v2 ([Número 92](https://github.com/lidge-jun/opencodex/issues/92)). Un padre nativo puede enviar la tarea de un trabajador recién generado solo como texto cifrado acuñado para el backend nativo ChatGPT. Un proveedor externo no puede leer esa carga útil.
+Hay una limitación importante para los subagentes Codex v2 ([incidencia #92](https://github.com/lidge-jun/opencodex/issues/92)). Un padre nativo puede enviar la tarea de un trabajador recién generado solo como texto cifrado acuñado para el backend nativo ChatGPT. Un proveedor externo no puede leer esa carga útil.
 
 Para tal solicitud, un combo filtra sus objetivos elegibles a rutas canónicas nativas ChatGPT, incluso después de un fallo reintentable. Si el combo no tiene un objetivo con capacidad de descifrado, opencodex se detiene antes del envío y devuelve HTTP 400:
 
@@ -631,14 +631,14 @@ Los combos se almacenan en el objeto `combos` de nivel superior, con la clave de
 | `cooldownWaitPolicy` | No | Sin configurar | `"before-last-resort"` aplaza los objetivos marcados como `lastResort`: solo se usan cuando no hay un objetivo normal disponible, para cada estrategia, y `waitForCooldownMs` solo agrega la espera para un objetivo normal de enfriamiento, por lo que en su `0` predeterminado no hay nada que esperar y el último recurso se usa tan pronto como no hay un objetivo normal disponible. Solo esa cadena exacta se selecciona. La espera diferida y la espera ordinaria comparten un presupuesto de `waitForCooldownMs` por intento de selección. |
 | `defaultEffort` | No | `null` | `low`, `medium`, `high`, `xhigh`, `max` o `ultra`; resuelto contra la escalera anunciada de cada objetivo. |
 | `defaultEffortMode` | No | `"fallback"` | `"fallback"` preserva el esfuerzo explícito de la persona que llama. `"force"` anula el esfuerzo del llamante válido, requiere un valor predeterminado no nulo válido y puede aumentar el costo y la latencia. |
-| `reasoningEffortMode` | No | `"strict"` | `"strict"` intersecta cada escalera de destino conocida, por lo que un control de no esfuerzo de publicidad de destino vacía el selector del combo. `"adaptive"` excluye esas escaleras vacías de la intersección publicada. Al momento del despacho, las escaleras desconocidas explícitas vacías o adaptativas eliminan los controles de pensamiento/esfuerzo no soportados al tiempo que preservan los campos de razonamiento sin esfuerzo soportados, como el `reasoning.summary`; los objetivos no vacíos conocidos mantienen la resolución de esfuerzo existente. |
+| `reasoningEffortMode` | No | `"strict"` | `"strict"` intersecta los niveles de esfuerzo anunciados por todos los destinos conocidos: si uno no anuncia ningún control de esfuerzo, el selector del combo queda vacío. `"adaptive"` excluye esas listas vacías de la intersección publicada. Al enviar la solicitud, una lista explícitamente vacía, o desconocida en modo adaptativo, elimina los controles de esfuerzo/pensamiento no admitidos y conserva los campos de razonamiento independientes del esfuerzo que sí se admiten, como `reasoning.summary`. Los destinos con niveles conocidos y no vacíos mantienen la resolución de esfuerzo existente. |
 | `imageInput` | No | `"auto"` | `"auto"` o `"disabled"`. `"auto"` publica soporte de imagen solo cuando cada objetivo soporta imágenes; `"disabled"` fuerza el texto solamente (cae la imagen de las modalidades publicadas y rechaza las solicitudes portadoras de imágenes antes del envío). |
 | `alias` | No | Ninguno | ID de modelo público recortado opcional; use las reglas de alias anteriores. Un valor vacío se almacena como ningún alias. |
 | `nativeAlias` | No | `false` | Permitir explícitamente que un `alias` nativo desnudo actualmente soportado tenga prioridad de enrutamiento y catálogo. Nunca se infiere del alias. |
 | `displayName` | No | Ninguno | Etiqueta de catálogo limitada. Requerido y no vacío cuando `nativeAlias` es verdadero. |
-| `description` | No | Ninguno | Descripción de la fila de catálogo solo para visualización, limitada como `displayName` (como máximo 128 caracteres, sin caracteres de control). Unset mantiene el texto generado `Routed via opencodex → combo (combo).`. Management API escribe que omita el valor guardado; una cadena vacía lo borra. |
+| `description` | No | Ninguno | Descripción de la fila del catálogo solo para mostrar, limitada como `displayName` (como máximo 128 caracteres, sin caracteres de control). Sin configurar, conserva el texto generado `Routed via opencodex → combo (combo).`. Las escrituras de la API de administración que omiten este campo conservan el valor guardado; una cadena vacía lo borra. |
 | `decisionProvider` | No | `"jev"` | Sólo JEV. Id de proveedor del servicio de decisión: `"jev"` (TypeSafe, válido sin una fila de proveedor; lo mismo que omisión) o una fila `adapter: "jev-decision"` configurada con una URL de decisión HTTPS completa o una URL local HTTP `/systemone`, tal como una Ollama `tev1` autohospedada. |
-| `decisionTimeoutMs` | No | `4000` | Sólo JEV. Entero de 1000 a 120000: la fecha límite de decisión antes de no abrirse al primer objetivo elegible. |
+| `decisionTimeoutMs` | No | `4000` | Solo JEV. Entero de 1000 a 120000: plazo de la decisión antes de usar la alternativa fail-open al primer destino elegible. |
 
 <a id="troubleshooting"></a>
 

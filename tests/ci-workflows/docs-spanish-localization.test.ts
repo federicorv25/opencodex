@@ -98,6 +98,53 @@ describe("Spanish documentation localization", () => {
     }
   });
 
+  test("keeps literal model names intact in surrounding prose", () => {
+    for (const path of pages(root, true)) {
+      const english = source(join(root, path));
+      const spanish = source(join(root, "es", path));
+      const identifiers = [...inlineCode(english)].filter(value =>
+        /^(?:[a-z0-9._-]+\/)*[a-z][a-z0-9._-]*-[a-z0-9._-]+$/i.test(value) && /\d/.test(value));
+      for (const identifier of identifiers) {
+        const escaped = identifier.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const token = new RegExp(`(?<![\\w./*-])${escaped}(?![\\w./*-])`, "g");
+        expect(spanish.match(token)?.length ?? 0, `${path} model ${identifier}`)
+          .toBeGreaterThanOrEqual(english.match(token)?.length ?? 0);
+      }
+    }
+  });
+
+  test("preserves external links, references and API response status codes", () => {
+    const targets = (text: string): string[] => [...text.matchAll(/\]\((https?:\/\/[^\s)]+)\)/g)]
+      .map(match => match[1]!.replace(/^(https:\/\/opencodex\.me)\/es\//, "$1/")).sort();
+    for (const path of pages(root, true)) {
+      const english = source(join(root, path));
+      const spanish = source(join(root, "es", path));
+      expect(targets(spanish), `${path} external links`).toEqual(targets(english));
+      const references = spanish.match(/#\d+\b/g) ?? [];
+      for (const reference of english.match(/#\d+\b/g) ?? []) {
+        const index = references.indexOf(reference);
+        expect(index, `${path} reference ${reference}`).toBeGreaterThanOrEqual(0);
+        if (index >= 0) references.splice(index, 1);
+      }
+      const apiRows = (text: string): string[][] => text.split("\n")
+        .filter(line => /^\|\s*`(?:GET|POST|PUT|PATCH|DELETE)\b/.test(line))
+        .map(line => line.split(/(?<!\\)\|/).slice(1, -1).map(cell => cell.trim()));
+      const rowKey = (row: string[]): string => [...inlineCode(row[0] ?? "")].join("\u0000");
+      const translatedRows = new Map<string, string[][]>();
+      for (const row of apiRows(spanish)) {
+        const key = rowKey(row);
+        translatedRows.set(key, [...translatedRows.get(key) ?? [], row]);
+      }
+      for (const row of apiRows(english)) {
+        const translated = translatedRows.get(rowKey(row))?.shift();
+        expect(translated, `${path} API row ${row[0]}`).toBeDefined();
+        for (const status of row.at(-1)?.match(/\b[1-5]\d{2}\b/g) ?? []) {
+          expect(translated?.at(-1), `${path} ${row[0]} status ${status}`).toMatch(new RegExp(`\\b${status}\\b`));
+        }
+      }
+    }
+  });
+
   test("landing, language navigation, metadata and benchmark copy include Spanish", () => {
     for (const file of ["Landing.astro", "Header.astro", "SiteJsonLd.astro"]) {
       const text = source(repoPath(`docs-site/src/components/${file}`));

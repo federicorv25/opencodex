@@ -1,47 +1,138 @@
 ---
-title: "Perfiles de inicio de sesión principales nativos"
-description: "Administrar el nativo almacenado Codex los perfiles de inicio de sesión por separado de OpenCodex Pool enrutamiento."
+title: "Perfiles del inicio de sesión nativo principal"
+description: "Administre los perfiles guardados del inicio de sesión nativo de Codex por separado del enrutamiento Pool de OpenCodex."
 ---
 
 <a id="native-login-is-not-pool-selection"></a>
 
-## El inicio de sesión nativo no es una selección Pool
+## El inicio de sesión nativo es independiente de la selección Pool
 
-En **Codex Conjunto → Multi-auth**, abra **Administrar inicio de sesión principal** en el panel separado **Nativo inicio de sesión principal** inmediatamente debajo de la tarjeta de cuenta principal. El mismo panel aparece junto a la tarjeta principal en el espacio de trabajo de la cuenta de proveedores. Gestiona el inicio de sesión físico Codex, no la cuenta seleccionada para la próxima solicitud Pool. No agrega una pestaña Integraciones ni reemplaza los controles Pool existentes.
+En Multi-auth, dentro de los ajustes de Codex, abra
+**Administrar el inicio de sesión principal** en el panel independiente
+**Inicio de sesión nativo principal**, situado debajo de la tarjeta de la cuenta
+principal. El mismo panel aparece junto a esa tarjeta en el espacio de cuentas
+de Proveedores. Administra el inicio de sesión real de Codex, no la cuenta que
+atenderá la siguiente solicitud Pool. No añade una pestaña de Integraciones ni
+reemplaza los controles existentes de Pool.
 
-El **Efectivo CODEX_HOME** mostrado pertenece al servidor OpenCodex. Cuando se utiliza un panel de control remoto, este puede ser un equipo diferente del navegador. **Perfil activo registrado** es el propietario registrado de la tienda de perfiles cifrados; el servidor verifica el inicio de sesión físico antes de cambiar. Por lo tanto, un inicio de sesión cambiado fuera de OpenCodex puede producir un error de desajuste de propiedad en lugar de sobrescribirse silenciosamente.
+El **CODEX_HOME efectivo** mostrado pertenece al servidor de OpenCodex.
+Si usa un panel remoto, puede estar en un equipo distinto del navegador.
+**Perfil activo registrado** identifica al propietario registrado en el almacén
+de perfiles cifrados. El servidor verifica el inicio de sesión real antes de
+cambiarlo: un inicio de sesión modificado fuera de OpenCodex puede provocar
+un error de propiedad en lugar de sobrescribirse silenciosamente.
 
 <a id="save-and-switch"></a>
 
 ## Guardar y cambiar
 
-Utilice **Guardar actual como perfil** para registrar el inicio de sesión de la aplicación existente. Para un inicio de sesión activo ya registrado, esto actualiza su etiqueta; no registra una nueva cuenta. El cambio de perfil requiere el almacén de credenciales de archivo compatible y un almacén de claves del sistema operativo disponible. Los códigos de diagnóstico explican por qué los controles no están disponibles; no trabaje alrededor de un almacén de claves o error de propiedad copiando las credenciales Pool en el archivo de inicio de sesión nativo. El panel está desactivado mientras la operación de reautentificación de dispositivos nativa de la tarjeta principal está activa.
+Use **Guardar el inicio de sesión actual como perfil** para registrar el inicio
+de sesión de la aplicación. Si el inicio de sesión activo ya está registrado,
+esta acción actualiza su nombre y no añade otra cuenta. Cambiar de perfil
+requiere el almacén de credenciales en archivos compatible y un almacén de
+claves del sistema operativo disponible. Los códigos de diagnóstico explican
+por qué no están disponibles los controles. No eluda errores del almacén de
+claves o de propiedad copiando credenciales de Pool al archivo de inicio
+de sesión nativo. El panel permanece desactivado mientras la tarjeta principal
+está realizando su operación de reautenticación nativa mediante dispositivo.
 
-Elija **Interruptor** junto a un perfil inactivo almacenado. Revise la etiqueta de destino y visualice **CODEX_HOME**, luego cierre Codex nativo en el equipo servidor usando ese **CODEX_HOME**. Active la casilla de verificación debajo de los pasos para confirmar que el Codex está cerrado y, a continuación, confirme el cambio. No se envía ninguna mutación de credenciales antes de la confirmación. El panel vuelve a leer la casa actual, el propietario activo y el estado de recuperación inmediatamente antes de enviar. Si ese estado cambió, revise el nuevo estado y confirme nuevamente. El backend existente sigue siendo autorizado para bloqueos, comprobaciones de procesos, eliminación de solicitudes en vuelo, activación y reversión.
+Seleccione **Cambiar** junto a un perfil guardado que esté inactivo.
+Revise su nombre y el **CODEX_HOME** mostrado; cierre Codex nativo en el equipo
+servidor que usa ese **CODEX_HOME**. Marque la casilla bajo los pasos para
+confirmar que Codex está cerrado y, después, confirme el cambio.
+No se envía ninguna modificación de credenciales antes de la confirmación.
+Justo antes de enviar la operación, el panel vuelve a leer el directorio actual,
+el propietario activo y el estado de recuperación. Si cambiaron, revise el
+nuevo estado y vuelva a confirmar. El backend sigue siendo la autoridad para
+los bloqueos, las comprobaciones de procesos, el drenaje de solicitudes
+en curso, la activación y la reversión.
 
-La confirmación muestra tres pasos: cerrar Codex en el ordenador servidor para el **CODEX_HOME** visualizado; seleccionar la casilla de verificación de abajo para confirmar que Codex está cerrado, luego confirmar el cambio; esperar el resultado y el perfil activo actualizado, luego seguir las instrucciones para volver a abrir Codex. Mantenga el Codex cerrado hasta que haya comprobado el resultado. La guía de reapertura espera a que finalice la lectura y actualización de la cuenta existentes; un error de actualización le pide que actualice antes de continuar.
+La confirmación muestra tres pasos: cerrar Codex en el equipo servidor para
+el **CODEX_HOME** indicado; marcar la casilla que confirma que está cerrado
+y confirmar el cambio; esperar el resultado y el perfil activo actualizado
+antes de seguir las instrucciones para volver a abrir Codex.
+Mantenga Codex cerrado hasta comprobar el resultado. Las instrucciones de
+reapertura esperan a que terminen la lectura de verificación y la actualización
+de cuentas. Si falla la actualización, se le pide actualizar antes de continuar.
 
-Si `CODEX_BUSY` bloquea el cambio, cierre Codex en el ordenador servidor usando el **CODEX_HOME** visualizado, elija **Actualizar estado** y revise el perfil activo. Seleccione **Interruptor** de nuevo y seleccione la casilla de verificación para confirmar que Codex está cerrado antes de confirmar el cambio. La actualización solo lee el estado; no vuelve a intentar el cambio. Un error de comprobación de proceso le pide que compruebe que Codex está cerrado e inspeccione los diagnósticos del servidor, mientras que los errores de solicitud activa o de operación ocupada le piden que espere a que finalice el trabajo existente. Un error de almacenamiento significa que el servidor no puede acceder de forma segura a la carpeta de inicio de sesión o al almacenamiento del perfil; compruebe los diagnósticos del servidor antes de otro cambio. Otros errores permitidos identifican problemas de perfil, almacenamiento de claves, almacenamiento o recuperación sin mostrar mensajes sin procesar del servidor. Una respuesta perdida sigue siendo un resultado no confirmado, incluso si el perfil activo actualizado ha cambiado. Una respuesta faltante no significa que el inicio de sesión original fue restaurado. Nada se vuelve a intentar automáticamente. Para volver a intentar un cambio de inicio de sesión, seleccione la acción de nuevo y confirme que Codex está cerrado.
+Si `CODEX_BUSY` bloquea el cambio, cierre Codex en el servidor para el
+**CODEX_HOME** indicado, seleccione **Actualizar estado** y revise el perfil
+activo. Seleccione **Cambiar** de nuevo y marque la casilla que confirma que
+Codex está cerrado antes de confirmar. Actualizar solo lee el estado:
+no reintenta el cambio.
 
-Los resultados se etiquetan como **Ultimo resultado confirmado**. Una actualización manual borra el error que se muestra, pero no confirma una transacción de respuesta perdida anterior. Un requisito de reinicio existente de un cambio confirmado anterior puede permanecer visible.
+Un error de comprobación de procesos pide verificar que Codex esté cerrado
+e inspeccionar los diagnósticos del servidor. Los errores por solicitudes
+activas u operaciones ocupadas piden esperar a que termine el trabajo existente.
+Un error de almacenamiento indica que el servidor no puede acceder de forma
+segura al directorio de inicio de sesión o al almacén de perfiles; revise los
+diagnósticos antes de otro cambio. Los demás errores permitidos identifican
+problemas de perfil, almacén de claves, almacenamiento o recuperación,
+sin mostrar mensajes sin filtrar del servidor.
 
-Después del éxito, compruebe el perfil activo actualizado y, a continuación, vuelva a abrir el Codex nativo en el equipo servidor con el **CODEX_HOME** visualizado. Siga todos los requisitos de reinicio que se muestran en el panel. El panel vuelve a leer el estado del perfil y actualiza el controlador de cuenta existente. No llama a Pool mutaciones de selección/configuración ni edita claves, tareas o historial del proveedor. El backend existente todavía reconcilia la identidad nativa `__main__`, tal como lo hace para el flujo de trabajo CLI.
+Una respuesta perdida deja el resultado sin confirmar, incluso si el perfil
+activo actualizado ha cambiado. La ausencia de respuesta no significa que
+se haya restaurado el inicio de sesión original. Nada se reintenta
+automáticamente. Para reintentar un cambio, seleccione de nuevo la acción
+y confirme que Codex está cerrado.
+
+Los resultados se muestran como **Último resultado confirmado**.
+Una actualización manual borra el error visible, pero no confirma una
+transacción anterior cuya respuesta se perdió. Puede seguir apareciendo
+un requisito de reinicio de un cambio confirmado previamente.
+
+Después de un éxito, compruebe el perfil activo actualizado y vuelva a abrir
+Codex nativo en el servidor con el **CODEX_HOME** indicado. Siga cualquier
+requisito de reinicio mostrado. El panel vuelve a leer el estado de los perfiles
+y actualiza el controlador de cuentas existente. No llama a las operaciones
+de selección o configuración de Pool ni modifica claves de proveedores, tareas
+o historial. El backend sigue conciliando la identidad nativa `__main__`
+igual que en el flujo de la CLI.
 
 <a id="recovery-and-previous-profiles"></a>
 
 ## Recuperación y perfiles anteriores
 
-Estas son diferentes operaciones:
+Son operaciones diferentes:
 
-- **Recupera cambios interrumpidos** reconcilia una transacción de backend inacabada. **Restaurar transacción pendiente** solicita la reversión de esa transacción. Ambos requieren que seleccione la casilla de verificación para confirmar que Codex está cerrado antes de confirmar el cambio. Estos controles permanecen disponibles cuando no se puede leer una lista de perfiles dañada, pero los diagnósticos informan sobre la recuperación pendiente.
-- **Volver a la vista previa** después de un cambio exitoso selecciona el perfil que se muestra antes de su cambio utilizando el flujo de trabajo de cambio normal y confirmado. Este acceso directo se mantiene solo en la memoria de la página, se extiende a la casa y al propietario activo esperado, y desaparece cuando se recarga la página o cambia el proxy / propietario. El API no devuelve el origen de la transacción, por lo que este no es un registro de deshacer verificado por el servidor: otro operador podría haber cambiado el inicio de sesión entre la lectura previa y su interruptor. Después de recargar, seleccione el perfil guardado deseado directamente.
+- **Recuperar el cambio interrumpido** concilia una transacción del backend
+  que quedó incompleta. **Restaurar la transacción pendiente** solicita
+  revertir esa transacción. Ambas requieren marcar la casilla que confirma
+  que Codex está cerrado antes de confirmar el cambio. Estos controles siguen
+  disponibles si no se puede leer una lista de perfiles dañada, pero los
+  diagnósticos indican que hay una recuperación pendiente.
+- **Volver al perfil mostrado anteriormente**, después de un cambio correcto,
+  selecciona el perfil mostrado antes del cambio mediante el flujo normal
+  con confirmación. Este acceso directo solo se conserva en la memoria de
+  la página, vinculado al directorio y al propietario activo esperado.
+  Desaparece al recargar la página o al cambiar el proxy o el propietario.
+  La API no devuelve el origen de la transacción: no es un historial de
+  deshacer verificado por el servidor. Otro operador pudo cambiar el inicio
+  de sesión entre la lectura previa y su cambio. Después de recargar,
+  seleccione directamente el perfil guardado que desee.
 
-Un error de red no establece que una escritura falló o se revirtió. El panel vuelve a leer el estado del servidor después de una mutación enviada, incluida una respuesta perdida, y nunca lo vuelve a intentar automáticamente. Si falla la actualización, un cambio exitoso no se informa como deshecho. Actualice e inspeccione los diagnósticos antes de otra operación. El comando `ocx account main doctor` existente proporciona diagnósticos del lado del servidor.
+Un error de red no demuestra que una escritura haya fallado o se haya revertido.
+Después de enviar una modificación, incluso si se pierde la respuesta, el panel
+vuelve a leer el estado del servidor y nunca reintenta automáticamente.
+Si falla la actualización, un cambio correcto no se presenta como deshecho.
+Actualice e inspeccione los diagnósticos antes de otra operación.
+El comando `ocx account main doctor` ofrece diagnósticos del servidor.
 
 <a id="scope-of-this-phase"></a>
 
 ## Alcance de esta fase
 
-Este panel enumera, registra, cambia y recupera perfiles existentes utilizando el límite `/api/native-main-profiles` existente. No inicia procesos de inicio de sesión ni expone tokens de escritor de estadificación. La adición de otro inicio de sesión nativo permanece en el flujo de trabajo `ocx account main add` CLI existente; la inscripción del navegador es un seguimiento separado del problema. La re-autenticación del dispositivo existente de la ranura principal actual es un flujo de trabajo diferente y no es reemplazado por este panel.
+El panel enumera, registra, cambia y recupera perfiles existentes mediante
+`/api/native-main-profiles`. No inicia procesos de inicio de sesión ni expone
+tokens de escritura para la preparación. Añadir otro inicio de sesión nativo
+sigue siendo parte del flujo de CLI `ocx account main add`; el registro desde
+el navegador queda para un seguimiento separado de la incidencia #3417.
+La reautenticación mediante dispositivo de la cuenta principal actual es
+otro flujo y no se reemplaza con este panel.
 
-Los datos de perfil no se escriben en el almacenamiento del navegador. El cliente proyecta solo campos públicos, muestra los códigos de error permitidos en lugar de los mensajes del servidor sin procesar y utiliza el contenedor de extracción autenticado existente de la aplicación. Las comprobaciones de autenticación de gestión del backend, GUI-sesión/CSRF y ruta-admisión no han cambiado.
+Los datos de los perfiles no se escriben en el almacenamiento del navegador.
+El cliente solo expone campos públicos, muestra códigos de error permitidos
+en lugar de mensajes sin filtrar del servidor y utiliza el mecanismo
+autenticado de solicitudes existente en la aplicación.
+Se mantienen las comprobaciones del backend para la autenticación de
+administración, las sesiones GUI/CSRF y la admisión de rutas.

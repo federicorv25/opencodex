@@ -246,7 +246,8 @@ Ollama's `tev1` (Ollama 0.35+, `POST /v1/systemone`, no API key):
 }
 ```
 
-The row's `baseUrl` is the full decision endpoint and must end in `/systemone`; its model is
+The row's `baseUrl` is the full decision endpoint. Local plain-HTTP endpoints must end in
+`/systemone`; HTTPS endpoints may use their configured path, including `/v1/decisions`. Its model is
 `defaultModel`, else `models[0]` (a row with neither fails open without a request). Loopback needs
 the row's own explicit `allowPrivateNetwork: true`, and plain `http:` is accepted only for `localhost`
 or a loopback/RFC 1918/ULA address literal reached without a proxy. Only the row's own `apiKey` is

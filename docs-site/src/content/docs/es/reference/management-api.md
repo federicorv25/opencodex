@@ -343,7 +343,7 @@ Los manifiestos de recuperación de limpieza se publican atómicamente, conserva
 
 | Método y ruta | Finalidad | Errores notables |
 | --- | --- | --- |
-| `GET /api/catalog` | Devuelve el documento de catálogo Codex instalado. Los clientes remotos deberían preferir el plano de datos `GET /v1/catalog`, que aún requiere una credencial de plano de datos ordinaria pero no un token de administración. | No se encontró la página |
+| `GET /api/catalog` | Devuelve el documento de catálogo Codex instalado. Los clientes remotos deberían preferir el plano de datos `GET /v1/catalog`, que aún requiere una credencial de plano de datos ordinaria pero no un token de administración. | 404, catálogo no encontrado |
 | `GET /api/models` | Devolver el tablero de instrumentos/ filas del modelo CLI | `catalog_busy` cuando la recolección está saturada |
 | `GET /api/client-config?client=...` | Cree una configuración de cliente de solo lectura para cualquier integración de archivos compatible | 400 clientes no admitidos; 503 catálogo no disponible |
 | `PUT /api/disabled-models` | Reemplazar la lista de modelos compartidos deshabilitados | 400 inválido JSON |

@@ -417,10 +417,14 @@ npm uninstall -g @bitkyc08/opencodex
 
 ## 원격 접근
 
-기본적으로 opencodex는 `127.0.0.1`에 바인딩되며 추가 인증이 필요 없습니다. 루프백 밖으로 바인딩하면
-(`"hostname": "0.0.0.0"`) bearer 토큰이 **필수**입니다. `OPENCODEX_API_AUTH_TOKEN`이 없으면 프록시가
-시작을 거부하고, 모든 클라이언트 요청은 `x-opencodex-api-key`로 토큰을 실어야 합니다. 자세한 내용은
-[설정 레퍼런스](https://opencodex.me/ko/reference/configuration/)를 보세요.
+기본적으로 opencodex는 `127.0.0.1`에 바인딩되며 데이터 영역의 추가 인증이 필요 없습니다.
+루프백 밖으로 바인딩하면(`"hostname": "0.0.0.0"`) **데이터 영역 인증 정보가 필요**합니다.
+데이터 토큰은 `OPENCODEX_API_AUTH_TOKEN`, `OCX_API_TOKEN_FILE` 또는 소유자만 접근할 수 있는
+`service-api-token` 파일에서 가져올 수 있습니다. 이 파일은 `ocx service install`로 생성할 수 있습니다.
+설정된 클라이언트 API 키도 데이터 영역 접근에 사용할 수 있습니다. 클라이언트는 허용된 인증 정보를
+`x-opencodex-api-key`로 보냅니다. 관리 기능은 별도의 `OPENCODEX_ADMIN_AUTH_TOKEN` 또는
+생성된 관리 토큰을 사용하며, 데이터 토큰으로 관리 기능에 접근할 수 없습니다.
+자세한 내용은 [설정 레퍼런스](https://opencodex.me/ko/reference/configuration/)를 보세요.
 
 ## 문서
 

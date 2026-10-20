@@ -264,7 +264,7 @@ Los proveedores pueden exponer una abreviatura incorporada, como `agy` para `goo
 | `modelPreferHostedTools?` | `Record<string,string[]>` | Opción de modelo exacto para puertas de enlace Responses no directas que reservan un espacio de nombres de herramienta alojada. Actualmente solo acepta `["image_generation"]`; un modelo coincidente debe usar el `openai-responses` cable y soporte de esa herramienta alojada. Elimina el cliente en colisión `image_gen` declaraciones y reescribe sus selectores para preservar la elección de la herramienta de llamadas. Para OpenAI virtual API `-pro` modelos, el ID público seleccionado se empareja primero y el ID de modelo de cable base resuelto es un respaldo. `modelAdapters` primero resuelve el ID público, luego el ID base; la segunda resolución determina el cable final. Otros modelos conservan el comportamiento normal de alias. |
 | `annotateEmptyToolOutputs?` | `boolean` | Reemplace un resultado de herramienta presente pero vacío con un marcador corto antes de que llegue al modelo, de modo que un resultado en blanco no se lea como faltante. Se aplica a cadenas en blanco y matrices de partes de solo texto; nunca se tocan imágenes, archivos y partes cifradas. Predetermina a `true` para DeepSeek desde el registro integrado y no se establece de otro modo. Establecer `false` para excluir a un proveedor - un `false` explícito se conserva en ediciones posteriores que omiten el campo. `PATCH /api/providers?name=<provider>` acepta `true`, `false` o `null` para borrar la anulación y volver al comportamiento predeterminado del registro. |
 | `unsupportedHostedTools?` | `string[]` | La herramienta alojada declara que este destino Responses rechaza, por lo que se eliminan de `tools`, desde el cliente-cargado `additional_tools`, y desde `tool_choice` En lugar de ser reenviado y rechazado de origen. Utilícelo para una puerta de enlace compatible con OpenAI con un conjunto de capacidades más estrecho — que acepte solicitudes simples Responses y `function` herramientas, pero devuelve HTTP 400 para alojado `web_search` — para que un mensaje de solo texto no falle por una capacidad que nunca necesitó. Acepta solo nombres de tipo de herramienta alojados (`web_search`, `web_search_preview`, `file_search`, `computer_use_preview`, `computer_use`, `code_interpreter`, `image_generation`, `image_gen`, `mcp`, `tool_search`, `local_shell`, `x_search`); un nombre no reconocido es rechazado en lugar de silenciosamente ignorado. Las variantes de ortografía de una capacidad se aliased, así que `["web_search"]` También niega `web_search_preview`. Un proveedor no puede negar una herramienta alojada aquí y preferirla en `modelPreferHostedTools`. Xiaomi MiMo Responses destinos (`xiaomimimo.com` y sus subdominios, incluyendo `api.xiaomimimo.com` y `token-plan-cn.xiaomimimo.com`) automáticamente tira `web_search` y `web_search_preview` conservando las herramientas de función; no se necesita ninguna declaración para estos hosts. Esto es independiente de `supportsResponsesCustomTools`; establece ambos para una puerta de enlace que también rechaza las herramientas personalizadas nativas. `PATCH /api/providers?name=<provider>` Acepta una matriz o `null` No lo puedo evitar. |
-| `reasoningEffortMap?` | `Record<string, string>` | Alias de cable de todo el proveedor para etiquetas de razonamiento. Asignar una etiqueta a `"__omit__"` para eliminar el campo de razonamiento de la solicitud aguas arriba por completo: `reasoning_effort` en un cable compatible con OpenAI, y el campo nativo `think` de Ollama en el adaptador nativo Ollama (n.° 2356). |
+| `reasoningEffortMap?` | `Record<string, string>` | Alias de cable de todo el proveedor para etiquetas de razonamiento. Asignar una etiqueta a `"__omit__"` para eliminar el campo de razonamiento de la solicitud aguas arriba por completo: `reasoning_effort` en un cable compatible con OpenAI, y el campo nativo `think` de Ollama en el adaptador nativo Ollama (#2356). |
 | `modelReasoningEffortMap?` | `Record<string, Record<string, string>>` | Alias de cable por modelo para etiquetas de razonamiento. Asignar una etiqueta a `"__omit__"` para eliminar por completo el campo de razonamiento de la solicitud ascendente. |
 | `reasoningWireFormat?` | `"gateway-object"` | Para OpenAI -compatible puertas de enlace que aceptan `reasoning: { enabled, effort }` en lugar de `reasoning_effort`. El preajuste ClinePass lo establece automáticamente. Un proveedor de guardar que mantiene el destino lo mantiene; ver [Lo que un proveedor guarda](#what-a-provider-save-keeps). `PATCH` acepta `"gateway-object"` o `null` para borrarlo. |
 | `noReasoningModels?` | `string[]` | Modelos que rechazan los parámetros de razonamiento/pensamiento. |
@@ -412,7 +412,7 @@ La ruta se aplica a inferencias enrutadas, pruebas de descubrimiento y conexión
 
 - **OAuth intercambio de tokens y actualización** seguir utilizando el proxy de todo el proceso. Estos alcanzan puntos finales de proveedores fijos desde código que no contiene configuración de proveedor, por lo que un proveedor anclado a su propio proxy o a `"direct"` aún actualiza sus credenciales por la ruta global. Las sondas de cuota respaldadas por OAuth y las sondas de validación de clave API se comportan de la misma manera.
 - **El Responses WebSocket carril rápido** selecciona su proxy cuando marca y no puede llevar una ruta por proveedor, por lo que un proveedor que declara que uno sirve esos convierte más de HTTP / SSE y registra un aviso único.
-- **Cursor 's por defecto HTTP /2 transporte**, el **Proveedores de subprocesos CodeBuddy y Qoder** (su entorno hijo omite las variables proxy) y el remitente anclado **Compatibility Lab** no lo aplican.
+- **Cursor 's por defecto HTTP/2 transporte**, el **Proveedores de subprocesos CodeBuddy y Qoder** (su entorno hijo omite las variables proxy) y el remitente anclado **Compatibility Lab** no lo aplican.
 - Los endpoints que no enrutan un modelo (generación y edición de imágenes, transcripción de audio, llamadas en tiempo real y en vivo, y `/v1/alpha/search` no calificado) no tienen ruta de proveedor para aplicar.
 
 Un proveedor configurado con un ejecutor `fetch` personalizado es rechazado en lugar de ser enviado silenciosamente por la propia ruta del ejecutor.
@@ -464,7 +464,7 @@ Codex lee `auto_review_model_override` de la fila del catálogo del modelo actua
 
 Cuando se incluyen OpenAI filas nativas y el catálogo final tiene una fila nativa desnuda ordinaria que no sea Reserve (recuento de filas ocultas), OpenCodex mantiene la fila oculta `codex-auto-review` para que Codex pueda seleccionar su revisor de aprobación preferido cuando no se configura la anulación. Queda fuera de los selectores de modelos, las opciones de subagentes, las listas de escritorio y las listas públicas `/v1/models`. El proveedor y el revisor raíz anulan su precedencia y no estampan esta fila interna. Los catálogos sin una fila nativa desnuda ordinaria, incluidos los catálogos solo de reserva, la omiten y conservan el respaldo de Codex al modelo de tarea. El revisor recibe la misma proyección de modo multiagente que las filas nativas ordinarias.
 
-`autoReviewModel` es el objetivo del revisor de todo el proveedor. Un valor puede ser un id de modelo desnudo de ese mismo proveedor (la fila de catálogo está normalizada a la babosa `provider/model`) o una babosa de catálogo pública completa como `opencode-go/deepseek-v4-flash`. Un valor desnudo se resuelve primero contra las filas de ese proveedor y luego contra una fila de catálogo desnuda, que es como se nombra un modelo nativo como `gpt-5.6-terra`, y un valor desnudo que aterriza fuera del proveedor imprime una nota que nombra la fila que realmente suministra al revisor; un valor que no coincide con ninguno no se resuelve. `autoReviewModelOverrides` claves son exactamente ids de modelo ascendente de ese proveedor, o el alias publicado del proveedor para uno ( `modelAliases` ); o bien nombres ortográficos de la misma fila enrutada, cuya slug lleva el id ascendente. Una entrada gana sobre el valor de todo el proveedor para su modelo. Un sello de proveedor gana sobre el selector de raíz en sus propias filas enrutadas, y el selector de raíz sigue siendo la reserva para las filas nativas y las filas enrutadas sin un sello de proveedor. La eliminación de un selector de proveedor solo borra los sellos de ese proveedor; la eliminación del selector raíz nunca borra los sellos de proveedor. Los ID de modelo que contienen una barra pueden escribirse sin procesar o en su forma de catálogo codificada; ambas ortografías se resuelven en la misma fila enrutada. Las llaves del modelo conservan el caso. Los selectores se resuelven contra el catálogo final en cada sincronización, independientemente uno del otro, y cada uno falla cerrado por sí solo: un `autoReviewModel` no resuelto emite un diagnóstico y no estampa filas de todo el proveedor, una entrada `autoReviewModelOverrides` no resuelta emite un diagnóstico y no estampa una anulación por modelo, por lo que un objetivo válido de todo el proveedor sigue siendo su reserva. Se sigue aplicando cualquier selector que se resuelva. Las filas sin sello de proveedor mantienen el selector raíz o el comportamiento normal de revisión automática ascendente cuando no está establecido. El proveedor canónico `openai` no acepta estos campos.
+`autoReviewModel` es el objetivo del revisor de todo el proveedor. Un valor puede ser un id de modelo desnudo de ese mismo proveedor (la fila de catálogo está normalizada a la identificador `provider/model`) o una identificador de catálogo pública completa como `opencode-go/deepseek-v4-flash`. Un valor desnudo se resuelve primero contra las filas de ese proveedor y luego contra una fila de catálogo desnuda, que es como se nombra un modelo nativo como `gpt-5.6-terra`, y un valor desnudo que aterriza fuera del proveedor imprime una nota que nombra la fila que realmente suministra al revisor; un valor que no coincide con ninguno no se resuelve. `autoReviewModelOverrides` claves son exactamente ids de modelo ascendente de ese proveedor, o el alias publicado del proveedor para uno ( `modelAliases` ); o bien nombres ortográficos de la misma fila enrutada, cuya slug lleva el id ascendente. Una entrada gana sobre el valor de todo el proveedor para su modelo. Un sello de proveedor gana sobre el selector de raíz en sus propias filas enrutadas, y el selector de raíz sigue siendo la reserva para las filas nativas y las filas enrutadas sin un sello de proveedor. La eliminación de un selector de proveedor solo borra los sellos de ese proveedor; la eliminación del selector raíz nunca borra los sellos de proveedor. Los ID de modelo que contienen una barra pueden escribirse sin procesar o en su forma de catálogo codificada; ambas ortografías se resuelven en la misma fila enrutada. Las llaves del modelo conservan el caso. Los selectores se resuelven contra el catálogo final en cada sincronización, independientemente uno del otro, y cada uno falla cerrado por sí solo: un `autoReviewModel` no resuelto emite un diagnóstico y no estampa filas de todo el proveedor, una entrada `autoReviewModelOverrides` no resuelta emite un diagnóstico y no estampa una anulación por modelo, por lo que un objetivo válido de todo el proveedor sigue siendo su reserva. Se sigue aplicando cualquier selector que se resuelva. Las filas sin sello de proveedor mantienen el selector raíz o el comportamiento normal de revisión automática ascendente cuando no está establecido. El proveedor canónico `openai` no acepta estos campos.
 
 La eliminación del selector de raíz borra los sellos de raíz de cada fila, incluidas las filas nativas estampadas por versiones anteriores al marcador de procedencia de OpenCodex. Esa limpieza reconoce un sello heredado por su forma, un valor en todo el catálogo que también lleva una fila enrutada, por lo que un valor genuino por fila que coincida con esa forma se borra con él, y un catálogo que desde entonces ha divergido de esa forma necesita una sincronización manual. Los sellos de proveedores nunca son tocados por la eliminación de raíces.
 
@@ -582,27 +582,69 @@ Las solicitudes se promocionan de cualquier manera: con `fastMode: true`, elegir
 
 <a id="xai-priority-processing"></a>
 
-### xAI Procesamiento prioritario
+### Procesamiento prioritario de xAI
 
-El incorporado `xai` preset soporta Fast en ambos de sus transportes, con diferente alcance. Objetivos de modo de clave API `https://api.x.ai/v1`; rutas resueltas a `openai-chat` enviar
-`service_tier: "priority"` a través de Chat Completions, mientras que los valores predeterminados y anulaciones del modelo pueden seleccione el `openai-responses` transporte en su lugar. `ocx login xai`
-en su lugar almacena las credenciales de OAuth para la pasarela de suscripción Grok (`https://cli-chat-proxy.grok.com/v1`; estas credenciales se actualizan automáticamente), donde Fast se clasifica por modelo (sondeado en vivo 2026-09-13 y 2026-09-23): gruk-4.7, gruk-4.6, gruk-4.5, gruk-4.3, gruk-4.20-0309-razonamiento, gruk-4.20-0309-no razonar, gruk-construir-0,1, y gruk-composer-2.5-rápido aceptar
-`service_tier: "priority"` sobre Grok OAuth y hazte eco, por lo que esas filas se anuncian rápidamente, acepta
-`--fast` selectores, y reenvía un nivel de llamada enviada en cualquiera de los cables. se excluye: el gateway responde `service_tier: "default"` Cuando se envía `priority`Así que se queda no clasificado y su nivel de llamada no se reenvía. Los modelos no listados permanecen sin clasificar en ambos transportes.
+El preajuste integrado `xai` admite Fast en sus dos transportes, con alcances distintos.
+El modo de clave API usa `https://api.x.ai/v1`. Las rutas resueltas como `openai-chat`
+envían `service_tier: "priority"` mediante Chat Completions; los valores predeterminados
+y las anulaciones de cada modelo pueden seleccionar `openai-responses` en su lugar.
+`ocx login xai` guarda credenciales OAuth para la pasarela de suscripción de Grok
+(`https://cli-chat-proxy.grok.com/v1`), que se actualizan automáticamente.
 
-En la puerta de enlace OAuth, el Fast de Grok 4.7 funciona de manera diferente. La puerta de enlace también enumera `grok-4.7-build-fast`, que es el mismo modelo en hardware de servicio más rápido, y midió aproximadamente 1.6 × más rápido que `grok-4.7`. El procesamiento prioritario en `grok-4.7` no midió más rápido y consumió aproximadamente 6 × el uso de suscripción por token de salida. Por lo tanto, la lista Modelos muestra una fila Grok 4.7. Al seleccionar su fila rápida (`xai/grok-4.7--fast`), enviar `service_tier: "priority"` o activar el modo rápido, se envía la solicitud como `grok-4.7-build-fast` sin un nivel de servicio. Los registros de solicitud mantienen el modelo como `grok-4.7` y el registro `grok-4.7-build-fast` como el modelo de cable. API -modo clave no cambia: build-fast no está en xAI 's público API, por lo que Grok 4.7 Fast todavía significa procesamiento prioritario. Una selección explícita `xai/grok-4.7-build-fast` de una configuración anterior sigue funcionando.
+En esa pasarela, Fast se clasifica por modelo según las comprobaciones del 2026-09-13
+y el 2026-09-23. grok-4.7, grok-4.6, grok-4.5, grok-4.3,
+grok-4.20-0309-reasoning, grok-4.20-0309-non-reasoning, grok-build-0.1 y
+grok-composer-2.5-fast aceptan `service_tier: "priority"` mediante Grok OAuth y lo
+devuelven en la respuesta. Por ello, sus filas anuncian Fast, aceptan selectores
+`--fast` y reenvían el nivel enviado por el cliente en cualquiera de los transportes.
+grok-4.20-multi-agent-0309 queda excluido: cuando recibe `priority`, la pasarela
+responde `service_tier: "default"`; el modelo permanece sin clasificar y no se reenvía
+el nivel solicitado por el cliente. Los modelos que no figuran en la lista permanecen
+sin clasificar en ambos transportes.
 
-Cuando no se configura ningún proveedor explícito `fastWire`, una tecla opencodex API restringida por `allowedModels` debe permitir `xai/grok-4.7-build-fast` (o su ID de modelo desnudo) para OAuth Fast. Permitir solo `xai/grok-4.7` no autoriza esta variante del modelo Fast. Una tecla que permite solo el modelo de cable rápido puede usarlo; solicitudes simples o Fast desactivado todavía requieren `xai/grok-4.7`. Con un proveedor `fastWire` explícito, permita el modelo de cable real en su lugar. Por ejemplo, un cable `service-tier` mantiene `xai/grok-4.7` y requiere permiso para ese modelo. Las restricciones del proveedor continúan aplicándose. Estas reglas se aplican a Responses, Chat Completions, Messages y solicitudes de compactación enrutadas.
+En la pasarela OAuth, Fast funciona de otra manera para Grok 4.7. La pasarela también
+ofrece `grok-4.7-build-fast`, el mismo modelo sobre hardware de servicio más rápido:
+las mediciones indicaron aproximadamente 1.6 × la velocidad de `grok-4.7`.
+El procesamiento prioritario de `grok-4.7` no resultó más rápido y consumió
+aproximadamente 6 × el uso de suscripción por token de salida. La lista Modelos muestra
+por ello una única fila de Grok 4.7. Elegir su fila Fast (`xai/grok-4.7--fast`),
+enviar `service_tier: "priority"` o activar el modo Fast envía la solicitud como
+`grok-4.7-build-fast`, sin nivel de servicio. Los registros conservan `grok-4.7`
+como modelo y guardan `grok-4.7-build-fast` como modelo del protocolo. El modo de
+clave API sigue igual: build-fast no está en la API pública de xAI y Grok 4.7 Fast
+sigue significando procesamiento prioritario en esa ruta. Una selección explícita
+`xai/grok-4.7-build-fast` procedente de una configuración anterior sigue funcionando.
 
-xAI carga Priority Processing a 2 × el precio estándar de token para tokens de entrada, salida, caché y razonamiento; los descuentos de caché se aplican antes que el multiplicador. Las estimaciones de costos utilizan esa prima solo cuando la respuesta de xAI confirma `service_tier: "priority"`. Un nivel de respuesta faltante o sin analizar no es confirmación, y un `default` repetido es una degradación; los tres se mantienen al precio estándar.
+Si el proveedor no tiene un `fastWire` explícito, una clave API de opencodex
+restringida por `allowedModels` debe permitir `xai/grok-4.7-build-fast` o su
+identificador sin prefijo para usar OAuth Fast. Permitir solo `xai/grok-4.7` no
+autoriza esta variante Fast. Una clave que permite únicamente el modelo del protocolo
+Fast puede usarlo; las solicitudes normales o con Fast desactivado siguen requiriendo
+`xai/grok-4.7`. Con un `fastWire` explícito, permita el modelo que realmente se
+envía. Por ejemplo, un transporte `service-tier` conserva `xai/grok-4.7` y requiere
+permiso para ese modelo. Las restricciones por proveedor siguen vigentes.
+Estas reglas se aplican a Responses, Chat Completions, Messages y las solicitudes de
+compactación enrutadas.
 
-Para `grok-4.6` y `grok-4.7`, la tasa estándar por tokens de 1M es de $ 2.00 de entrada, $ 0.50 de entrada en caché y $ 6.00 de salida. Un aviso de al menos 200.000 tokens revaloriza toda la solicitud a $ 4.00 / $ 1.00 / $ 12.00. xAI no ha publicado cómo se combina esa banda de contexto largo con el Procesamiento Prioritario. Cuando una respuesta de contexto largo confirma `priority`, el panel de control muestra el costo publicado de contexto largo con un marcador `≥` y una explicación de límite inferior; nunca inventa un multiplicador apilado.
+xAI cobra Priority Processing a 2 × el precio estándar de los tokens de entrada,
+salida, caché y razonamiento; los descuentos de caché se aplican antes del
+multiplicador. Las estimaciones solo incluyen ese recargo cuando la respuesta de xAI
+confirma `service_tier: "priority"`. Si el nivel falta, no se puede interpretar o
+la respuesta devuelve `default`, se conserva el precio estándar.
+
+Para `grok-4.6` y `grok-4.7`, la tarifa estándar por 1M de tokens es $2.00 de
+entrada, $0.50 de entrada en caché y $6.00 de salida. Un prompt de al menos
+200.000 tokens cambia la tarifa de toda la solicitud a $4.00 / $1.00 / $12.00.
+xAI no ha publicado cómo se combina esa banda de contexto largo con Priority
+Processing. Cuando una respuesta de contexto largo confirma `priority`, el panel
+muestra el costo publicado de contexto largo con un marcador `≥` y una explicación
+de que se trata de un límite inferior; no inventa un multiplicador combinado.
 
 <a id="openrouter-fast"></a>
 
 ### OpenRouter Rápido
 
-El preajuste canónico `https://openrouter.ai/api/v1` anuncia Fast solo para estas exactas OpenAI -backed babosas modelo:
+El preajuste canónico `https://openrouter.ai/api/v1` anuncia Fast solo para estas exactas OpenAI -backed identificadores modelo:
 
 - `openai/gpt-5.6-sol`
 - `openai/gpt-5.6-terra`
@@ -764,8 +806,8 @@ La rotación aquí se ejecuta solo *después* aguas arriba ya ha rechazado la so
 | `providers.<name>.oauthAccountFailover.sessionAffinity?` | `"conversation" \| "none"` | `"none"` | Conversación opt-in para piscinas genéricas OAuth. Requiere `enabled: true` proactivo (proveedor o valor global heredado). Las sesiones existentes mantienen su cuenta por delante de la estrategia de la nueva sesión hasta que no esté disponible. |
 | `providers.<name>.oauthAccountFailover.strategy?` | `"quota" \| "round-robin" \| "fill-first" \| "reset-first" \| "least-loaded"` (solo Kiro) | — | Kiro 's `least-loaded` elige la cuenta elegible con la menor cantidad de solicitudes en vuelo, utilizando orden de cuenta para los lazos. Requiere `pool.kernel` y preferencia proactiva; otras estrategias conservan sus reglas existentes. `reset-first` también requiere `pool.kernel`: entre las cuentas elegibles que no se agotan, el primer intento (mientras que la preferencia proactiva está activada) y una rotación de 429 prefieren la cuenta cuya cuota se restablece más pronto (la ventana semanal cuando se informa, de lo contrario la ventana de 5 horas), con más espacio para romper lazos. Las cuentas agotadas son las últimas. Sin evidencia de cuotas, o cuando un proveedor pasivo tiene evidencia solo para algunas cuentas, vuelve al orden de margen. La piscina Anthropic no lo acepta. |
 | `providers.kiro.oauthAccountFailover.maxConcurrentPerAccount?` | número entero 1-100 | ilimitado | Una cola por cuenta de proceso local mantiene una ranura hasta la finalización o cancelación de la respuesta. Una cuenta seleccionada completa espera como máximo 250 ms, luego devuelve 503 `account_capacity` con `Retry-After: 1`. El límite no mueve la solicitud a otra cuenta. |
-| `providers.<name>.oauthAccountFailover.autoSwitchThreshold?` | `number` | `80` | 0-100 por ciento de uso en el que `fill-first` avanza fuera de la cuenta activa (695 libras). Juego con `ocx account auto-switch <provider> threshold <n>`. Leer solo por debajo de `pool.kernel` con `strategy: "fill-first"`; una cuenta sin uso medido cuenta como debajo del umbral. |
-| `providers.<name>.oauthAccountFailover.stickyLimit?` | `number` | `1` | Los despachos exitosos se conservaron en una selección de `round-robin`, 1-100 (-695). Leer solo bajo `pool.kernel` con `strategy: "round-robin"`. |
+| `providers.<name>.oauthAccountFailover.autoSwitchThreshold?` | `number` | `80` | 0-100 por ciento de uso en el que `fill-first` avanza fuera de la cuenta activa (#695). Juego con `ocx account auto-switch <provider> threshold <n>`. Leer solo por debajo de `pool.kernel` con `strategy: "fill-first"`; una cuenta sin uso medido cuenta como debajo del umbral. |
+| `providers.<name>.oauthAccountFailover.stickyLimit?` | `number` | `1` | Los despachos exitosos se conservaron en una selección de `round-robin`, 1-100 (#695). Leer solo bajo `pool.kernel` con `strategy: "round-robin"`. |
 
 Para rechazar la dirección proactiva de la cuenta para un proveedor cuyos términos preferiría no probar, mientras se recupera de un límite de solicitudes:
 
@@ -950,7 +992,7 @@ Zed no proporciona ni respalda esta integración, y puede estar fuera de los té
 
 OpenRouter puede servir a un modelo a través de varios proveedores de inferencias. `openRouterRouting` mantiene las solicitudes de los proveedores preferidos; `modelOpenRouterRouting` lo reemplaza por ID de modelo exacto. Esto es útil para la afinidad de caché rápida porque el soporte de caché, la retención, las tasas de éxito y los precios varían según el proveedor de inferencias.
 
-Los nombres de los proveedores son OpenRouter babosas. `allowFallbacks: false` falla cerrado; `true` permite a otro proveedor elegible después de la lista ordenada. `only` es siempre una lista de permisos.
+Los nombres de los proveedores son OpenRouter identificadores. `allowFallbacks: false` falla cerrado; `true` permite a otro proveedor elegible después de la lista ordenada. `only` es siempre una lista de permisos.
 
 ```json
 {
@@ -980,7 +1022,7 @@ Los nombres de los proveedores son OpenRouter babosas. `allowFallbacks: false` f
 
 Vercel AI Gateway puede enrutar un modelo a través de múltiples proveedores de inferencia subyacentes. `vercelGatewayRouting` configura las preferencias de todo el proveedor; `modelVercelGatewayRouting` lo reemplaza por ID de modelo exacto. Dejando ambos unset hace que `resolveVercelGatewayRouting()` devuelva `undefined`, por lo que los creadores de solicitudes de chat omiten el campo `provider` y Vercel AI Gateway conserva su comportamiento de enrutamiento dinámico predeterminado.
 
-- `order`: Vercel AI Gateway upstream proveedor babosas en orden de prioridad.
+- `order`: Vercel AI Gateway upstream proveedor identificadores en orden de prioridad.
 - `only`: lista de permisos explícita que restringe los proveedores de upstream de Vercel AI Gateway elegibles.
 - `sort`: clasifica automáticamente a los proveedores elegibles por `"cost"` (el costo más bajo), `"ttft"` (el tiempo hasta el primer token) o `"tps"` (tokens por segundo).
 
@@ -1029,7 +1071,7 @@ Las mismas operaciones son `GET` / `POST /api/providers/keychain`. Después de `
 
 Antes de tocar la configuración, `store` escribe y lee cada entrada; si el llavero no está disponible o la lectura no coincide, se niega con 503 y deja el archivo como estaba. En el momento de la solicitud, una referencia que no se puede leer no produce ninguna credencial y una advertencia por clave: no hay reserva de texto sin formato, por diseño.
 
-Cuando no se opta por: un proxy que se ejecuta como un servicio sin cabeza (systemd, launchd, Task Scheduler) o en un contenedor generalmente no tiene sesión de llavero desbloqueada, por lo que las solicitudes no se cerrarían. En su lugar, utilice una referencia `${ENV_VAR}` en el entorno de servicio. Las referencias Env se dejan intactas por `store`.
+Cuándo no activarlo: un proxy que se ejecuta como un servicio sin cabeza (systemd, launchd, Task Scheduler) o en un contenedor generalmente no tiene sesión de llavero desbloqueada, por lo que las solicitudes se rechazarían. En su lugar, utilice una referencia `${ENV_VAR}` en el entorno de servicio. Las referencias Env se dejan intactas por `store`.
 
 Las semillas preestablecidas `zhipu-bigmodel-responses` `glm-5.3`, `glm-5.3-flash` y `glm-5-turbo` con `liveModels: false` para `https://open.bigmodel.cn/api/v1`. Su lista estática y el contexto por modelo, el esfuerzo y los metadatos de resumen provienen del [Guía BigModel Responses](/es/guides/providers/#bigmodel-coding-plan-over-responses). El ejemplo oficial local `models.json` no establece un vivo `/models` API.
 
@@ -1125,7 +1167,7 @@ Los destinos Non-Go no se ven afectados: opencodex nunca obtiene o agrega el enc
 
 ## Esfuerzos de razonamiento OpenCode Go
 
-Las filas de catálogo Go conservan sus esfuerzos de razonamiento configurados exactamente, incluso durante la sincronización del catálogo. OpenCodex no anexa opciones sintéticas `max` o `ultra` a estas filas. Use `modelReasoningEfforts` y `modelDefaultReasoningEfforts` para los valores ascendentes aceptados de cada modelo. Teclee estos mapas por proveedor por ID de modelo ascendente, no por la babosa de catálogo `opencode-go/<model-id>` enrutada. Por ejemplo, una lista `["high", "max"]` configurada sigue siendo exactamente esas dos opciones; una lista `["high", "xhigh"]` configurada no gana `max`. Vea el [Lista de modelos de OpenCode](https://opencode.ai/docs/go/#models) para la lista actual. Un subconjunto configurado puede excluir los niveles inferiores. Otros proveedores mantienen su comportamiento existente.
+Las filas de catálogo Go conservan sus esfuerzos de razonamiento configurados exactamente, incluso durante la sincronización del catálogo. OpenCodex no anexa opciones sintéticas `max` o `ultra` a estas filas. Use `modelReasoningEfforts` y `modelDefaultReasoningEfforts` para los valores ascendentes aceptados de cada modelo. Teclee estos mapas por proveedor por ID de modelo ascendente, no por la identificador de catálogo `opencode-go/<model-id>` enrutada. Por ejemplo, una lista `["high", "max"]` configurada sigue siendo exactamente esas dos opciones; una lista `["high", "xhigh"]` configurada no gana `max`. Vea el [Lista de modelos de OpenCode](https://opencode.ai/docs/go/#models) para la lista actual. Un subconjunto configurado puede excluir los niveles inferiores. Otros proveedores mantienen su comportamiento existente.
 
 Para un recolector nativo-primero, incluya los identificadores nativos en `modelPickerOrder` seguidos de los identificadores enrutados. Esto ordena el recolector completo mientras se conserva el cálculo de orientación de prioridad natural separado de OpenCodex. Native Codex anuncia cinco prioridad de selector de seguimiento y puede cambiar; la elegibilidad de anulación de nombre exacto no se limita a ese anuncio. Las órdenes de solo ruta mantienen su comportamiento anterior. Ver el [Ordenar nota de migración](/es/guides/model-ordering/#migration-note-native-ids-in-existing-orders). `modelDisplayNames` en un proveedor controla las etiquetas legibles sin cambiar los identificadores de cable.
 

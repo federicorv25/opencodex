@@ -415,10 +415,13 @@ npm uninstall -g @bitkyc08/opencodex
 
 ## 远程访问
 
-默认情况下 opencodex 绑定到 `127.0.0.1`，无需额外认证。绑定超出
-回环（`"hostname": "0.0.0.0"`）**必须**提供 bearer 令牌 —— 没有
-`OPENCODEX_API_AUTH_TOKEN` 时代理会拒绝启动，并且每个客户端请求都必须把它放在
-`x-opencodex-api-key` 中。详情：[配置参考](https://opencodex.me/zh-cn/reference/configuration/)。
+默认情况下，opencodex 绑定到 `127.0.0.1`，不需要额外的数据平面认证。
+绑定到回环地址之外（`"hostname": "0.0.0.0"`）时，**必须提供数据平面凭据**。
+数据令牌可以来自 `OPENCODEX_API_AUTH_TOKEN`、`OCX_API_TOKEN_FILE`，
+或仅所有者可访问的 `service-api-token` 文件；`ocx service install` 可以创建此文件。
+已配置的客户端 API 密钥也可用于数据平面准入。客户端通过 `x-opencodex-api-key` 发送有效凭据。
+管理功能使用独立的 `OPENCODEX_ADMIN_AUTH_TOKEN` 或自动生成的管理令牌；
+数据令牌不授予管理权限。详情：[配置参考](https://opencodex.me/zh-cn/reference/configuration/)。
 
 ## 文档
 

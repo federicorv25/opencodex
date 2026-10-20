@@ -70,7 +70,7 @@ Grok Build requiere una clave API no vacía para modelos personalizados incluso 
 
 No reemplace `api_key` con `env_key` aquí. Un `env_key` que no se resuelve no detiene la solicitud - Grok cae a través de su token de sesión xAI y lo envía a cualquier `base_url` los nombres de entrada, que para una implementación de LAN es un punto final HTTP de texto plano que no es xAI.
 
-El `api_key` inyectado en la entrada del proveedor se encuentra primero en la cadena de credenciales de Grok para estos modelos, por lo que las vueltas contra opencodex no necesitan un inicio de sesión Grok adicional. Mantenga su configuración normal `grok login` / `XAI_API_KEY` para los modelos de gruk nativos y cualquier función de arnés que contacte directamente con xAI.
+El `api_key` inyectado en la entrada del proveedor se encuentra primero en la cadena de credenciales de Grok para estos modelos, por lo que las vueltas contra opencodex no necesitan un inicio de sesión Grok adicional. Mantenga su configuración normal `grok login` / `XAI_API_KEY` para los modelos de grok nativos y cualquier función de arnés que contacte directamente con xAI.
 
 <a id="manual-recipe-without-auto-registration"></a>
 

@@ -20,7 +20,7 @@ Sin el pedido completo del seleccionador, las prioridades relevantes de no selec
 | `subagentModels[i]` | `i` (`0` a través de `4`) | El mapa de rango destacado en `src/codex/catalog/sync.ts` |
 | Otros modelos ruteados | `5` | Creación de la entrada encaminada en `src/codex/catalog/sync.ts` |
 | Modelos ruteados no destacados listados en `modelPickerOrder` | `1000 + i` | Rango de selector de solo visualización en `src/codex/catalog/sync.ts` |
-| Por defecto, las babosas GPT nativas | `9` | Creación de entradas nativas en `src/codex/catalog/sync.ts` |
+| Por defecto, las identificadores GPT nativas | `9` | Creación de entradas nativas en `src/codex/catalog/sync.ts` |
 | Modelos nativos no seleccionados mientras existe una lista destacada | Al menos `featured.length + 100` | Catálogo nativo fusionar en `src/codex/catalog/sync.ts` |
 
 La gestión API limita `subagentModels` a cinco entradas con `slice(0, 5)` en `src/server/management/agent-settings-routes.ts`. Esto coincide con la superficie Codex `spawn_agent`, que anuncia solo los primeros cinco modelos anulados. Los modelos fuera de esos cinco todavía pueden permanecer visibles en el selector principal y llamarse por su id exacto.

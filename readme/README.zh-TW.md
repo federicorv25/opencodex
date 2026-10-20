@@ -412,10 +412,13 @@ npm uninstall -g @bitkyc08/opencodex
 
 ## 遠端存取
 
-預設 opencodex 綁定 `127.0.0.1`，不必額外認證。綁定超出
-迴環（`"hostname": "0.0.0.0"`）**必須**有 bearer 權杖——沒有
-`OPENCODEX_API_AUTH_TOKEN` 代理會拒絕啟動，每個用戶端請求都必須以
-`x-opencodex-api-key` 帶上它。細節：[設定參考](https://opencodex.me/zh-tw/reference/configuration/)。
+預設情況下，opencodex 綁定 `127.0.0.1`，不需要額外的資料平面認證。
+綁定至迴環位址之外（`"hostname": "0.0.0.0"`）時，**必須提供資料平面憑證**。
+資料權杖可來自 `OPENCODEX_API_AUTH_TOKEN`、`OCX_API_TOKEN_FILE`，
+或僅擁有者可存取的 `service-api-token` 檔案；`ocx service install` 可以建立此檔案。
+已設定的用戶端 API 金鑰也可用於資料平面准入。用戶端透過 `x-opencodex-api-key` 傳送有效憑證。
+管理功能使用獨立的 `OPENCODEX_ADMIN_AUTH_TOKEN` 或自動產生的管理權杖；
+資料權杖不授予管理權限。詳情：[設定參考](https://opencodex.me/zh-tw/reference/configuration/)。
 
 ## 文件
 
