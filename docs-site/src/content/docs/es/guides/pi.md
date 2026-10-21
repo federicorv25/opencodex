@@ -13,6 +13,11 @@ Inicia el proxy y muestra la configuración:
 
 ```bash
 ocx start
+```
+
+Mantén ese proceso en ejecución. En una segunda terminal, muestra la configuración:
+
+```bash
 ocx export --client pi
 ```
 

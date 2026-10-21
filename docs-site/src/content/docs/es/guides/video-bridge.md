@@ -51,8 +51,8 @@ Agregue `videoBridgeEnabled: true` a su configuración `images`:
 |--------|---------|-------------|
 | `videoBridgeEnabled` | `false` | Interruptor maestro. Debe estar explícitamente habilitado. |
 | `videoBridgeModel` | `"grok-imagine-video"` | Id. de modelo de vídeo xAI. |
-| `videoMaxRounds` | `2` | Max video-gen rondas antes de la respuesta final forzada. |
-| `videoTimeoutMs` | `300000` (5 min) | Tiempo de espera por video, incluida la votación. |
+| `videoMaxRounds` | `2` | Número máximo de rondas de generación de video antes de forzar la respuesta final. |
+| `videoTimeoutMs` | `300000` (5 min) | Plazo máximo por video, incluidas las consultas de estado. |
 
 <a id="how-it-works"></a>
 
@@ -60,7 +60,7 @@ Agregue `videoBridgeEnabled: true` a su configuración `images`:
 
 1. opencodex detecta un modelo enrutado no OpenAI con `videoBridgeEnabled: true`
 2. Una herramienta de función sintética `video_gen` se inyecta en la conversación
-3. Cuando el modelo llama al `video_gen`, opencodex envía un trabajo a xAI 's `/videos/generations`
+3. Cuando el modelo llama al `video_gen`, opencodex envía un trabajo al endpoint `/videos/generations` de xAI
 4. El puente sondea el estado del trabajo cada 5-15 segundos, enviando mensajes de latido para mantener viva la transmisión
 5. Cuando el video está listo, se descarga en el directorio de artefactos
 6. La ruta local del archivo se devuelve al modelo como resultado de la herramienta
@@ -82,10 +82,10 @@ La herramienta `video_gen` acepta:
 
 ## Limitaciones
 
-- **xAI solamente**: La generación de video solo está disponible a través de xAI 's Grok Imagine Video API
+- **xAI solamente**: La generación de video solo está disponible mediante la API Grok Imagine Video de xAI
 - **Asíncrono**: La generación de video toma 30-120 segundos
-- **Coste**: La generación de vídeo es una función de pago xAI (? $ 0.05 / seg? 480p,? $ 0.07 / seg? 720p)
+- **Coste**: la generación de video es una función de pago de xAI. Consulta las [tarifas oficiales](https://docs.x.ai/developers/pricing) antes de usarla.
 - **Un video por llamada**: Cada llamada `video_gen` produce un vídeo
 - **Coexiste con Image Bridge**: Ambos puentes se pueden habilitar simultáneamente
 - **Prioridad de búsqueda web**: Cuando un sidecar de búsqueda web está activo durante un giro (no adaptador `runTurn`), el puente de vídeo se salta - los dos no pueden funcionar simultáneamente. Se emite un `console.warn` para que pueda detectarlo en registros.
-- **Tiempo de espera cubre enviar + encuesta**: El presupuesto `videoTimeoutMs` comienza antes de la presentación del trabajo, por lo que la convocatoria de presentación (60 s) y las encuestas posteriores comparten la misma fecha límite.
+- **Plazo compartido entre el envío y las consultas**: `videoTimeoutMs` empieza antes de enviar el trabajo. La solicitud de envío (60 s) y las consultas posteriores comparten el mismo plazo máximo.

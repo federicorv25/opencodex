@@ -3,7 +3,7 @@ title: "Inferencia privada de Cursor"
 description: "Utilice los modelos con enrutamiento opencodex dentro de la compilación de agente local de Cursor, en macOS, Windows o Linux, sin un túnel público."
 ---
 
-El Cursor regular no puede hablar con un proxy en su propia máquina. Cuando establece "Override OpenAI URL base", el backend de Cursor crea el mensaje y llama a esa URL desde los servidores de Cursor, que rechazan el loopback, la LAN y las direcciones privadas. Es por eso que cada receta de la comunidad para Cursor + modelos locales termina con grok, Cloudflare Tunnel o un VPS.
+El Cursor regular no puede hablar con un proxy en su propia máquina. Cuando establece "Override OpenAI URL base", el backend de Cursor crea el mensaje y llama a esa URL desde los servidores de Cursor, que rechazan el loopback, la LAN y las direcciones privadas. Es por eso que cada receta de la comunidad para Cursor + modelos locales termina con ngrok, Cloudflare Tunnel o un VPS.
 
 Cursor también envía una segunda compilación de escritorio, **Cursor Inferencia privada**, cuyo bucle de agente se ejecuta localmente y llama a una puerta de enlace compatible con OpenAI que configura. Señalado en opencodex, utiliza sus modelos enrutados sin túnel, sin parches de aplicaciones y sin TLS. Esta página cubre esa construcción.
 
@@ -60,7 +60,7 @@ CURSOR_LOCAL_AGENT_HEADERS=            # optional, newline-separated "Header-Nam
 
 `CURSOR_LOCAL_AGENT_HEADERS` rechaza `User-Agent` y `{...}` marcadores de posición no resueltos; `{gitOrgRepo}` y `{gitBranch}` se expanden.
 
-Precedencia, el más alto primero: credenciales por modelo → la puerta de enlace guardada en Configuración → `CURSOR_LOCAL_AGENT_*` → `ANTHROPIC_BASE_URL` / `ANTHROPIC_AUTH_TOKEN` (rechazo de compatibilidad). El entorno no anula una puerta de enlace guardada; límpiela primero en Configuración si tiene la intención de cambiar a través del entorno.
+Precedencia, el más alto primero: credenciales por modelo → la puerta de enlace guardada en Configuración → `CURSOR_LOCAL_AGENT_*` → `ANTHROPIC_BASE_URL` / `ANTHROPIC_AUTH_TOKEN` (alternativa por compatibilidad). El entorno no anula una puerta de enlace guardada; límpiela primero en Configuración si tiene la intención de cambiar a través del entorno.
 
 Cursor Private Inference es una aplicación GUI, por lo que un perfil de shell interactivo no es suficiente por sí solo; la variable tiene que estar en el entorno de lo que sea que lance la aplicación.
 

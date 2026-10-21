@@ -26,7 +26,7 @@ const LABELS: Record<Locale, Record<LogGuardOperationLabelKey, string>> = {
     "error.integrity_check_failed": "The Codex logs database failed its integrity check. No space was reclaimed.",
   },
   es: {
-    applying: "Aplicación de Log Guard cambio…",
+    applying: "Aplicando el cambio de Log Guard…",
     "error.generic": "No se pudo actualizar el almacenamiento de registro Codex.",
     "error.codex_running": "Salga de Codex antes de cambiar el almacenamiento de registros Codex.",
     "error.process_enumeration_failed": "No se pudo verificar que Codex está detenido. La operación Log Guard no se inició.",
@@ -34,7 +34,7 @@ const LABELS: Record<Locale, Record<LogGuardOperationLabelKey, string>> = {
     "error.unsupported_schema": "Este esquema de registros Codex no es compatible con esta operación.",
     "error.unsafe_path": "La ruta de la base de datos de registros Codex falló la comprobación de seguridad.",
     "error.database_error": "No se pudo actualizar la base de datos de registros Codex.",
-    "error.auto_vacuum_not_incremental": "Esta base de datos de registros Codex no está configurada para vacío incremental, por lo que no se puede recuperar espacio sin una reconstrucción completa.",
+    "error.auto_vacuum_not_incremental": "Esta base de datos de registros de Codex no usa VACUUM incremental, por lo que no puede recuperar espacio sin reconstruirla por completo.",
     "error.integrity_check_failed": "La base de datos de registros Codex falló su comprobación de integridad. No se recuperó ningún espacio.",
   },
   de: {

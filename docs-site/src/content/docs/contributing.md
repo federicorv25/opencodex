@@ -98,8 +98,9 @@ bun run build
 
 GitHub Actions intentionally stay small:
 
-- **Cross-platform CI** (`.github/workflows/ci.yml`) runs on pull requests and `main` pushes that
-  touch runtime, tests, package, script, TypeScript, or workflow files. Its Bun matrix covers Linux,
+- **Cross-platform CI** (`.github/workflows/ci.yml`) runs only the fast Ubuntu subset on pull requests.
+  Full cross-platform jobs run through `workflow_dispatch` and pushes to `main`/`preview`, subject
+  to the workflow's path filters; pushes to `dev` do not run the full suite. Its Bun matrix covers Linux,
   Windows, and macOS with install, typecheck, tests, privacy scan, a release-helper build smoke, GUI
   build, and `ocx help`. A second three-OS lane proves npm global install works without a separately
   installed Bun by using the package's bundled runtime.
@@ -161,7 +162,7 @@ description.
 
 - Target **`dev`**. Do not open feature or fix pull requests against **`main`**.
 - Branch from the current **`dev`** tip, not from **`main`**. The required **`enforce-target`** check rejects heads whose merge base sits on the **`main`** tip while the branch is far behind the pull request base (the failure mode seen in #644).
-- Write a real description: a **Summary** of what changed and why, plus a **Test plan** (or equivalent substance). Empty bodies, placeholder-only text, and descriptions that use escaped `\n` instead of real line breaks fail the check.
+- Complete the repository template's `Summary`, `Verification`, and `Checklist` sections: explain what changed and why, and document the test plan and results. Empty bodies, placeholder-only text, and descriptions that use escaped `\n` instead of real line breaks fail the check.
 - If the pull request changes files under `gui/`, include a screenshot of the UI change in the description; the `enforce-target` check re-runs on description edits until the screenshot is present. Drag the image into the description editor rather than committing it: an image on your branch rides the squash merge into `dev`. Maintainers uploading from the command line use the `pr-assets` branch and link by commit SHA.
 - Workflow changes in this repository use **`pull_request_target`**. Updated enforcement logic applies only after the workflow is promoted to the repository default branch — the same operational caveat documented in #631.
 

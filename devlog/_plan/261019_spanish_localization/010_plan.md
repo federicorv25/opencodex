@@ -5,7 +5,7 @@
 - Preparation and implementation date: 2026-10-19 (America/La_Paz). Spanish implementation and review corrections are prepared; initial Draft delivery and subsequent review-readiness verification are recorded below.
 - Repository: `lidge-jun/opencodex`; local branch: `feat/spanish-localization`; integration target: `dev`.
 - Initial `dev` baseline: `79fa97be6e6ae974ccd31d9aeedc2da96a0baa73`; refreshed through `bddd61f74bc89f45e6740845823b47f7a0a2f629`, `74463a2f73ac8a8011554385cbd45c42d16441a3`, `1cf98c05d9db5a458dd78f835d38dc393f32f0fe` and `eb4bf967001327624acca1341a9a51aba0a3ca05` to `12025981e5a304cdb6b1b54f525ba8554f623977`. The clone includes branch history and current checked-out sources; historical blobs are fetched on demand.
-- Current `dev` package version: `2.90.0`. Latest published release checked on this date: [`v2.89.0`](https://github.com/lidge-jun/opencodex/releases/tag/v2.89.0). Release and development versions are distinct.
+- Initial delivery's `dev` package version: `2.90.0`. Latest published release checked on the initial date: [`v2.89.0`](https://github.com/lidge-jun/opencodex/releases/tag/v2.89.0). The October 21 follow-up below supersedes this development snapshot; release and development versions are distinct.
 - Toolchain: Bun `1.4.3` for tests, Node `v24.21.0`, Git `2.56.0.windows.1`. The root dependency on bundled Bun `1.4.2` stays unchanged.
 - Loaded catalog baseline: 4,078 English keys and 11 GUI locales (`en`, `de`, `fr`, `ko`, `zh`, `zh-TW`, `ru`, `ja`, `tr`, `vi`, `pt`).
 - Documentation baseline: 8 configured site locales and 73 canonical English Markdown/MDX source pages. These are measured snapshot values, never hard-coded future acceptance counts.
@@ -196,3 +196,33 @@ The next incremental review reported four observations: qualify default v2 deleg
 That review also included two outside-diff copy findings: the Lab subject column now uses `Sujeto`, matching the represented entity, and the singular corrupt-artifact status uses `Corrupto`. The raw/effective catalog and supplemental-label regression checks cover both corrections.
 
 The following review identified a missing hybrid-mode exception in the v2 overview and an outside-diff Anthropic account-pool wording issue. Both guides now explain that `keepNativeChatGptOnV1` preserves native ChatGPT parents on v1 while routed entries use v2, including in the comparison table. The Spanish pool descriptions distinguish new sessions from the active account whose usage reaches the configured threshold, retaining all placeholders and ordered refusal recovery. Adjacent fill-first wording without a threshold follows the same account/session distinction.
+
+## October 21 consolidated correction and audit
+
+The next full CodeRabbit review reported eleven actionable threads on `1e60fede9e306a7e530caddbc7fa0a0a537019bb`. This follow-up merges `dev` at `2945ebb364b90ad2e0f3fe71e69a375045aec39d` (2.91.0), retaining the published history. Dependency manifests, lockfiles, workflows and backend runtime match that base; no independent dependency or authentication change is introduced.
+
+Corrections cover the inert provider-directory policy, macOS versus Linux deb installation, ten-minute spent-quota precedence, nonzero partial Aside outcomes, Pi foreground startup in two terminals, Remote Hub restart, the external video-pricing link, SSH messaging, retained exact-account roster IDs in every affected reference locale, and fenced-code parity. The OpenCode comment's premise was checked against `isApiAuthRequired` and existing loopback tests: configuring a client key does not itself require authentication on a loopback-bound listener. The guides now distinguish that listener from reaching a wildcard-bound authenticated listener through a local URL. The runtime admission policy is unchanged.
+
+The wider review checks all 73 Spanish documentation paths and all 4,078 raw/effective catalog keys for executable identifiers, numbers, placeholders, links, tables and structure. Semantic candidate searches cover negations, recovery, units, brands and result codes; full contextual rewrites cover the contribution, installation and OpenCode chapters, with adjacent Pi, video, integrations and CLI corrections. This is contributor review, not an independent human-language approval or a guarantee that all prose is perfect.
+
+Additional confirmed defects included the general CLI nonzero-exit statement, translated OpenCode/Node/Rust/ngrok names, malformed login and management-token help, and translated TOML table names `[agents]`/`[features]`. The expanded catalog guard failed on the old TOML copy and passed after correction. Current Spanish docs include the new `/readyz` feature names, passive `/api/quota-pool`, `voice-session-id`, reasoning metadata and Codex 0.164 assertion modes. A render check found English code-block controls on Windows; an explicit cross-platform content-locale resolver fixes those labels. The final clean docs build and browser both show Spanish copy controls. The existing test-layout registry reached 2,000 lines after the merge; its Spanish entry moved unchanged into an explicit shard rather than increasing a cap.
+
+| Follow-up verification | Result and coverage |
+| --- | --- |
+| Root/GUI/docs frozen installs | Passed, with the lockfiles inherited from `dev` |
+| Full GUI suite | 3,494 passed, zero failures, 83,225 assertions across 354 files; final copy edits additionally covered by the focused locale run |
+| Final Spanish GUI contract | Eight passed, zero failures, 49,255 assertions; includes regional detection, blocked storage, mounted switching, auxiliary labels, technical identifiers and quota formatting |
+| GUI lint, i18n lint and final build | Passed; existing bundle-size warning remains |
+| Root typecheck and structure check | Passed |
+| Docs/README/structure/hygiene/layout batch | 451 passed, zero failures across 18 files before the code-control regression was added |
+| Final docs and layout regression | 39 passed, zero failures across two files, including all 14 Spanish documentation cases |
+| Changed-import coverage | 499 passed; two repository-wide source scans exceeded their default five-second per-test limit under load; isolated retry with a 30-second test limit passed all 16 tests in the two scan files |
+| Current readiness/quota/assertion contracts | 24 passed, zero failures across four files |
+| Roster retention/migration and admission cases | 68 passed, zero failures across three files |
+| Clean offline docs build | 658 pages, Pagefind and sitemap built; 95,636 internal links checked |
+| Full root suite attempt | `bun run test` stopped at its 900-second parallel-lane limit with exit 124: 4,755 observed passes, 40 failures, 42 skips; incomplete and not a pass |
+| Root failure triage | Three representative files rerun with `--timeout 30000`: 63 passed and nine failures, all fixture `symlinkSync` EPERM refusals on this Windows host; earlier timing cases in those files passed. The remaining full-suite failures are not all individually baseline-reproduced |
+
+Browser checks use the actual production GUI and docs, synthetic disabled providers and isolated homes. They cover Spanish/English switching on the mounted Models screen, persistence on reload, `lang="es"`, 390-pixel mobile layout, Pi's separate terminals, OpenCode, localized code controls and Spanish Pagefind results. The preview server's handling of underscore-containing Pagefind asset extensions was repaired in ignored scratch tooling; it is not a shipped-site change. No personal Desktop configuration, live provider request, native Desktop execution or human acceptance is claimed. Screenshots remain outside the PR source branch.
+
+The PR stays Draft under the maintainer's localization/owner acceptance hold. The approved hosted execution and passing checks on `1e60fede` are previous-head evidence only; new-head approval and required CI must be inspected separately. The consolidated publication requests one full CodeRabbit review without waiting for its result, as instructed by the contributor.

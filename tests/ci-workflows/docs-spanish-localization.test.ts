@@ -3,6 +3,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { repoPath } from "../helpers/repo-root";
 import { FRONTIER_STRINGS } from "../../docs-site/src/data/frontier-i18n";
+import { codeBlockLocale } from "../../docs-site/src/data/code-block-locale";
 
 const root = repoPath("docs-site/src/content/docs");
 const source = (path: string): string => readFileSync(path, "utf8").replace(/\r\n/g, "\n");
@@ -18,12 +19,40 @@ function pages(directory: string, canonical = false): string[] {
       : /\.mdx?$/.test(entry.name) ? [entry.name] : [];
   }).sort();
 }
-const fencedBlockPattern = (): RegExp => /^([ \t]*)(`{3,}|~{3,})[^\n]*\n([\s\S]*?)^[ \t]*\2[ \t]*$/gm;
+function fencedBlocks(markdown: string): { start: number; end: number; content: string }[] {
+  const lines = [...markdown.matchAll(/[^\n]*(?:\n|$)/g)].filter(line => line[0].length);
+  const blocks: { start: number; end: number; content: string }[] = [];
+  const unquote = (line: string): string => line.replace(/^(?:[ \t]*>[ \t]?)+/, "");
+  for (let i = 0; i < lines.length; i++) {
+    const opening = /^[ \t]*(`{3,}|~{3,})([^\n]*)\n?$/.exec(unquote(lines[i]![0]));
+    if (!opening || (opening[1]![0] === "`" && opening[2]!.includes("`"))) continue;
+    const start = lines[i]!.index!;
+    const contentStart = start + lines[i]![0].length;
+    let closing = i + 1;
+    for (; closing < lines.length; closing++) {
+      const fence = /^[ \t]*(`+|~+)[ \t]*\n?$/.exec(unquote(lines[closing]![0]))?.[1];
+      if (fence?.[0] === opening[1]![0] && fence.length >= opening[1]!.length) break;
+    }
+    const contentEnd = lines[closing]?.index ?? markdown.length;
+    const end = closing < lines.length ? contentEnd + lines[closing]![0].length : markdown.length;
+    blocks.push({ start, end, content: markdown.slice(contentStart, contentEnd) });
+    i = closing;
+  }
+  return blocks;
+}
 function codeBlocks(markdown: string): string[] {
-  return [...markdown.matchAll(fencedBlockPattern())].map(match => match[3]!);
+  return fencedBlocks(markdown).map(block => block.content);
+}
+function withoutFencedCode(markdown: string): string {
+  let prose = "", previous = 0;
+  for (const block of fencedBlocks(markdown)) {
+    prose += markdown.slice(previous, block.start) + "\n";
+    previous = block.end;
+  }
+  return prose + markdown.slice(previous);
 }
 function inlineCode(markdown: string): Set<string> {
-  const prose = markdown.replace(fencedBlockPattern(), "");
+  const prose = withoutFencedCode(markdown);
   const values = new Set<string>();
   const escaped = (at: number): boolean => {
     let slashes = 0;
@@ -51,6 +80,16 @@ function missingInlineIdentifiers(english: string, spanish: string): string[] {
 }
 
 describe("Spanish documentation localization", () => {
+  test("code-block controls use the content locale on Windows and POSIX", () => {
+    expect(codeBlockLocale({ path: "C:\\Work\\Docs Site\\src\\content\\docs\\es\\guides\\pi.md" })).toBe("es");
+    expect(codeBlockLocale({ url: new URL("file:///C:/Work/Docs%20Site/src/content/docs/es/guides/pi.md") })).toBe("es");
+    expect(codeBlockLocale({ path: "/workspace/docs-site/src/content/docs/zh-cn/guides/pi.md" })).toBe("zh-CN");
+    expect(codeBlockLocale({ url: new URL("https://opencodex.me/es/guides/pi/") })).toBe("es");
+    expect(codeBlockLocale({ path: "/workspace/docs-site/src/content/docs/guides/pi.md" })).toBe("en");
+    expect(codeBlockLocale({})).toBe("en");
+    expect(config).toContain("getBlockLocale");
+  });
+
   test("compares list-indented command fences and excludes them from inline prose", () => {
     for (const [indent, fence] of [["", "```"], ["  ", "```"], ["   ", "~~~"], ["\t", "````"]]) {
       const canonical = ["1. Run `droid exec`:", "", `${indent}${fence}bash`,
@@ -60,6 +99,39 @@ describe("Spanish documentation localization", () => {
       expect(codeBlocks(canonical.replace("glm-5.2", "wrong-model"))).not.toEqual(codeBlocks(canonical));
       expect([...inlineCode(canonical)]).toEqual(["droid exec"]);
     }
+  });
+
+  test("longer closing fences cannot hide changed commands or leak code into prose", () => {
+    for (const indent of ["", "  ", "   ", "\t"]) {
+      for (const marker of ["`", "~"]) {
+        const markdown = ["Run `ocx export`:", "", `${indent}${marker.repeat(3)}bash`,
+          `${indent}ocx export --client pi`, `${indent}echo '\`code-only\`'`,
+          `${indent}${marker.repeat(4)}`, "", "Then use `models.json`."].join("\n");
+        expect(codeBlocks(markdown)).toHaveLength(1);
+        expect(codeBlocks(markdown.replace("--client pi", "--client wrong"))).not.toEqual(codeBlocks(markdown));
+        expect([...inlineCode(markdown)]).toEqual(["ocx export", "models.json"]);
+        expect(withoutFencedCode(markdown)).not.toContain("code-only");
+      }
+    }
+  });
+
+  test("shorter or mixed fences stay inside the block and an unclosed block reaches EOF", () => {
+    for (const marker of ["`", "~"]) {
+      const other = marker === "`" ? "~" : "`";
+      const body = ["ocx start", marker.repeat(3), other.repeat(5), "echo '`code-only`'", ""].join("\n");
+      const opening = marker.repeat(4) + "bash\n";
+      expect(codeBlocks(opening + body + marker.repeat(4) + "\n")).toEqual([body]);
+      expect(codeBlocks(opening + body)).toEqual([body]);
+      expect([...inlineCode(opening + body)]).toEqual([]);
+    }
+    expect(codeBlocks("```not `an opening`\nordinary prose\n")).toEqual([]);
+  });
+
+  test("checks commands inside quoted examples and removes them from prose", () => {
+    const markdown = ["Read `config.json`:", "", "> ```bash", "> ocx start", "> echo '`quoted-code`'", "> ````", ""].join("\n");
+    expect(codeBlocks(markdown)).toEqual(["> ocx start\n> echo '`quoted-code`'\n"]);
+    expect(codeBlocks(markdown.replace("ocx start", "ocx wrong"))).not.toEqual(codeBlocks(markdown));
+    expect([...inlineCode(markdown)]).toEqual(["config.json"]);
   });
 
   test("registers Spanish and covers every current canonical documentation path", () => {
@@ -83,7 +155,7 @@ describe("Spanish documentation localization", () => {
       expect(htmlCode(spanish), `${path} HTML code`).toEqual(htmlCode(english));
       const directives = (text: string): string[] => [...text.matchAll(/^:::(\w*)/gm)].map(match => match[1]!);
       expect(directives(spanish), `${path} admonition structure`).toEqual(directives(english));
-      const prose = (text: string): string => text.replace(fencedBlockPattern(), "");
+      const prose = withoutFencedCode;
       const tables = (text: string): number => [...prose(text).matchAll(/^\s*\|?\s*:?-{3,}:?\s*\|\s*:?-{3,}:?/gm)].length;
       const items = (text: string): number => [...prose(text).matchAll(/^\s*(?:[-*]|[1-9]\d*\.)\s+/gm)].length;
       expect(tables(spanish), `${path} complete tables`).toBe(tables(english));

@@ -429,6 +429,7 @@ El formulario `?provider=` respalda la sección **Alambre corriente arriba** de 
 | `DELETE /api/providers?name=...` | Eliminar un proveedor, reasignar el valor predeterminado cuando sea posible | 404 proveedor desconocido; 409 `last_provider`; 409 `provider_has_dependent_combos` |
 | `POST /api/providers/test?name=...` | Realizar una sonda de conectividad/descubrimiento de proveedor en vivo limitada | 404 proveedor desconocido; las fallas normalmente se devuelven como evidencia `ok: false` |
 | `GET /api/provider-quotas` | Leer los informes de cuotas de proveedores; `refresh=1` fuerzas refrescan | — |
+| `GET /api/quota-pool` | Consultar el pool pasivo de cuotas `ocx.quota-pool/1`, con ventanas por cuenta y agrupadas y referencias opacas de cuentas. Solo usa datos en caché: nunca realiza sondeos ni actualiza las cuotas, e ignora `refresh`. También está disponible desde un Child de Remote Link o un cliente de Hub en `/api/machine/hub-relay/api/quota-pool` | — |
 | `GET /api/quota-resets` | Listar los restablecimientos de la ventana de cuota detectados recientemente y si la detección está habilitada; `limit=<n>` limita el conteo | 400 inválido `limit` |
 | `GET, PUT /api/provider-context-caps` | Leer o actualizar los límites de contexto globales, de todos los proveedores o de un solo proveedor | 400 solicitud inválida; 404 proveedor desconocido |
 | `GET /api/provider-presets` | Devolver preajustes de proveedor de GUI derivados del registro en tiempo de ejecución | — |

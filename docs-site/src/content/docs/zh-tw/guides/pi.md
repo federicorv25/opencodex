@@ -11,6 +11,11 @@ Pi 從單一全域 JSON 檔案而非環境變數讀取其供應商，因此 open
 
 ```bash
 ocx start
+```
+
+讓此程序繼續執行。在另一個終端機中輸出設定：
+
+```bash
 ocx export --client pi
 ```
 

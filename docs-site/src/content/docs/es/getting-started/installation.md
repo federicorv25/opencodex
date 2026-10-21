@@ -3,15 +3,15 @@ title: "Instalación"
 description: "Instale el proxy opencodex (ocx), sus requisitos previos, y compruebe que se ejecuta."
 ---
 
-opencodex instala dos nombres de comando equivalentes, `ocx` y `opencodex`. Ambos lanzan el mismo pequeño servidor local HTTP (construido en Bun). Las solicitudes de modelo van al proveedor seleccionado por enrutamiento; opcional Los sidecars de visión y búsqueda web también pueden usar su inicio de sesión ChatGPT cuando un modelo enrutado los necesite.
+opencodex instala dos comandos equivalentes, `ocx` y `opencodex`. Ambos inician el mismo servidor HTTP local escrito para Bun. Las solicitudes se envían al proveedor seleccionado por el enrutamiento. Los sidecars opcionales de visión y búsqueda web también pueden usar tu sesión de ChatGPT cuando un modelo enrutado los necesite.
 
 <a id="desktop-terminal-command"></a>
 
 ## Comando terminal de escritorio
 
-Una instalación de escritorio OpenCodex estable configura `ocx` para nuevos terminales cuando se inicia la aplicación. Abra una nueva terminal y ejecute `ocx status` o `ocx doctor` para inspeccionar el primer ejecutable en PATH. En las instalaciones deb de macOS y Linux, un bloque administrado al final de los archivos de inicio zsh, bash y fish pone `~/.opencodex-desktop/bin` primero en PATH y utiliza la shim de escritorio. Windows pone el paquete `ocx.exe` Instalar el directorio primero en el usuario `Path`. Terminales existentes, alias, cachés de shell y posteriores PATH cambios pueden seleccionar otro comando; un Windows sistema PATH También puede ganar la entrada. Utilice la configuración de comando Terminal de la aplicación para reparar, deshabilitar o eliminar esta configuración. AppImage está excluido.
+Una instalación estable de OpenCodex Desktop configura `ocx` para las terminales nuevas al iniciar la aplicación. Abre una terminal nueva y ejecuta `ocx status` u `ocx doctor` para inspeccionar el primer ejecutable de PATH. En macOS y en instalaciones de Linux con paquetes `.deb`, un bloque administrado al final de los archivos de inicio de zsh, bash y fish coloca `~/.opencodex-desktop/bin` primero en PATH y usa el lanzador de escritorio. Windows coloca el directorio del `ocx.exe` incluido al principio del `Path` del usuario. Las terminales ya abiertas, los alias, las cachés de shell y los cambios posteriores de PATH pueden seleccionar otro comando; en Windows también puede tener prioridad una entrada del PATH del sistema. Usa el ajuste de comando de terminal de la aplicación para reparar, desactivar o eliminar esta configuración. AppImage queda excluido.
 
-En macOS y Linux, un lanzador de paquetes npm/pnpm actual que aún ejecuta comandos delegables en el Escritorio CLI cuando su registro está habilitado y pasa las verificaciones de propiedad, permiso y seguridad de archivos. Windows no tiene traspaso de paquete-lanzador: los nuevos terminales seleccionan el escritorio `ocx.exe` a través del usuario `Path` Orden. A `record-unsafe` error significa que el registro o su directorio falló una comprobación de seguridad. Abra el Escritorio OpenCodex para reparar el comando terminal, o use `OCX_NO_DESKTOP_HANDOFF=1` para una invocación de paquete en macOS/Linux. La actualización/eliminación del paquete y la inspección interna mantienen su ruta existente. `OCX_NO_DESKTOP_HANDOFF=1` suprime ese traspaso de paquetes para una invocación; no cambia la configuración directa de la shim de escritorio o PATH.
+En macOS y Linux, si todavía se ejecuta el lanzador de npm/pnpm, este delega los comandos compatibles en la CLI de Desktop cuando su registro está habilitado y supera las comprobaciones de propiedad, permisos y seguridad de archivos. Windows no usa esa delegación: las terminales nuevas seleccionan el `ocx.exe` de Desktop mediante el orden del `Path` del usuario. El error `record-unsafe` indica que el registro o su directorio no superó una comprobación de seguridad. Abre OpenCodex Desktop para reparar el comando, o usa `OCX_NO_DESKTOP_HANDOFF=1` en una invocación del paquete en macOS/Linux. La actualización o eliminación del paquete y la inspección interna conservan su ruta habitual. `OCX_NO_DESKTOP_HANDOFF=1` solo suprime la delegación de esa invocación; no cambia el lanzador de Desktop seleccionado directamente ni el PATH.
 
 <a id="prerequisites"></a>
 
@@ -19,8 +19,8 @@ En macOS y Linux, un lanzador de paquetes npm/pnpm actual que aún ejecuta coman
 
 | Requisito | Por qué |
 | --- | --- |
-| **[Nodo](https://nodejs.org) ≥ 18** | `ocx` se ejecuta en el entorno de ejecución Bun, pero el entorno de ejecución se incluye automáticamente por el npm o pnpm instalar — que hacer **no** necesita instalar Bun usted mismo. |
-| **[OpenAI Codex](https://openai.com/codex)** (CLI, aplicación o SDK) | El cliente opencodex se sienta delante de. opencodex escribe a `$CODEX_HOME/config.toml` (por defecto) `~/.codex/config.toml`). |
+| **[Node](https://nodejs.org) ≥ 18** | `ocx` se ejecuta con Bun, que se incluye automáticamente al instalar con npm o pnpm. **No** necesitas instalar Bun por separado. |
+| **[OpenAI Codex](https://openai.com/codex)** (CLI, aplicación o SDK) | Es el cliente al que opencodex sirve como proxy. opencodex escribe en `$CODEX_HOME/config.toml` (por defecto, `~/.codex/config.toml`). |
 | Una cuenta de proveedor o clave API | Anthropic, xAI, Kimi, Ollama Cloud, OpenRouter, un punto final compatible con OpenAI o su inicio de sesión ChatGPT. |
 
 <a id="install"></a>
@@ -38,14 +38,14 @@ pnpm add -g --allow-build=bun @bitkyc08/opencodex
 ```
 
 :::note[¿npm bloqueó el script postinstall de Bun?]
-Las versiones recientes de npm pueden bloquear el script de postinstalación de bun (`npm warn
-install-scripts ... blocked because they are not covered by allowScripts`), que deja el entorno de ejecución Bun incluido sin preparación. Después de intentar permitido bunded-runtime recuperación, el lanzador puede utilizar un ejecutable Bun de un directorio absoluto PATH si su versión estable tiene el mayor y un menor al menos el menor. Con el actual 1.4.2 dependencia, que significa 1.4.0 o más reciente dentro de la mayor 1. Versión-política limitada e identidad cheques requieren `bun --version` para emparejar `bun -e`'s `Bun.version`. En POSIX, el lanzador comprueba toda la ruta del candidato, incluidos los directorios y componentes a los que se ha llegado a través de Enlaces simbólicos. Cada directorio y enlace simbólico cruzado, y el ejecutable resuelto, deben ser propiedad de root o el usuario efectivo del lanzador. Los directorios y el ejecutable resuelto no deben ser grupo o mundo-escribible; bits de permiso symlink no se utilizan. Ancestros escribibles compartidos como el `/tmp` se rechazan incluso con el bit pegajoso, por lo que solo se protege el ejecutable y su progenitor inmediato es insuficiente. Un aviso stderr de una línea nombra la versión Bun seleccionada. Bun todavía está incluido; instalarlo usted mismo es opcional.
+Las versiones recientes de npm pueden bloquear el script postinstall de Bun (`npm warn
+install-scripts ... blocked because they are not covered by allowScripts`) y dejar sin preparar el entorno incluido. Tras intentar la recuperación permitida del entorno incluido, el lanzador puede usar un ejecutable Bun situado en un directorio absoluto de PATH si es una versión estable con la misma versión mayor y una versión menor igual o superior a la de la dependencia. Con la dependencia actual 1.4.2, esto admite 1.4.0 o posterior dentro de la versión mayor 1. Las comprobaciones de versión e identidad exigen que `bun --version` coincida con `Bun.version` informado por `bun -e`. En POSIX se comprueba toda la ruta, incluidos los directorios y componentes alcanzados mediante enlaces simbólicos. Cada directorio y enlace recorrido, y el ejecutable resuelto, deben pertenecer a root o al usuario efectivo del lanzador. Los directorios y el ejecutable resuelto no pueden permitir escritura al grupo ni a otros usuarios; no se usan los bits de permisos de los enlaces simbólicos. Se rechazan ancestros compartidos con escritura como `/tmp`, incluso con sticky bit: proteger solo el ejecutable y su directorio inmediato no basta. Un aviso de una línea en stderr identifica la versión de Bun seleccionada. Bun sigue incluido en el paquete; instalarlo por separado es opcional.
 
-Si no funciona el entorno de ejecución, el error aún incluye "el `bun` dependencia no se instala” cuando Falta la dependencia. En macOS, también nombra un ejecutable de escritorio CLI que se encuentra en
+Si no hay un entorno utilizable y falta la dependencia `bun`, el error lo indica. En macOS también muestra la CLI de Desktop si encuentra un ejecutable en
 `/Applications/OpenCodex.app/Contents/MacOS/ocx` o
-`~/Applications/OpenCodex.app/Contents/MacOS/ocx`. Puede invocar ese camino explícitamente; el lanzador de paquetes no delega automáticamente ni instala una shim PATH.
+`~/Applications/OpenCodex.app/Contents/MacOS/ocx`. Puedes invocar esa ruta explícitamente: esta recuperación no delega automáticamente en ella ni instala un lanzador en PATH.
 
-Para reparar el entorno de ejecución incluido, vuelva a instalar permitiendo el script de bun. Incluye siempre el paquete name: La sugerencia abreviada de npm lo omite y reinstala el directorio actual:
+Para reparar el entorno incluido, reinstala el paquete permitiendo el script de Bun. Incluye siempre el nombre del paquete: la sugerencia abreviada de npm lo omite y reinstala el directorio actual.
 
 ```bash
 npm install -g --allow-scripts=bun @bitkyc08/opencodex
@@ -62,31 +62,30 @@ ocx --version
 opencodex --version
 ```
 
-Antes de iniciar, detener, reiniciar, dar servicio o una actualización manejada por el Bun CLI, un breve stderr Notice puede identificar un desajuste de la versión CLI/proxy. Es asesor y preserva el mando código de salida; JSON y la ayuda de salida no lo activan. Actualizaciones npm/pnpm manejadas por el lanzador de nodos antes de que comience el Bun CLI no emita este aviso. `ocx status`, `ocx doctor`, y `ocx resolve`
-ya informe la versión sesgada a través de sus diagnósticos.
+Antes de iniciar, detener o reiniciar el proxy, gestionar el servicio o actualizar desde la CLI de Bun, puede aparecer un aviso breve en stderr si las versiones de la CLI y el proxy no coinciden. Es informativo y conserva el código de salida; las salidas JSON y de ayuda no lo activan. Las actualizaciones de npm/pnpm que gestiona el lanzador de Node antes de iniciar la CLI de Bun no muestran este aviso. `ocx status`, `ocx doctor` y `ocx resolve` ya informan de estas diferencias en sus diagnósticos.
 
-Si instala el servicio en segundo plano desde un shell usando fnm, nvm, mise, asdf o volta, OpenCodex deja los directorios multishell locales de shell fuera del servicio PATH. En Linux lo selecciona un duradero `ocx` lanzador cuando esté disponible; de lo contrario, utiliza el Bun del paquete En entorno de ejecución. Correr `ocx service repair` después de que un servicio más antiguo fue instalado de una directorio multishell. En macOS, se inician las recargas de reparación cuando cambia la lista guardada.
+Si instalas el servicio desde un shell con fnm, nvm, mise, asdf o volta, OpenCodex excluye del PATH del servicio los directorios multishell ligados a esa sesión. En Linux selecciona un lanzador `ocx` duradero si está disponible; de lo contrario usa el Bun del paquete. Ejecuta `ocx service repair` si un servicio anterior se instaló desde un directorio multishell. En macOS, la reparación recarga launchd si cambia la lista guardada.
 
 <a id="standalone-binary-no-npm"></a>
 
 ## Binario independiente (sin npm)
 
-Las descargas de lanzamiento también incluyen un `ocx` binario para macOS, Linux y Windows compatibles objetivos. Incluye el entorno de ejecución y el panel de control Bun, por lo que npm, Nodo y una instalación Bun separada No se requieren. Descargue el archivo para su plataforma, extraigalo y ejecute:
+Las descargas de versiones también incluyen un binario `ocx` para las plataformas compatibles de macOS, Linux y Windows. Incluye Bun y el dashboard, por lo que no requiere npm, Node ni una instalación separada de Bun. Descarga el archivo de tu plataforma, extráelo y ejecuta:
 
 ```bash
 ./ocx --version
 ./ocx start
 ```
 
-El extraído `gui/dist` y `keyring` Los directorios deben estar al lado del binario. El primero sirve el panel de instrumentos; el segundo lleva la vinculación de la tienda de credenciales del sistema operativo nativo de la plataforma.
+Los directorios extraídos `gui/dist` y `keyring` deben permanecer junto al binario. El primero sirve el dashboard y el segundo contiene el enlace nativo de la plataforma con el almacén de credenciales del sistema operativo.
 
-En Windows, [Firma de código en Windows](/es/reference/code-signing/) explica cómo `ocx.exe` Es firmado y Cómo verificarlo.
+En Windows, [Firma de código en Windows](/es/reference/code-signing/) explica cómo se firma `ocx.exe` y cómo verificarlo.
 
 <a id="release-channels"></a>
 
 ### Canales de liberación
 
-El estable `latest` canal ya incluye GPT-5.6 Sol/Terra/Luna soporte de catálogo para ChatGPT, OpenAI API-key, OpenRouter y rutas experimentales de Cursor. El acceso ascendente sigue estando cerrado por cuenta; las entradas del catálogo no conceden acceso por sí mismas. Utilice el canal de vista previa solo para probar compilaciones inéditas opencodex:
+El canal estable `latest` ya incluye el catálogo de GPT-5.6 Sol/Terra/Luna para ChatGPT, la API de OpenAI con clave, OpenRouter y las rutas experimentales de Cursor. La disponibilidad sigue dependiendo de la cuenta del proveedor: una entrada de catálogo no concede acceso. Usa el canal preview solo para probar versiones preliminares de opencodex:
 
 ```bash
 npm install -g @bitkyc08/opencodex@preview
@@ -107,16 +106,13 @@ bun run dev:proxy   # starts the proxy API in dev mode (src/cli/index.ts start)
 bun run dev:gui     # starts the dashboard dev server (another terminal)
 ```
 
-`bun run dev` Sigue siendo un alias para `bun run dev:proxy`. El proxy API expone `/healthz`,
-`/v1/responses`, y `/api/*`; `GET /` sirve el panel de instrumentos empaquetado solo después `bun run build:gui`
-ha producido `gui/dist`. Mientras hackea en el panel, ejecute el frontend por separado con
-`bun run dev:gui`.
+`bun run dev` es un alias de `bun run dev:proxy`. La API del proxy expone `/healthz`, `/v1/responses` y `/api/*`. `GET /` sirve el dashboard empaquetado cuando `bun run build:gui` ha generado `gui/dist`. Para desarrollar la interfaz, inicia el frontend por separado con `bun run dev:gui`.
 
 <a id="what-gets-created"></a>
 
 ## Lo que se crea
 
-opencodex vive bajo `$OPENCODEX_HOME` (por defecto) `~/.opencodex`) Archivos de integración Codex en vivo bajo `$CODEX_HOME` (por defecto) `~/.codex`).
+opencodex guarda sus datos en `$OPENCODEX_HOME` (por defecto, `~/.opencodex`). Los archivos de integración de Codex están en `$CODEX_HOME` (por defecto, `~/.codex`).
 
 | Ruta | Finalidad |
 | --- | --- |
@@ -130,7 +126,7 @@ opencodex vive bajo `$OPENCODEX_HOME` (por defecto) `~/.opencodex`) Archivos de 
 | `$CODEX_HOME/opencodex-catalog.json` | Catálogo de modelos nativos y enrutados sincronizados utilizado por Codex. |
 
 :::note
-opencodex nunca borra tu Codex config. Cada inyección es reversible — `ocx stop`, `ocx restore`, o `ocx eject` despojar exactamente las líneas opencodex añadido y restaurar nativo Codex.
+opencodex no borra tu configuración de Codex. Cada inyección es reversible: `ocx stop`, `ocx restore` u `ocx eject` eliminan las líneas añadidas por opencodex y restauran el uso nativo de Codex.
 :::
 
 <a id="next"></a>

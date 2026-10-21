@@ -465,7 +465,7 @@ Inspeccione las asignaciones de servicio existentes antes de cambiarlas. `tailsc
 tailscale serve status
 tailscale serve reset
 ocx config set hub.managementIngress '{"enabled":false}'
-ocx service repair
+ocx service restart
 ```
 
 Para una reversión de contenedor, conserve tanto los volúmenes de estado con nombre como sus asignaciones. Una imagen anterior todavía puede usar `CODEX_HOME=/home/bun/.codex` cuando ese directorio permanece montado; no vuelva a un archivo de composición anterior que elimine el montaje Codex. No fusione las casas ni vuelva a ejecutar el token bootstrap. Para una reversión del servicio, detenga el servicio de la sucursal y repare la versión anterior contra el mismo `OPENCODEX_HOME`. Deshabilitar la entrada de administración o Servir no requiere cambiar el oyente de datos.

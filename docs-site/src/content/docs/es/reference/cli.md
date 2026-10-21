@@ -3,7 +3,7 @@ title: "CLI Referencia"
 description: "Despacho de comandos, códigos de salida y enlaces a cada familia de comandos ocx."
 ---
 
-El opencodex CLI es `ocx`. Se distribuye en el primer nombre de comando, con alias documentados tales como `setup`/`init`, `restore`/`eject`, y `models`/`model` alcanzar la misma operación. Desconocido Los comandos y las formas de comando no válidas son errores.
+La CLI de opencodex es `ocx`. El primer nombre determina qué comando se ejecuta. Los alias documentados `setup`/`init`, `restore`/`eject` y `models`/`model` realizan la misma operación. Los comandos desconocidos y las sintaxis no válidas producen errores.
 
 Ejecute `ocx`, `ocx help`, `ocx --help` o `ocx -h` para obtener el mismo índice de comandos compacto, agrupados en Inicio aquí, Tareas comunes, Explorar y Más ayuda. Utilice `ocx help --all` o `ocx --help --all` para la referencia completa de nivel superior, incluidas las variantes de comandos detalladas omitidas del índice compacto. Ejecutar `ocx help <command>`, `ocx <command> --help` o `ocx <command> -h` para un comando registrado en la tabla de ayuda; `ocx <command> help` también sigue siendo apoyado. Los comandos de ayuda y versión son de solo lectura: no inician, detienen, instalan, desinstalan o reescriben el estado Codex o opencodex.
 
@@ -11,7 +11,7 @@ Ejecute `ocx`, `ocx help`, `ocx --help` o `ocx -h` para obtener el mismo índice
 
 ## Ayuda anidada
 
-La ayuda familiar como `ocx help models` preserva el uso y los detalles de la familia, luego enumera los caminos infantiles declarados conocidos con resúmenes. Estas listas describen a los niños declarados; no garantizan una cobertura exhaustiva en entorno de ejecución. La ayuda de Alias conserva el propio uso y detalles del alias y apunta a su familia canónica: `ocx help model` conduce a `ocx help models`. Los modelos también ayudan a vincular el tema curado `models context` por separado de las capacidades declaradas.
+La ayuda de una familia, como `ocx help models`, conserva su sintaxis y detalles y enumera los subcomandos declarados con sus resúmenes. Estas listas describen los subcomandos registrados; no garantizan que incluyan todas las variantes disponibles en ejecución. La ayuda de Alias conserva el propio uso y detalles del alias y apunta a su familia canónica: `ocx help model` conduce a `ocx help models`. Los modelos también ayudan a vincular el tema curado `models context` por separado de las capacidades declaradas.
 
 Ayuda acepta una ruta con más de una palabra de comando:
 
@@ -57,7 +57,7 @@ El Bun CLI rechaza una raíz desconocida antes de la auto-restauración de la sh
 
 ### `ocx message`
 
-`ocx message sessions [--json]` descubre Codex sesiones locales cargadas. `ocx message send (--thread <uuid> | --name <exact-name>) --stdin [--json]` envía un mensaje de igual correlacionado, sin iniciar un demonio o reanudar un hilo. Consulte [Mensajería local Codex](/es/reference/cli/messaging/) para el contexto del remitente, los tipos, el entorno de ejecución probado y los recibos `not_sent` / `queued` / `unknown`. No incluye transporte remoto.
+`ocx message sessions [--json]` descubre Codex sesiones locales cargadas. `ocx message send (--thread <uuid> | --name <exact-name>) --stdin [--json]` envía un mensaje de igual correlacionado, sin iniciar un demonio o reanudar un hilo. Sin `--host`, estas operaciones son locales. Consulta [Mensajería de Codex](/es/reference/cli/messaging/) para el contexto del remitente, los tipos, el entorno de ejecución probado y los recibos `not_sent` / `queued` / `unknown`. El [transporte remoto mediante SSH](/es/reference/cli/messaging/#explicit-remote-peers) requiere un host registrado y la opción `--host`; no inicia automáticamente el receptor ni reenvía mensajes de forma automática.
 
 ### `ocx provider`
 
@@ -69,7 +69,7 @@ El Bun CLI rechaza una raíz desconocida antes de la auto-restauración de la sh
 
 ### `ocx remote-workspace`
 
-`ocx remote-workspace pair <hub-url> --pairing-code-stdin --root <absolute-path>` inscribe el equipo local como un Ejecutor solo OCX. Repita `--root` para aprobar más carpetas y utilizar `--name` para anular el nombre de host. Repita `--toolchain-root <absolute-directory>` para exponer un directorio de Nodo, Rust, Go u otra cadena de herramientas instalado por el usuario de solo lectura dentro del entorno de pruebas del comando. En macOS y Windows compilaciones de comida privada para perros, `bun run build:remote-workspace-helper` crea el ayudante de óxido que el comando de la pareja descubre automáticamente; `--executor-helper <absolute-file>` selecciona otra compilación revisada explícitamente y fija su resumen en el estado de Ejecutor local. `ocx remote-workspace agent` mantiene la conexión cifrada saliente; `ocx remote-workspace status [--json]` informa sobre el Hub, el dispositivo, las raíces y las capacidades anunciadas sin imprimir su portador o clave privada. Véase [Espacio de trabajo remoto](/es/guides/remote-workspace/).
+`ocx remote-workspace pair <hub-url> --pairing-code-stdin --root <absolute-path>` inscribe el equipo local como un Ejecutor solo OCX. Repita `--root` para aprobar más carpetas y utilizar `--name` para anular el nombre de host. Repita `--toolchain-root <absolute-directory>` para exponer un directorio de Node, Rust, Go u otra cadena de herramientas instalado por el usuario de solo lectura dentro del entorno de pruebas del comando. En las compilaciones internas de prueba para macOS y Windows, `bun run build:remote-workspace-helper` compila el helper de Rust que el comando de emparejamiento descubre automáticamente; `--executor-helper <absolute-file>` selecciona otra compilación revisada explícitamente y fija su resumen en el estado de Ejecutor local. `ocx remote-workspace agent` mantiene la conexión cifrada saliente; `ocx remote-workspace status [--json]` informa sobre el Hub, el dispositivo, las raíces y las capacidades anunciadas sin imprimir su portador o clave privada. Véase [Espacio de trabajo remoto](/es/guides/remote-workspace/).
 
 Familias de comandos adicionales:
 
@@ -116,7 +116,7 @@ En Windows, el proxy también eleva su propio proceso a la prioridad ABOVE_NORMA
 
 ## Códigos de salida y confirmación
 
-Los comandos exitosos salen 0. El uso no válido, los comandos o recursos desconocidos, las operaciones API fallidas y los servicios requeridos no disponibles salen de cero. `ocx health` sale específicamente 0 solo cuando el proxy está sano y 1 cuando no se encuentra ningún proxy sano; los argumentos inválidos salen 2, por lo que se puede usar como una sonda de servicio. Los scripts deben probar el código de salida en lugar de raspar la salida legible por humanos.
+Los comandos exitosos terminan con código 0. Los argumentos no válidos, los comandos o recursos desconocidos, las operaciones de API fallidas y la falta de servicios necesarios producen un código distinto de cero. `ocx health` sale específicamente 0 solo cuando el proxy está sano y 1 cuando no se encuentra ningún proxy sano; los argumentos inválidos salen 2, por lo que se puede usar como una sonda de servicio. Los scripts deben probar el código de salida en lugar de raspar la salida legible por humanos.
 
 Muchos comandos de gestión comparten estas asignaciones; otras CLI familias conservan sus propios contratos de salida:
 

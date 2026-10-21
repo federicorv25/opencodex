@@ -30,7 +30,7 @@ function numericResidue(english: string, spanish: string): [string[], string[]] 
       ? value.replaceAll(".", "").replace(",", ".") : value.replace(",", ".")).sort()];
 }
 
-const machineIdentifiers = /--[a-z][a-z0-9-]*|\/api\/[a-zA-Z0-9_/:.{}-]+|\b[a-z][a-z0-9-]*\/<[a-zA-Z][a-zA-Z0-9_-]*>|\b[a-z][a-z0-9-]*-\*|\b[a-z]+(?:_[a-z]+)+\b|\b[a-z]+(?:[A-Z][a-z0-9]*)+\b|\bcodex-auth export\b|__main__/g;
+const machineIdentifiers = /--[a-z][a-z0-9-]*|\/api\/[a-zA-Z0-9_/:.{}-]+|\b[a-z][a-z0-9-]*\/<[a-zA-Z][a-zA-Z0-9_-]*>|\b[a-z][a-z0-9-]*-\*|\b[a-z]+(?:_[a-z]+)+\b|\b[a-z]+(?:[A-Z][a-z0-9]*)+\b|\bcodex-auth export\b|__main__|\[[a-z][a-z0-9_.-]*\]/g;
 const machineTokens = (value: string): Set<string> => new Set((value.match(machineIdentifiers) ?? [])
   .map(token => token.replace(/\.+$/, "")));
 

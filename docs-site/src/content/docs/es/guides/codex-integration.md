@@ -70,7 +70,9 @@ Solo algunos giros toman el transporte websocket ChatGPT, el mismo carril `respo
 
 Para mantener el proveedor ChatGPT incorporado en HTTP / SSE, configure `providers.openai.upstreamWebsocket` a `false` en `~/.opencodex/config.json` y reinicie el proxy. Fusione este campo en el proveedor `openai` existente; conserve su modo de cuenta y otras configuraciones. Omite el campo para restaurar la selección predeterminada de aguas arriba WebSocket. Esta configuración no cambia el conmutador `websockets` orientado al cliente ni la cuenta ChatGPT utilizada para la solicitud. La dirección y la inyección nativas a mitad de giro necesitan corriente arriba WebSocket y no están disponibles mientras están apagadas.
 
-El ritmo del proveedor local también puede contener una solicitud antes de que se envíe. Por lo tanto, una primera salida lenta tiene varios contribuyentes posibles, y la cola ascendente es solo uno de ellos. `ocx doctor` clasifica la configuración y no mide nada de esto: compare el transporte real, el ritmo, la red y las observaciones del proveedor antes de concluir.
+**Metadatos de uso del razonamiento (pendientes de la próxima versión).** Para los clientes HTTP/SSE de la ruta canónica de ChatGPT, el relé WebSocket conserva el encabezado real de respuesta de conexión `x-reasoning-included` cuando Bun lo expone, también al reutilizar una conexión. Este encabezado indica a Codex que el uso informado por el servidor ya incluye el razonamiento anterior. Los metadatos recibidos antes del primer evento de Responses tienen prioridad; los posteriores permanecen en el flujo, pero no pueden modificar los encabezados ya enviados. El relé no inventa esta señal ni altera las cifras de uso. La ausencia de la señal del servidor y el ciclo de contabilización propio de Codex son problemas distintos: este cambio por sí solo no demuestra que se haya corregido la compactación anticipada. Las conexiones WebSocket del cliente ya completaron su actualización de protocolo antes de la respuesta del servidor de origen y no pueden recibir la señal retroactivamente como encabezado de esa actualización.
+
+El control local del ritmo de solicitudes también puede retrasar una solicitud antes de enviarla. Por eso, una primera salida lenta puede tener varias causas, entre ellas la cola del proveedor de origen. `ocx doctor` clasifica la configuración, pero no mide esos tiempos: compara el transporte real, el control de ritmo, la red y las observaciones del proveedor antes de sacar conclusiones.
 
 Lo que decide si una solicitud toma ese canal público es el destino al que se resuelve, no el nombre de la entrada del proveedor. Un proveedor que resuelve en otro lugar - `openai-apikey`, o una entrada personalizada que apunta a su propio API - llega a ese punto final directamente y no ve ChatGPT en cola. Una entrada con nombre personalizado que se resuelve en `https://chatgpt.com/backend-api/codex` con auth directo toma el mismo canal público que la fila incorporada, porque la clasificación lee el adaptador, el modo de auth y el destino en lugar del nombre de la entrada.
 
@@ -504,6 +506,15 @@ ocx service install    # persistent: auto-starts on login and respawns on crash
 ### Sobrecarga ascendente antes de cualquier salida
 
 Cuando el backend ChatGPT declina un turno nativo agrupado de Codex con `server_is_overloaded` u otro error del servidor antes de que haya producido cualquier salida, opencodex reintenta la misma cuenta con un retroceso corto y limitado y luego mueve el turno a otra cuenta elegible de Pool. Una cuenta anclada (un modelo calificado para la cuenta) se vuelve a probar pero nunca se mueve. Una vez que cualquier salida ha alcanzado Codex el giro nunca se envía de nuevo. Si se rechaza cada intento, Codex recibe el mismo error que habría recibido sin los reintentos. Las solicitudes compactas nativas se mueven a otra cuenta Pool en un error del servidor de la misma manera.
+
+<a id="runtime-agent-instances-codex-0164"></a>
+
+### Instancias de agentes en ejecución (Codex 0.164+)
+
+Codex 0.164 puede firmar cada solicitud con una aserción de agente cuando se activa `features.runtime_agent_instances`, una función desactivada de forma predeterminada. opencodex admite uno de sus dos modos:
+
+- `mode = "dual_header"` conserva la credencial habitual `Authorization: Bearer` y añade el encabezado `x-openai-agent-assertion`. opencodex procesa la solicitud como antes. Solo reenvía la aserción cuando el turno va a ChatGPT Direct con la credencial de quien realiza la solicitud. La elimina si la solicitud usa una cuenta de Pool, una credencial principal guardada, un proveedor enrutado o un sidecar, porque la aserción pertenece a la credencial enviada por Codex.
+- `mode = "assertion_only"` sustituye el token bearer por `Authorization: AgentAssertion <jwt>`. opencodex rechaza estas solicitudes con HTTP 400 y el código `agent_assertion_unsupported`. Nunca sustituye la aserción por una credencial de Pool o de proveedor, ni la reenvía o registra. Usa `dual_header` o desactiva la función cuando Codex pase por opencodex.
 
 <a id="codex-autostart-shim"></a>
 

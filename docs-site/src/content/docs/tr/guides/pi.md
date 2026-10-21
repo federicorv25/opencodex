@@ -17,6 +17,11 @@ Start the proxy, then print the config:
 
 ```bash
 ocx start
+```
+
+Bu işlemi çalışır durumda bırakın. İkinci bir terminalde yapılandırmayı yazdırın:
+
+```bash
 ocx export --client pi
 ```
 

@@ -11,6 +11,11 @@ Pi 从一个全局 JSON 文件而不是环境变量中读取 providers，所以 
 
 ```bash
 ocx start
+```
+
+保持此进程运行。在另一个终端中输出配置：
+
+```bash
 ocx export --client pi
 ```
 

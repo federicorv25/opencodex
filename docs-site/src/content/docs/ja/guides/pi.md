@@ -11,6 +11,11 @@ Pi は環境変数ではなく単一のグローバル JSON ファイルから�
 
 ```bash
 ocx start
+```
+
+このプロセスを実行したまま、別のターミナルで設定を表示します。
+
+```bash
 ocx export --client pi
 ```
 

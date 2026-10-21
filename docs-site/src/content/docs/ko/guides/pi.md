@@ -14,6 +14,11 @@ opencodex가 Pi를 직접 실행하지 않습니다. 대신 `ocx export`가 `ope
 
 ```bash
 ocx start
+```
+
+이 프로세스를 실행한 상태로 두고, 두 번째 터미널에서 설정을 출력하세요.
+
+```bash
 ocx export --client pi
 ```
 

@@ -76,7 +76,7 @@ The `video_gen` tool accepts:
 
 - **xAI only**: Video generation is only available through xAI's Grok Imagine Video API
 - **Asynchronous**: Video generation takes 30-120 seconds
-- **Cost**: Video generation is a paid xAI feature (~$0.05/sec @480p, ~$0.07/sec @720p)
+- **Cost**: video generation is a paid xAI feature. Check the [official pricing](https://docs.x.ai/developers/pricing) before using it.
 - **One video per call**: Each `video_gen` call produces one video
 - **Coexists with Image Bridge**: Both bridges can be enabled simultaneously
 - **Web search priority**: When a web search sidecar is active for a turn (non-`runTurn` adapter), the video bridge is skipped — the two cannot run concurrently. A `console.warn` is emitted so you can detect this in logs.

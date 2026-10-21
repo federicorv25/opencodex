@@ -14,6 +14,11 @@ Démarrez le proxy, puis imprimez la configuration :
 
 ```bash
 ocx start
+```
+
+Laissez ce processus en cours. Dans un second terminal, affichez la configuration :
+
+```bash
 ocx export --client pi
 ```
 
