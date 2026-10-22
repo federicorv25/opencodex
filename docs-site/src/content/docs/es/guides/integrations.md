@@ -205,7 +205,7 @@ ocx integration client status --client hermes --json
 ocx integration client preview --client hermes --operation apply --json > hermes-preview.json
 ```
 
-Revisión `state`, `foreignEdit`, estructural `changes`, `canApply` y `willChange`. Valid se negó y no-op planes de salida 0 porque la inspección tuvo éxito; nada se aplicó. El plan no contiene valores secretos ni diferencias de archivos completos. Utiliza evidencia de catálogo pasiva existente y nunca actualiza en secreto a los proveedores. Si no está disponible, resuelva la disponibilidad del catálogo por separado antes de solicitar una nueva vista previa.
+Revisa `state`, `foreignEdit`, los cambios estructurales de `changes`, `canApply` y `willChange`. Una vista previa válida que rechaza aplicar el plan, o que no propone cambios, termina con código 0: la inspección tuvo éxito y no se aplicó nada. El plan no contiene valores secretos ni el diff completo de los archivos. Usa la evidencia pasiva del catálogo ya disponible y nunca actualiza los proveedores de forma oculta. Si el catálogo no está disponible, resuelve ese problema por separado antes de solicitar otra vista previa.
 
 Solo después de revisar un plan aplicable y elegir la escritura:
 
@@ -215,7 +215,7 @@ ocx integration client enable --client hermes --plan-fingerprint "$PLAN_FINGERPR
 ocx integration client status --client hermes --json
 ```
 
-La huella digital es evidencia de concurrencia, no autorización. Commit acepta `pN:` seguido de 32 dígitos hexadecimales en minúscula; un `pN:unbound` rechazado no puede confirmar. Repita exactamente cliente/acción/perfil/opciones. Previsualizar mapas `overwrite` para habilitar con `--overwrite-conflict`; previsualizar mapas `disable` para deshabilitar. Stale commit sale 5, imprime una nueva guía de vista previa en stderr y deja stdout vacío. Nunca adopta una huella dactilar o reintentos de reemplazo. Otros fallos utilizan el uso 2, no encontrado 4, entorno de ejecución/malformado 1, con un stderr seguro en lugar de un sobre de error JSON.
+La huella sirve para comprobar la concurrencia; no concede autorización. La confirmación acepta `pN:` seguido de 32 dígitos hexadecimales en minúscula. Un plan rechazado con `pN:unbound` no se puede confirmar. Repite exactamente el cliente, la acción, el perfil y las opciones de la vista previa. La operación `overwrite` corresponde a habilitar con `--overwrite-conflict`; `disable`, a deshabilitar. Si la observación quedó obsoleta, la confirmación sale con código 5, explica en stderr cómo obtener una nueva vista previa y deja stdout vacío. Nunca adopta automáticamente una huella de reemplazo ni reintenta. Los demás errores usan los códigos 2 para uso incorrecto, 4 para recurso no encontrado y 1 para errores de ejecución o datos mal formados, con un mensaje seguro en stderr en lugar de un objeto de error JSON.
 
 <a id="inspect-restoration-drift-before-replacing-it"></a>
 

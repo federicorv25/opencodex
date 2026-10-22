@@ -3,7 +3,7 @@ title: "Plugins locales"
 description: "Cargue su propio código en el proxy al inicio para reescribir los envíos del proveedor, por ejemplo, para poner un proxy de compresión local frente a los proveedores."
 ---
 
-Un plugin local es un archivo JavaScript que `ocx start` carga antes de que comience el proxy Servir. Puede ver a cada proveedor enviar justo antes de que abandone el proceso y redirigirlo o agregar cabeceras — suficiente para colocar un sidecar local (un proxy de compresión, una grabadora) frente a los proveedores sin cambiar la propia opencodex.
+Un plugin local es un archivo JavaScript que `ocx start` carga antes de que el proxy empiece a atender solicitudes. Puede inspeccionar cada envío al proveedor justo antes de que salga del proceso, redirigirlo o añadir encabezados. Esto permite colocar un sidecar local, como un proxy de compresión o una grabadora, delante del proveedor sin modificar opencodex.
 
 Los plugins son locales para una instalación. opencodex no los descarga, actualiza ni firma.
 
@@ -32,7 +32,7 @@ Para empezar una vez sin plugins, establece `OCX_PLUGINS=0`.
 
 ## Escribir un plugin
 
-El módulo debe exportar por defecto un objeto con una propiedad opcional `name` de tipo cadena y una función `setup`:
+El módulo debe exportar por defecto un objeto con una propiedad opcional `name` de tipo cadena y una función `setup`, que recibe el contexto. Un `setup` asíncrono dispone de cinco segundos para terminar. Los plugins se ejecutan en el mismo hilo que el proxy: si `setup` bloquea de forma síncrona, no se puede interrumpir y retrasa el inicio hasta que termine. Agotar el plazo tampoco detiene sus servidores o temporizadores ya iniciados. Inicia los recursos de larga duración únicamente después del trabajo que pueda fallar:
 
 ```ts
 interface UpstreamTarget {
@@ -58,7 +58,7 @@ export default {
 };
 ```
 
-El contexto también lleva `name`, `configDir` (la casa opencodex) y `pluginDir`.
+El contexto también incluye `name`, `configDir` (el directorio de configuración de opencodex) y `pluginDir`.
 
 Los plugins no pueden importar módulos opencodex - en el binario empaquetado no están en disco. Declare las interfaces pequeñas que necesita localmente, como anteriormente.
 
@@ -66,10 +66,10 @@ Los plugins no pueden importar módulos opencodex - en el binario empaquetado no
 
 ## Cómo se comportan las reescrituras
 
-- El rewriter se ejecuta sincrónicamente en cada proveedor envía más de HTTP y en la conexión Codex WebSocket, después de opencodex ha elegido el transporte. Manténgalo rápido; haga comprobaciones de red (sondas de salud) en segundo plano y lea un resultado almacenado en caché en el rewriter.
-- Un envío redirigido a una dirección de loopback (`127.0.0.1`, `::1`, `localhost`) conecta directamente, sobre HTTP y sobre el Codex WebSocket, ignorando los proxies del proveedor y `HTTP_PROXY`: un proxy en otro lugar no puede alcanzar el loopback de esta máquina. Cualquier otro destino sigue la configuración de salida normal (incluyendo `NO_PROXY`), evaluado contra la URL reescrita, en ambos transportes.
-- La reescritura Codex WebSocket se ejecuta por cada turno, antes de que se reutilice un socket agrupado inactivo, y un socket solo se reutiliza para el mismo destino y los mismos encabezados reescritos, aparte de los dos encabezados `x-codex-turn-state` y `x-codex-turn-metadata` por turno. Aquellos que viajan dentro de cada marco de solicitud y pueden diferir entre intercambios en un zócalo; los cambios que realiza un reescritor se descartan. Un plugin que inicia o detiene la redirección tiene efecto en el siguiente turno.
-- Se ejecuta después de que opencodex haya elegido el proveedor, la cuenta y la ruta, por lo que no cambia el enrutamiento, la selección de cuentas, los reintentos ni los registros de solicitudes.
-- Un envío redirigido va al host que usted eligió. Ese host ve la solicitud exactamente como lo haría el proveedor, credenciales incluidas.
-- Si un reescritor lanza, opencodex deshace las ediciones de ese reescritor en el envío y lo deshabilita para el resto del proceso. Ediciones hechas por los reescritores que se ejecutaron antes de que se mantuvieran, por lo que el envío sale como los dejó (sin modificar cuando es el único complemento). Si `setup` se agota o se agota el tiempo, se omite el complemento, se elimina cualquier cosa registrada y se ignoran los intentos de registro posteriores; otros complementos y el proxy comienzan normalmente.
-- Un directorio de plugins que existe pero no se puede leer (por ejemplo, permisos incorrectos) se informa al inicio en lugar de tratarse como vacío.
+- El rewriter se ejecuta de forma síncrona en cada envío HTTP al proveedor y en la conexión WebSocket de Codex, después de que opencodex haya elegido el transporte. Debe ser rápido: realiza las comprobaciones de red en segundo plano y consulta un resultado en caché desde el rewriter.
+- Un envío redirigido a una dirección de loopback (`127.0.0.1`, `::1`, `localhost`) se conecta directamente tanto por HTTP como por WebSocket de Codex, sin usar los proxies del proveedor ni `HTTP_PROXY`: un proxy en otra máquina no puede acceder al loopback local. Los demás destinos siguen la configuración habitual de salida, incluido `NO_PROXY`, evaluada con la URL reescrita en ambos transportes.
+- El rewriter de WebSocket de Codex se ejecuta en cada turno, antes de reutilizar un socket inactivo del pool. Solo se reutiliza si coinciden el destino y los encabezados reescritos, excepto `x-codex-turn-state` y `x-codex-turn-metadata`. Estos dos encabezados viajan dentro de cada trama de solicitud y pueden variar entre turnos en un mismo socket; se descartan las modificaciones que el rewriter haga a esos dos encabezados. Si un plugin empieza o deja de redirigir, el cambio se aplica en el siguiente turno.
+- La reescritura ocurre después de elegir el proveedor, la cuenta y la ruta; no cambia el enrutamiento, la selección de cuentas, los reintentos ni los registros de solicitudes.
+- El envío llega al host elegido, que recibe la solicitud tal como la recibiría el proveedor, incluidas las credenciales.
+- Si un rewriter lanza una excepción, opencodex revierte únicamente sus cambios en ese envío y lo deshabilita durante el resto del proceso. Los cambios de los rewriters anteriores se conservan; si era el único, la solicitud queda sin modificar. Si `setup` lanza una excepción o agota su plazo, se omite el plugin, se eliminan sus registros de handlers y se ignoran sus intentos posteriores de registro. Los demás plugins y el proxy se inician normalmente.
+- Si el directorio de plugins existe pero no se puede leer, por ejemplo por sus permisos, se informa al iniciar en lugar de tratarlo como vacío.

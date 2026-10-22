@@ -108,12 +108,12 @@ El esfuerzo mapeado describe lo que el adaptador serializó, no una garantía so
 
 ## Comportamiento de fracaso
 
-El asesor falla al abrirse. Una consulta DISPATCHED que falla (modelo no disponible, proveedor mal configurado, tiempo de espera) le da al trabajador un aviso corto y no engañoso de "consejo no disponible" - un mensaje `<opencodex_advisor_unavailable>` para prevuelo, un resultado de herramienta de error para manual - y la tarea continúa; solo una consulta CANCELADA no inyecta nada, porque la persona que llama se ha ido. Un plan que nunca despacha (asesor deshabilitado, habilitado sin un modelo o habilitado sin el consentimiento actual para compartir contexto) no envía ningún aviso previo, porque no se inició ninguna consulta. Una llamada manual `advisor()` sin consentimiento actual devuelve un resultado de herramienta requerido por consentimiento y no envía nada. Un error del asesor nunca falla la solicitud de codificación, y una consulta nunca cambia el modelo principal de la sesión.
+Un fallo del asesor no bloquea la tarea. Si una consulta ya enviada (DISPATCHED) falla por un modelo no disponible, una configuración incorrecta del proveedor o un tiempo de espera agotado, el trabajador recibe un aviso breve de que el consejo no está disponible y continúa. En la consulta previa al trabajo se usa un mensaje `<opencodex_advisor_unavailable>`; en la consulta manual, un resultado de herramienta con error. Una consulta cancelada (CANCELLED) no inyecta nada porque quien la solicitó ya no está. Si el plan nunca llega a enviar una consulta —asesor deshabilitado, sin modelo o sin consentimiento vigente para compartir contexto— tampoco se inyecta un aviso previo. Una llamada manual a `advisor()` sin ese consentimiento devuelve un resultado que lo solicita y no envía datos. Los errores del asesor nunca hacen fallar la solicitud de programación ni cambian el modelo principal de la sesión.
 
 <a id="limitations"></a>
 
 ## Limitaciones
 
-- Los giros de paso nativos OpenAI (ChatGPT -trabajadores de la piscina) no obtienen la herramienta sintética; el soporte del asesor cubre los proveedores enrutados (traducidos). La consulta previa se aplica a los adaptadores de ejecución-giro; la herramienta no.
+- Los giros de paso nativos OpenAI (ChatGPT -trabajadores de el grupo) no obtienen la herramienta sintética; el soporte del asesor cubre los proveedores enrutados (traducidos). La consulta previa se aplica a los adaptadores de ejecución-giro; la herramienta no.
 - No hay detección semántica atascada, revisión de finalización, escalada de niveles, múltiples asesores o votación. La consulta adaptativa requiere la validación/edición/evidencia de reintento estructurada descrita anteriormente.
 - El libro mayor de desarrollo previo al vuelo es local de proceso; después de un reinicio proxy, una tarea en progreso puede recibir un intento más de prevuelo.

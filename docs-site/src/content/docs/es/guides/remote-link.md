@@ -189,7 +189,7 @@ La comprobación cubre la carpeta de intención y el registro. No protege contra
 
 En el Home, ejecute `ocx link probe child-a --json` para inspeccionar la huella digital SSH ofrecida, el tipo de clave y la versión OpenCodex. Verifique la huella digital a través de una fuente confiable. A continuación, ejecute `ocx link add child-a --expect-fingerprint SHA256:… --json`. El comando sondea de nuevo y rechaza un desajuste antes de almacenar la confianza o emitir una clave. Sin el indicador de huella dactilar, requiere un terminal interactivo y un `yes` explícito después de mostrar la huella dactilar. Nunca imprime la clave de enlace.
 
-Home -las conexiones iniciadas ahora reinician el Child después de guardar su conexión, incluidas las instalaciones Child más antiguas y capaces. El Child ya debe servir independiente OpenCodex en su puerto configurado, exponer el soporte de reinicio encuadernado y tener curl instalado. Actualice o desconecte un Child que no cumpla con este preflight. Las instalaciones de escritorio y de sistema OpenCodex tienen prioridad sobre las shims PATH genéricas; se omiten los candidatos rotos. Windows Los niños siguen sin recibir apoyo.
+Home -las conexiones iniciadas ahora reinician el Child después de guardar su conexión, incluidas las instalaciones Child más antiguas y capaces. El Child ya debe servir independiente OpenCodex en su puerto configurado, exponer el soporte de reinicio vinculado y tener curl instalado. Actualice o desconecte un Child que no cumpla con este preflight. Las instalaciones de escritorio y de sistema OpenCodex tienen prioridad sobre las shims PATH genéricas; se omiten los candidatos rotos. Windows Los niños siguen sin recibir apoyo.
 
 <a id="windows-computers"></a>
 

@@ -110,7 +110,7 @@ SOCKS5 (escuchadores de puertos mixtos incluidos) pertenece al `ALL_PROXY`, no a
 
 HTTPS solicitudes a través de SOCKS5 tienen una fecha límite separada de 30 segundos TLS apretón de manos. Un apretón de manos detenido falla sin deshabilitar la verificación del certificado; la cancelación de la llamada puede detenerlo antes.
 
-Si una compilación de desarrollo anterior cambió los metadatos del historial de currículum antes de que existiera el soporte de copia de seguridad, ejecute `ocx recover-history --legacy-openai --yes` para forzar la recuperación del proveedor nativo. Forzar-reetiqueta cada fila de mensajes de usuario `opencodex`, incluido el historial legítimo de proveedores dedicados; revise la advertencia de alcance completo en la referencia del ciclo de vida antes de ejecutarla.
+Si una compilación de desarrollo anterior cambió los metadatos del historial de reanudación antes de que existiera el soporte de copia de seguridad, ejecute `ocx recover-history --legacy-openai --yes` para forzar la recuperación del proveedor nativo. Forzar-reetiqueta cada fila de mensajes de usuario `opencodex`, incluido el historial legítimo de proveedores dedicados; revise la advertencia de alcance completo en la referencia del ciclo de vida antes de ejecutarla.
 
 <a id="native-chat-timeouts-and-completion"></a>
 
@@ -686,13 +686,13 @@ Un centro que sirve a sus propios clientes locales también establece [`unauthen
 
 ## Controles de respuesta nativos experimentales
 
-`codexNativeSteering` y `codexNativeInjection` habilitan rutas de control separadas, por defecto, nativas WebSocket. Véase la guía canónica para [Rutas y configuraciones de dirección compatibles](/es/guides/codex-integration/#steering-continuation-settings), [resultado tipeado y continuaciones de aprobación](/es/guides/codex-integration/#rich-tool-results-and-explicit-approvals-after-response-completion) y [los plazos de confirmación y el contexto conservado](/es/guides/codex-integration/#steering-confirmation-deadlines-and-retained-context).
+`codexNativeSteering` y `codexNativeInjection` habilitan rutas de control nativo por WebSocket independientes y **desactivadas de forma predeterminada**. Consulta la guía sobre [rutas y ajustes de control compatibles](/es/guides/codex-integration/#steering-continuation-settings), [resultados tipados y aprobaciones explícitas](/es/guides/codex-integration/#rich-tool-results-and-explicit-approvals-after-response-completion) y [plazos de confirmación y contexto conservado](/es/guides/codex-integration/#steering-confirmation-deadlines-and-retained-context).
 
 <a id="forced-claude-code-subagent-model"></a>
 
 ### Modelo de subagente forzado Claude Code
 
-La página Subagentes ofrece **Fuerza a todos los subagentes en un modelo**, de forma predeterminada. Seleccione una identificación de estilo de lista expuesta, como `combo/tev-auto`, y luego habilite el interruptor. La lista se ofrece primero; las entradas de la lista guardadas no disponibles no pueden ser objetivos forzados.
+La página Subagentes ofrece **Forzar un modelo para todos los subagentes**, una opción **desactivada de forma predeterminada**. Selecciona un identificador disponible en la lista, como `combo/tev-auto`, y después activa la opción. Primero se ofrece la lista de modelos; las entradas guardadas que ya no estén disponibles no se pueden usar como destino forzado.
 
 `ocx agent subagents force combo/tev-auto` conjuntos `claudeCode.subagentModelForce`; `ocx agent subagents force -` lo aclara. `ocx agent status` informa de la configuración. `GET /api/subagent-models` devuelve `force`, `forceAvailable` y `forceStatus`; `PUT` acepta `{ "force": "combo/tev-auto" }` o `{ "force": null }` sin cambiar la lista. Omitir `force` lo deja sin cambios. Los objetivos inválidos o no expuestos son rechazados en la escritura; los objetivos obsoletos son reportados y omitidos en el lanzamiento.
 

@@ -47,7 +47,7 @@ Comandos raíz desconocidos y rutas de ayuda explícitas no resueltas salen de 1
 | `ocx modles` o `ocx help modles` | Sugiere `ocx help models`. |
 | `ocx help account lisst` | Sugiere `ocx help account list` dentro de la familia de cuentas. |
 | `ocx help qzxv` | Ofrece `ocx help --all` sin adivinar un comando. |
-| `ocx help models qzxv` | Informes no disponibles ayuda detallada y señala a la familia de modelos conocidos. |
+| `ocx help models qzxv` | Indica que la ayuda detallada no está disponible y remite a la familia de comandos de modelos conocida. |
 
 El Bun CLI rechaza una raíz desconocida antes de la auto-restauración de la shim u otro comando previo al vuelo. Los comandos reconocidos conservan su prevuelo existente; los comandos ocultos y el corredor interno siguen siendo objetivos de despacho válidos, pero están excluidos del descubrimiento y las sugerencias. La opción alternativa de ayuda con bandera añadida, la capacidad JSON y el manejo de errores específicos del proveedor conservan su comportamiento existente.
 

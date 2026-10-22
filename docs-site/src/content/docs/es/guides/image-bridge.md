@@ -63,13 +63,13 @@ Las imágenes generadas se escriben en `~/.opencodex/artifacts/`. Para evitar el
 
 ## Cómo funciona
 
-El puente de imagen se activa solo en **Responses** giros que incluyen la herramienta `image_generation` alojada en la matriz de herramientas `/v1/responses` mientras se selecciona un modelo **non- OpenAI**. Hace **no** interceptan Codex 's herramienta incorporada `image_gen`, que POST directamente a `/v1/images/generations` (o `/images/edits`) - que la ruta se cubre por separado en [Codex Integración](/es/guides/codex-integration/#built-in-image-generation-image_gen).
+El puente de imágenes intercepta únicamente turnos **Responses** que incluyan la herramienta alojada `image_generation` en `tools` de `/v1/responses` al usar un modelo **de otro proveedor que no sea OpenAI**. La herramienta integrada `image_gen` de Codex sigue otra ruta: envía un POST directamente a `/v1/images/generations` o `/images/edits` y usa un relay integrado independiente, descrito en [Integración con Codex](/es/guides/codex-integration/#built-in-image-generation-image_gen).
 
-1. Cuando una solicitud Responses enumera `image_generation` en `tools`, OpenCodex la detecta durante el preprocesamiento de la solicitud.
-2. La herramienta alojada se reemplaza con un **herramienta de función sintética** al que el modelo enrutado puede llamar normalmente: el modelo ve una herramienta llamable en lugar de una herramienta alojada opaca que no puede ejecutar.
-3. Cuando el modelo invoca esa herramienta, OpenCodex intercepta la llamada y envía el mensaje a la generación de imagen de xAI API.
-4. Las imágenes generadas se guardan en `~/.opencodex/artifacts/` y el **ruta de acceso de archivo local** se devuelve al modelo como resultado de la herramienta.
-5. El modelo continúa la conversación con el conocimiento de la imagen generada y su ubicación.
+1. OpenCodex detecta `image_generation` en `tools` durante el preprocesamiento de la solicitud Responses.
+2. Sustituye la herramienta alojada por una **función sintética** que el modelo enrutado puede invocar, en lugar de una herramienta alojada que no puede ejecutar.
+3. Cuando el modelo la invoca, OpenCodex intercepta la llamada y envía el prompt a la API de generación de imágenes de xAI.
+4. Guarda las imágenes en `~/.opencodex/artifacts/` y devuelve al modelo la **ruta local del archivo** como resultado de la herramienta.
+5. El modelo continúa la conversación con la información de la imagen generada y su ubicación.
 
 Desde la perspectiva del modelo, nada cambió: llamó a una herramienta y obtuvo un resultado. Desde la perspectiva del usuario, la generación de imágenes funciona con cualquier proveedor enrutado en lugar de fallar silenciosamente.
 

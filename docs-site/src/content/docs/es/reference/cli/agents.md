@@ -553,7 +553,7 @@ ocx integration client preview --client hermes --operation apply --json
 ocx integration client restore --op op-example --preview --json
 ```
 
-`op-example` es ficticio; use una identificación de la historia. Las operaciones de vista previa se aplican, sobrescriben y desactivan; la restauración utiliza `--preview` en su comando existente. Revise los cambios estructurales y `canApply` / `willChange`; rechazo válido / salidas no opcionales 0 sin aplicar. Habilitar/deshabilitar/restaurar acepta la opción `--plan-fingerprint` para un compromiso vinculado explícito. Direct escrituras de legado permanecen disponibles. Para previsualizar o escribir encuadernado se requiere `--client aside --profile N`. La confirmación de deriva y la sobreescritura nunca son automáticas; las salidas de enlace obsoletas 5 con stdout vacío y una instrucción de revisualización en stderr. Siga el [recetas completas de vista previa/compromiso y deriva](/es/guides/integrations/#preview-and-bind-a-terminal-write).
+`op-example` es ficticio; use una identificación de la historia. Las operaciones de vista previa se aplican, sobrescriben y desactivan; la restauración utiliza `--preview` en su comando existente. Revise los cambios estructurales y `canApply` / `willChange`; rechazo válido / salidas no opcionales 0 sin aplicar. Habilitar/deshabilitar/restaurar acepta la opción `--plan-fingerprint` para un compromiso vinculado explícito. Direct escrituras de legado permanecen disponibles. Para previsualizar o escribir vinculado se requiere `--client aside --profile N`. La confirmación de deriva y la sobreescritura nunca son automáticas; las salidas de enlace obsoletas 5 con stdout vacío y una instrucción de revisualización en stderr. Siga el [recetas completas de vista previa/compromiso y deriva](/es/guides/integrations/#preview-and-bind-a-terminal-write).
 
 Droid aplica/sobrescribe los soportes repetidos `--reasoning-default MODEL=EFFORT` para el reemplazo completo del mapa, o el exclusivo `--clear-reasoning-defaults` para `{}`. La omisión preserva el mapa. Repita el mapa exacto en vista previa y confirmación; ver [Droid valores predeterminados](/es/guides/integrations/#factory-droid).
 
@@ -796,7 +796,7 @@ Cuando una envolvente de error ascendente contiene varios campos de mensaje, Ope
 
 ### Modelo de subagente forzado Claude Code
 
-La página Subagentes ofrece **Fuerza a todos los subagentes en un modelo**, de forma predeterminada. Seleccione una identificación de estilo de lista expuesta, como `combo/tev-auto`, y luego habilite el interruptor. La lista se ofrece primero; las entradas de la lista guardadas no disponibles no pueden ser objetivos forzados.
+La página Subagentes ofrece **Forzar un modelo para todos los subagentes**, una opción **desactivada de forma predeterminada**. Selecciona un identificador disponible en la lista, como `combo/tev-auto`, y después activa la opción. Primero se ofrece la lista de modelos; las entradas guardadas que ya no estén disponibles no se pueden usar como destino forzado.
 
 `ocx agent subagents force combo/tev-auto` conjuntos `claudeCode.subagentModelForce`; `ocx agent subagents force -` lo aclara. `ocx agent status` informa de la configuración. `GET /api/subagent-models` devuelve `force`, `forceAvailable` y `forceStatus`; `PUT` acepta `{ "force": "combo/tev-auto" }` o `{ "force": null }` sin cambiar la lista. Omitir `force` lo deja sin cambios. Los objetivos inválidos o no expuestos son rechazados en la escritura; los objetivos obsoletos son reportados y omitidos en el lanzamiento.
 

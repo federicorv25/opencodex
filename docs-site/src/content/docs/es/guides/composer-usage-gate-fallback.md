@@ -1,11 +1,11 @@
 ---
 title: "Alternativa ante límites de uso de Composer"
-description: "Cola texto a un subproceso Codex existente bajo demanda, sin cambiar el enrutamiento o la autenticación de escritorio OpenCodex, al tiempo que se conservan las cuotas del lado del servidor."
+description: "Envía texto bajo demanda a la cola de un hilo existente de Codex sin cambiar la autenticación ni el enrutamiento de OpenCodex Desktop; las cuotas del servidor siguen aplicándose."
 ---
 
-Una puerta de uso de escritorio **Compositor** puede evitar nuevas entradas incluso cuando la ruta OpenCodex configurada de un subproceso tiene capacidad disponible. En una instalación compatible, `codex queue` envía a través de la cola nativa de aplicaciones-servidor de Codex sin usar ese cuadro de entrada. No parchea la aplicación, intercepta TLS, instala un certificado o cambia la autenticación.
+Un bloqueo por uso del **cuadro de mensajes (Composer)** de Desktop puede impedir nuevas entradas aunque la ruta de OpenCodex configurada para el hilo todavía tenga capacidad. En una instalación compatible, `codex queue` usa la cola nativa del app-server de Codex sin pasar por ese cuadro. No parchea la aplicación, intercepta TLS, instala certificados ni cambia la autenticación.
 
-Esto es **no es una solución para cada estado de límite de uso**. No restablece la cuota agotada ni desbloquea el selector de modelos. Un hilo que ya usa `gpt-reserve` mantiene ese modelo; el texto en cola no lo cambia a otro proveedor. La autorización del lado del servidor, las cuotas de proveedores, las aprobaciones y la configuración de ejecución del subproceso aún se aplican.
+Esto **no es una solución para cada estado de límite de uso**. No restablece la cuota agotada ni desbloquea el selector de modelos. Un hilo que ya usa `gpt-reserve` mantiene ese modelo; el texto en cola no lo cambia a otro proveedor. La autorización del lado del servidor, las cuotas de proveedores, las aprobaciones y la configuración de ejecución del subproceso aún se aplican.
 
 <a id="identify-the-blocked-layer"></a>
 
@@ -47,7 +47,7 @@ Hay **sin interruptor de activación/desactivación persistente**: la ejecución
 | Invocado mientras solo el compositor está bloqueado | Intenta el mismo envío de cola nativa. La ruta configurada debe estar autorizada y disponible. |
 | El proveedor real no tiene capacidad ni autorización | No pasa por alto esa restricción ni cambia de proveedor/cuenta; la ejecución en sentido ascendente aún puede fallar después de la aceptación de la cola. |
 | `-DryRun` / `--dry-run` | Selecciona un destino y comprueba la ayuda del CLI, pero nunca envía texto ni comprueba la cuota de la cuenta, el estado del demonio o la disponibilidad del proveedor. |
-| La puerta de uso se levanta más tarde | Utilice el compositor normal de nuevo. No hay una configuración específica de ayudante para revertir. |
+| El bloqueo por uso se levanta más tarde | Vuelve a usar el cuadro de mensajes normal. No hay ajustes específicos de los scripts auxiliares que debas revertir. |
 
 Para dejar de usar la reserva, deja de invocarla. Ejecute **no** `ocx restore` o deshabilite la integración Codex solo para desactivar este ayudante; eso también cambia el enrutamiento OpenCodex normal. Si ha programado el comando de forma independiente, desactive esa programación externa. Los elementos de cola ya aceptados pertenecen a Codex y aún pueden ejecutarse: eliminar el script, salir de su proceso o recuperar la cuota no los cancela. Inspeccione/elimine elementos no deseados a través de los controles de cola normales en la misma conversación. No envíe el mismo mensaje tanto en el ayudante como en el compositor.
 
@@ -107,11 +107,11 @@ Mantenga todo el mensaje en un solo argumento. Bash acepta `--message '- start w
 
 <a id="queued-is-not-the-same-as-executed"></a>
 
-## Queued no es lo mismo que ejecutado
+## En cola no significa ejecutado
 
-`Queued message ... for thread ...` confirma **aceptación de cola**, no ejecución modelo o Terminación. Un hilo ocupado puede esperar su turno o aprobación actual. En la inspección de origen En la implementación, un hilo guardado descargado puede retener el mensaje hasta que otro cliente lo reanude.
+`Queued message ... for thread ...` confirma la **aceptación en la cola**, no la ejecución del modelo ni su finalización. Un hilo ocupado puede estar esperando a que termine su turno actual o se resuelva una aprobación. Según la implementación, un hilo guardado que no está cargado puede conservar el mensaje hasta que otro cliente lo reanude.
 
-Compruebe la cola y la actividad en el **La misma conversación**. Si no se carga, ábralo en la aplicación o use `codex resume <thread-id>` sin volver a agregar el mensaje. Revisar las aprobaciones pendientes y el estado de la cola. Cada invocación de cola puede crear otro elemento; después de un fallo ambiguo, inspeccione antes de volver a intentar. Los ayudantes conservan el estado de salida CLI y nunca vuelven a enviar automáticamente.
+Comprueba la cola y la actividad en la **misma conversación**. Si el hilo no está cargado, ábrelo en la aplicación o usa `codex resume <thread-id>` sin volver a añadir el mensaje. Revisa las aprobaciones pendientes y el estado de la cola. Cada invocación puede crear otro elemento; si el fallo es ambiguo, inspecciona el estado antes de reintentar. Los scripts auxiliares conservan el código de salida de la CLI y nunca reenvían automáticamente.
 
 El CLI nativo tiene `--remote` opciones explícitas (véase `codex queue --help`), a diferencia de asumir que la conexión de control remoto del escritorio se reutiliza. Mantener la configuración de autenticación sin cambios no repara errores de autenticación/red no relacionados ni garantiza la continuidad del control remoto.
 

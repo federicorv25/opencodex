@@ -71,7 +71,7 @@ Al iniciar, opencodex:
 - Descubre los modelos disponibles cuando el proveedor lo permite y **sincroniza las entradas nativas y enrutadas en el catálogo de modelos de Codex**.
 - Escucha en `http://localhost:<port>/v1`.
 
-Si el puerto solicitado está ocupado, `ocx start` se detiene e identifica qué lo ocupa. Si es otro opencodex, ejecuta primero `ocx stop`; también puedes elegir un puerto libre con `ocx start --port <port>`. No cambia de puerto por su cuenta, para evitar que queden dos proxies en ejecución y Codex apunte al más reciente.
+Una instancia activa de opencodex con el mismo `OPENCODEX_HOME` impide iniciar otra, aunque el nuevo puerto esté libre. Detén primero esa instancia con `ocx stop`, o usa otro `OPENCODEX_HOME` para una instancia independiente. Si un proceso ajeno ocupa el puerto solicitado, `ocx start` lo identifica; elige un puerto libre con `ocx start --port <port>`. Nunca cambia de puerto automáticamente, para evitar que queden dos proxies activos y Codex apunte al más reciente.
 
 Compruébalo:
 

@@ -120,21 +120,21 @@ Dos detalles que deciden si se acepta una línea. El valor se analiza primero co
 
 <a id="the-data-plane-token-provisions-itself"></a>
 
-### El plano de datos token se aprovisiona
+### Aprovisionamiento automático del token de datos
 
-No hay paso `export OPENCODEX_API_AUTH_TOKEN=…` antes de `ocx service install`. En un enlace que no es de bucle, el instalador resuelve el token de admisión de datos del concentrador por precedencia y escribe el resultado en el archivo `service-api-token` solo de propietario, modo `0600`:
+No hace falta ejecutar `export OPENCODEX_API_AUTH_TOKEN=…` antes de `ocx service install`. Cuando el servicio escucha fuera de loopback, el instalador resuelve el token de admisión de datos con esta precedencia y lo guarda en `service-api-token`, accesible solo por su propietario y con modo `0600`:
 
-1. **`OPENCODEX_API_AUTH_TOKEN`**, cuando la instalación de la cáscara exporta uno. Un operador que quiere poseer ese valor sigue poseyéndolo.
-2. **El archivo existente `service-api-token`.** Reutilizarlo es lo que hace que `ocx service install`, `ocx service repair` y un reinicio idempotente; la regeneración invalidaría silenciosamente cada clave por cliente ya intercambiada contra el valor antiguo. Un archivo reutilizado se vuelve a verificar, no es de confianza - vea el párrafo del token de administración a continuación.
-3. **32 bytes aleatorios frescos, hexadecimal.** Esta es la rama que elimina el paso manual.
+1. **`OPENCODEX_API_AUTH_TOKEN`**, si está exportado en la terminal que ejecuta la instalación. Así se conserva el valor elegido por el operador.
+2. **El archivo existente `service-api-token`.** Reutilizarlo hace que `ocx service install`, `ocx service repair` y los reinicios sean idempotentes: generar otro valor invalidaría las claves por cliente ya intercambiadas con el anterior. El archivo se vuelve a comprobar antes de reutilizarlo; no se confía en él sin validarlo. Véase la comprobación de colisiones con el token de administración más abajo.
+3. **Un token nuevo de 32 bytes aleatorios codificados en hexadecimal.** Esta opción elimina la necesidad de crear el token manualmente.
 
-El comando imprime el **ruta**, nunca el valor. La lista launchd y la unidad de usuario systemd leen ese archivo protegido cuando se inicia el proceso; ninguno incrusta el token literal. No pegue el valor en `ocx config show`, salida de unidad / lista, capturas de pantalla o paquetes de soporte. Un primer plano `ocx start` en el concentrador lee el mismo archivo, por lo que vincula el nombre de host no loopback sin un token exportado tampoco.
+El comando imprime la **ruta**, nunca el valor. Tanto el plist de launchd como la unidad de usuario de systemd leen ese archivo protegido al iniciar el proceso; ninguno contiene el token literal. No pegues su valor en `ocx config show`, en la salida de la unidad o del plist, en capturas ni en paquetes de soporte. `ocx start` en primer plano también lee ese archivo: puede escuchar fuera de loopback sin que exportes el token.
 
-Un **token de administración de administración** es rechazado dondequiera que aparezca, y el rechazo nombra el remedio para ese lugar. En `OPENCODEX_API_AUTH_TOKEN`: `unset OPENCODEX_API_AUTH_TOKEN` y relanzado. En el archivo reutilizado `service-api-token` - la forma del incidente original, y aún accesible en una máquina donde el token de administración fue una vez pegado allí a mano - elimine el archivo y ejecute `ocx service repair`, porque desactivar una variable no dice nada acerca de un archivo. Ambas comprobaciones se ejecutan antes del cortocircuito de bucle de retorno, por lo que también se comprueba una instalación de bucle de retorno: el envoltorio de lanzamiento lee ese archivo en `OPENCODEX_API_AUTH_TOKEN` sea cual sea el nombre de host, que es lo que cerca la administración API cerrada en el arranque.
+Se rechaza cualquier token de datos que **coincida con el de administración**, tanto en la variable como en el archivo. El mensaje indica cómo corregir cada origen. Si la colisión está en `OPENCODEX_API_AUTH_TOKEN`, ejecuta `unset OPENCODEX_API_AUTH_TOKEN` y vuelve a iniciar. Si está en el archivo reutilizado `service-api-token`, elimina ese archivo y después ejecuta `ocx service repair`; quitar una variable no corrige el archivo. Ambas comprobaciones se ejecutan antes de omitir los requisitos de admisión por tratarse de loopback, de modo que también protegen una instalación local. El wrapper de arranque exporta el archivo como `OPENCODEX_API_AUTH_TOKEN` independientemente del hostname; una colisión impediría iniciar la API de administración.
 
-Los dos planos son credenciales diferentes: el token de datos admite `/v1/*` personas que llaman y no administra nada. Dado que el servicio proporciona su propio token, no hay razón para exportar ninguno de los dos. `ocx service repair` nunca vuelve a exigir la variable una vez que existe el archivo.
+Los dos planos usan credenciales diferentes. El token de datos admite llamadas a `/v1/*` y no permite administrar el proxy. Como el servicio aprovisiona su propio token, no hace falta exportar ninguno de los dos. Una vez que existe el archivo, `ocx service repair` no vuelve a exigir la variable de entorno.
 
-`ocx status` informa el estado del token sin su valor: `present (file)`, `unsafe (file)` (existe pero no es solo del propietario: corrige los permisos), `admin-collision (file)` (la forma del incidente; el bloque agrega la consecuencia y la corrección), o `missing`. El estado es siempre sobre el **archivo**, porque el envoltorio de lanzamiento sobrescribe el entorno antes de exec - una sublínea separada informa que `OPENCODEX_API_AUTH_TOKEN` se establece en su shell, ya que eso es lo que usaría un primer plano `ocx start` en ese shell.
+`ocx status` muestra el estado del token sin revelar su valor: `present (file)`, `unsafe (file)` si los permisos no son exclusivos del propietario, `admin-collision (file)` si coincide con el token de administración, o `missing`. En caso de colisión también explica la consecuencia y la corrección. Este estado describe siempre el **archivo**, porque el wrapper sobrescribe el entorno antes de ejecutar el proceso. Una línea aparte indica si la terminal tiene `OPENCODEX_API_AUTH_TOKEN` establecido, que es el valor que usaría un `ocx start` en primer plano desde esa terminal.
 
 <a id="one-port-and-the-ported-alternative"></a>
 
@@ -315,34 +315,33 @@ corsAllowOrigins` muestra lo que hay ahora.
 
 ## Operaciones de servicio macOS
 
-`ocx service install` y `ocx service repair` son seguros para volver a correr contra un centro en vivo. Una reparación representa la lista primero y la compara: cuando los bytes representados son iguales a los bytes en el disco, el archivo de token no cambia y `launchctl print` informa el trabajo cargado desde esa lista, la reparación reafirma `0600`, actualiza su estado de instalación, imprime `service is already loaded from the current plist;
-nothing to do.` y devuelve - launchd nunca se toca. Anteriormente construye desalojado un trabajo saludable incondicionalmente, lo que hizo que un comando de diagnóstico fuera un apagón.
+`ocx service install` y `ocx service repair` se pueden volver a ejecutar en un hub activo. La reparación genera primero el plist y lo compara con el guardado. Si ambos son idénticos, el archivo de token no ha cambiado y `launchctl print` confirma que el job está cargado desde ese plist, se restablecen los permisos `0600`, se actualiza el estado de instalación y se muestra `service is already loaded from the current plist; nothing to do.`. En ese caso no se modifica launchd. Las versiones anteriores descargaban incondicionalmente un job sano, convirtiendo un comando de diagnóstico en una interrupción del servicio.
 
-**`ocx service restart` es el verbo que siempre se reinicia.** Ya no es un alias de `repair`. Se ejecuta la misma actualización, y cuando se recarga nada - el caso saludable, sin cambios anterior - se reinicia el trabajo ya cargado en su lugar con `launchctl kickstart -k`, vuelve a leer `launchctl print` para confirmar el trabajo sobrevivió, e imprime una línea:
+**`ocx service restart` siempre solicita un reinicio.** Ya no es un alias de `repair`. Ejecuta la misma actualización y, si no hubo que recargar nada porque el job está sano y sin cambios, lo reinicia con `launchctl kickstart -k`. Después vuelve a consultar `launchctl print` para confirmar que el job sigue cargado y muestra:
 
 ```bash
 ocx service restart
 # ℹ️  service restarted (launchctl kickstart -k gui/501/com.opencodex.proxy).
 ```
 
-Eso es lo que se ejecutará después de cambiar `unauthenticatedLoopbackListener`, `hostname` o `port`. El kickstart no abre ninguna ventana de desalojo, por lo que no es la interrupción que fue la antigua reparación incondicional.
+Usa ese comando después de cambiar `unauthenticatedLoopbackListener`, `hostname` o `port`. El reinicio con kickstart no descarga previamente el job, por lo que evita la ventana sin registro que provocaba la reparación incondicional antigua.
 
-Un `ocx service` desnudo todavía selecciona `repair`, no `restart`: es un idempotente "hacerlo actual", no una solicitud para rebotar en un concentrador saludable. Use `ocx service repair` para el caso en que realmente es para - un trabajo cargado de una lista anterior, o no cargado en absoluto - y espere que siga sin hacer nada en una saludable.
+`ocx service`, sin subcomando, sigue eligiendo `repair`, no `restart`: actualiza la instalación de forma idempotente y no solicita reiniciar un hub sano. Usa `ocx service repair` para corregir un job cargado desde un plist anterior o que ya no está cargado. Si está sano, no lo reiniciará.
 
-`launchctl kickstart -k gui/$(id -u)/com.opencodex.proxy` a mano, o `ocx service stop` seguido de `ocx service start`, ambos todavía funcionan y la ruta de error nombra el primero como un retroceso. Tampoco es la ruta recomendada más.
+También siguen funcionando `launchctl kickstart -k gui/$(id -u)/com.opencodex.proxy` y la secuencia `ocx service stop` seguida de `ocx service start`. El mensaje de error ofrece el primero como alternativa, pero la vía recomendada es `ocx service restart`.
 
-Linux y Windows nunca tuvieron esta brecha: `ocx service restart` termina en `systemctl --user restart` y un stop-then-start de la tarea programada respectivamente, el verbo que se le pregunte.
+En Linux y Windows no existía esta diferencia: `ocx service restart` usa respectivamente `systemctl --user restart` y la detención seguida del inicio de la tarea programada, según lo solicitado.
 
 `ocx service status` distingue cuatro launchd estados, y el último es el que la gente malinterpretó:
 
 | Resumen | Descripción |
 | --- | --- |
-| `installed and loaded` | Un dominio responde y ejecuta el comando que esta plist hornea. Nominal. |
-| `installed and loaded from an OLDER plist` | El trabajo se está ejecutando, desde una definición que ya no coincide. Esto es para lo que sirve el `ocx service repair`. |
-| `installed, not loaded` | Cada dominio respondió "ausente", lo que es una prueba de que el trabajo se ha ido. La reparación lo vuelve a registrar. |
-| `installed; launchd state could not be verified` | `launchctl` no se podía pedir - por ejemplo desde un contexto que no puede alcanzar el dominio `gui/<uid>`. Esto es **no** evidencia de que el hub está caído: nada recomienda una reparación, y una sonda sin respuesta nunca marca un proxy en ejecución como muerto. |
+| `installed and loaded` | Un dominio responde y ejecuta el comando definido en el plist actual. Estado normal. |
+| `installed and loaded from an OLDER plist` | El job se ejecuta con una definición anterior. `ocx service repair` la actualiza. |
+| `installed, not loaded` | Todos los dominios respondieron que el job está ausente. La reparación vuelve a registrarlo. |
+| `installed; launchd state could not be verified` | No se pudo consultar `launchctl`, por ejemplo por falta de acceso al dominio `gui/<uid>`. Esto **no demuestra** que el hub esté caído: no se recomienda reparar por ese motivo ni se marca como muerto un proxy que sigue activo. |
 
-Una sonda que no podía ejecutarse solía ser reportada como "no cargada", lo que le decía a los operadores que repararan un centro de servicio y dejaran que el actualizador iniciara un proxy competidor en el propio puerto del servicio.
+Antes, una consulta que no se podía ejecutar se presentaba como «no cargado». Eso podía llevar a reparar un servicio sano y hacer que el actualizador iniciara otro proxy en el puerto que ya utilizaba el servicio.
 
 <a id="headless-oauth"></a>
 

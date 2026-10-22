@@ -1,6 +1,6 @@
 ---
 title: "Codex no puede iniciar sesión ni cargar"
-description: "Qué hacer cuando Codex falla al iniciar sesión o cada error de solicitud después de aplicar opencodex, y cómo devolver Codex a su propia cuenta sin iniciar el proxy."
+description: "Qué comprobar si Codex no puede iniciar sesión o si todas las solicitudes fallan después de configurar opencodex."
 ---
 
 Si Codex se detiene en una pantalla de inicio de sesión, informa que no puede cargar los requisitos de inicio de sesión o falla en todas las solicitudes de modelo después de configurar opencodex, la causa más probable es que Codex todavía esté apuntado al proxy opencodex mientras el proxy no se está ejecutando. Esto se informó como [#5261](https://github.com/lidge-jun/opencodex/issues/5261).

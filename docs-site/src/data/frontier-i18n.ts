@@ -2,7 +2,7 @@
 // German strings from the PR are dropped: the docs-site ships en/es/fr/ko/zh-CN/zh-TW/ru/ja/tr.
 export const FRONTIER_STRINGS = {
   es: {
-  "frontier.subtitle": "Compara modelos en pruebas públicas de agentes de programación: capacidad frente a costo por tarea. Elige un dominio y una tabla; filtra por modelo, esfuerzo, precio o caso de uso. Son instantáneas que se actualizan con las versiones de OpenCodex, no mediciones en tiempo real.",
+  "frontier.subtitle": "Compara modelos en pruebas públicas de agentes de programación: capacidad frente a costo por tarea. Elige un dominio y una tabla. Son instantáneas que se actualizan con las versiones de OpenCodex, no mediciones en tiempo real.",
   "frontier.updated": "Instantánea del {date}",
   "frontier.tasks": "{count} tareas",
   "frontier.domainsAria": "Dominios de tarea",
@@ -108,7 +108,7 @@ export const FRONTIER_STRINGS = {
   "frontier.board.cybench.sourceNote": "Instantánea ilustrativa de cybench.github.io: porcentaje resuelto sin guía en tareas profesionales de CTF. Muchas filas proceden de fichas técnicas del sistema o de subconjuntos, no de una ejecución uniforme de toda la suite. Los costos son estimaciones relativas por ejecución del agente; Cybench no publica $/tarea. No son mediciones en tiempo real de OpenCodex."
 },
   en: {
-  "frontier.subtitle": "Compare models on public coding-agent benchmarks: capability vs cost per task. Pick a domain, then a board; filter by model, effort, price, or use-case. Snapshot data — update with OpenCodex releases, not live metering.",
+  "frontier.subtitle": "Compare models on public coding-agent benchmarks: capability vs cost per task. Pick a domain, then a board. Snapshot data — update with OpenCodex releases, not live metering.",
   "frontier.updated": "Snapshot {date}",
   "frontier.tasks": "{count} tasks",
   "frontier.domainsAria": "Task domains",
@@ -214,7 +214,7 @@ export const FRONTIER_STRINGS = {
   "frontier.board.cybench.sourceNote": "Illustrative snapshot from cybench.github.io (unguided % solved on professional CTF tasks). Many rows are system-card / subset results, not one uniform full-suite run. Costs are relative agent-run estimates — Cybench does not publish $/task. Not live OpenCodex metering."
 },
   fr: {
-  "frontier.subtitle": "Comparez les modèles sur des bancs d’essai publics d’agents de programmation, selon leurs capacités et leur coût par tâche. Choisissez un domaine, puis un tableau, et filtrez par modèle, niveau de raisonnement, prix ou cas d’usage. Il s’agit d’instantanés mis à jour avec les versions d’OpenCodex, et non de mesures en direct.",
+  "frontier.subtitle": "Comparez les modèles sur des bancs d’essai publics d’agents de programmation, selon leurs capacités et leur coût par tâche. Choisissez un domaine, puis un tableau. Il s’agit d’instantanés mis à jour avec les versions d’OpenCodex, et non de mesures en direct.",
   "frontier.updated": "Instantané du {date}",
   "frontier.tasks": "{count} tâches",
   "frontier.domainsAria": "Domaines de tâches",
@@ -320,7 +320,7 @@ export const FRONTIER_STRINGS = {
   "frontier.board.cybench.sourceNote": "Instantané indicatif de cybench.github.io : pourcentage de tâches CTF professionnelles résolues sans aide. De nombreuses lignes proviennent de fiches système ou de sous-ensembles, et non d’une exécution uniforme de la suite complète. Les coûts sont des estimations relatives d’exécution d’agent, car Cybench ne publie pas de coût par tâche. Il ne s’agit pas de mesures OpenCodex en direct.",
 },
   ko: {
-  "frontier.subtitle": "공개 코딩 에이전트 벤치마크에서 모델을 비교합니다: 능력 vs 작업당 비용. 도메인을 고른 뒤 보드를 선택하고 모델·노력·가격·용도로 필터하세요. 스냅샷 데이터이며 OpenCodex 릴리스 때 갱신합니다(실시간 계측 아님).",
+  "frontier.subtitle": "공개 코딩 에이전트 벤치마크에서 모델을 비교합니다: 능력 vs 작업당 비용. 도메인을 고른 뒤 보드를 선택하세요. 스냅샷 데이터이며 OpenCodex 릴리스 때 갱신합니다(실시간 계측 아님).",
   "frontier.updated": "스냅샷 {date}",
   "frontier.tasks": "작업 {count}개",
   "frontier.domainsAria": "작업 도메인",
@@ -426,7 +426,7 @@ export const FRONTIER_STRINGS = {
   "frontier.board.cybench.sourceNote": "Cybench unguided 해결률 예시. 비용은 상대 추정입니다. 재게시 시 Cybench를 인용하세요. OpenCodex 실시간 미터링 아님."
 },
   "zh-cn": {
-  "frontier.subtitle": "在公开编程代理基准上比较模型：能力 vs 每任务成本。先选领域再选榜单，并按模型、推理力度、价格或用途筛选。为快照数据，随 OpenCodex 发版更新，非实时计量。",
+  "frontier.subtitle": "在公开编程代理基准上比较模型：能力 vs 每任务成本。先选领域再选榜单。为快照数据，随 OpenCodex 发版更新，非实时计量。",
   "frontier.updated": "快照 {date}",
   "frontier.tasks": "{count} 项任务",
   "frontier.domainsAria": "任务领域",
@@ -532,7 +532,7 @@ export const FRONTIER_STRINGS = {
   "frontier.board.cybench.sourceNote": "Cybench unguided 解决率示意。成本为相对估计。转载请引用 Cybench。非 OpenCodex 实时计量。"
 },
   "zh-tw": {
-  "frontier.subtitle": "在公開程式設計代理基準上比較模型：能力 vs 每任務成本。先選領域再選榜單，並按模型、推理力度、價格或用途篩選。為快照資料，隨 OpenCodex 發版更新，非即時計量。",
+  "frontier.subtitle": "在公開程式設計代理基準上比較模型：能力 vs 每任務成本。先選領域再選榜單。為快照資料，隨 OpenCodex 發版更新，非即時計量。",
   "frontier.updated": "快照 {date}",
   "frontier.tasks": "{count} 項任務",
   "frontier.domainsAria": "任務領域",
@@ -638,7 +638,7 @@ export const FRONTIER_STRINGS = {
   "frontier.board.cybench.sourceNote": "Cybench unguided 解決率示意。成本為相對估計。轉載請引用 Cybench。非 OpenCodex 即時計量。"
 },
   ru: {
-  "frontier.subtitle": "Сравнивайте модели на публичных бенчмарках кодинг-агентов: способности против стоимости задачи. Выберите область, затем доску; фильтруйте по модели, уровню рассуждений, цене или назначению. Данные — снапшот: обновляются с релизами OpenCodex, а не в реальном времени.",
+  "frontier.subtitle": "Сравнивайте модели на публичных бенчмарках кодинг-агентов: способности против стоимости задачи. Выберите область, затем доску. Данные — снапшот: обновляются с релизами OpenCodex, а не в реальном времени.",
   "frontier.updated": "Снапшот {date}",
   "frontier.tasks": "{count} задач",
   "frontier.domainsAria": "Области задач",
@@ -744,7 +744,7 @@ export const FRONTIER_STRINGS = {
   "frontier.board.cybench.sourceNote": "Иллюстративный снапшот с cybench.github.io (% профессиональных CTF-задач, решённых без подсказок, unguided). Многие строки — результаты из system card или на подмножествах, а не один единый прогон полного набора. Стоимости — относительные оценки агентных прогонов: Cybench не публикует $/task. Это не учёт OpenCodex в реальном времени.",
   },
   ja: {
-  "frontier.subtitle": "公開のコーディングエージェントベンチマークでモデルを比較します: 能力 vs タスクあたりコスト。ドメインを選び、次にボードを選択し、モデル・推論負荷・価格・用途でフィルタします。スナップショットデータで OpenCodex リリース時に更新されます(ライブ計測ではありません)。",
+  "frontier.subtitle": "公開のコーディングエージェントベンチマークでモデルを比較します: 能力 vs タスクあたりコスト。ドメインを選び、次にボードを選択します。スナップショットデータで OpenCodex リリース時に更新されます(ライブ計測ではありません)。",
   "frontier.updated": "スナップショット {date}",
   "frontier.tasks": "{count} タスク",
   "frontier.domainsAria": "タスクドメイン",
@@ -850,7 +850,7 @@ export const FRONTIER_STRINGS = {
   "frontier.board.cybench.sourceNote": "cybench.github.io の参考スナップショット(プロフェッショナル CTF タスクの unguided 解決率)。多くの行は system card の結果またはサブセットの結果であり、一つの統一フルスイート実行ではありません。コストはエージェント実行の相対推定です — Cybench は $/task を公開していません。OpenCodex のライブ計測ではありません。",
   },
   tr: {
-  "frontier.subtitle": "Modelleri genel kodlama ajanı kıyaslamalarında karşılaştırın: yetenek ve görev başına maliyet. Bir alan ve ardından bir pano seçin; modele, akıl yürütme seviyesine, fiyata veya kullanım senaryosuna göre filtreleyin. Anlık görüntü verileri — canlı ölçüm değil, OpenCodex sürümleriyle güncellenir.",
+  "frontier.subtitle": "Modelleri genel kodlama ajanı kıyaslamalarında karşılaştırın: yetenek ve görev başına maliyet. Bir alan ve ardından bir pano seçin. Anlık görüntü verileri — canlı ölçüm değil, OpenCodex sürümleriyle güncellenir.",
   "frontier.updated": "Anlık Görüntü {date}",
   "frontier.tasks": "{count} görev",
   "frontier.domainsAria": "Görev alanları",

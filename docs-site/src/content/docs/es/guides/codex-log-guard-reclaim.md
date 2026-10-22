@@ -1,6 +1,6 @@
 ---
 title: "Codex Log Guard Reclamación"
-description: "Recupere manualmente páginas gratuitas del registro de diagnóstico Codex Almacenamiento SQLite con aspiración incremental limitada."
+description: "Recupera manualmente páginas libres de SQLite en la base de datos de registros de Codex, con límites y comprobaciones de integridad."
 ---
 
 Reclaim es la etapa manual de recuperación de espacio de Codex Log Guard. Compacta el canónico Codex `logs_2.sqlite` base de datos solo cuando la base de datos y el entorno de ejecución pasan las mismas comprobaciones de seguridad utilizadas por la protección Log Guard.

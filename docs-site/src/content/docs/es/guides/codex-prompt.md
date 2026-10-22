@@ -22,7 +22,7 @@ Las posiciones tienen lagunas. Eso es deliberado: los números son los índices 
 | Conmutable aquí | Un verdadero interruptor. Escribe una clave en `config.toml`. |
 | Configurado bajo `[features]` | Real, pero cambiado de la configuración de características en lugar de esta página. |
 | Siempre encendido | No hay interruptor de apagado en cualquier lugar en Codex. |
-| Incendios en el cambio | Anuncia una transición, por lo que solo aparece cuando algo cambia. |
+| Se activa cuando cambia | Anuncia una transición, por lo que solo aparece cuando algo cambia. |
 | Capas de extensión | No se puede enumerar. Codex no los expone. |
 
 Una capa sin interruptor de apagado no muestra ningún interruptor en lugar de uno deshabilitado. Un control en gris sugeriría que la capacidad existe y no está disponible temporalmente, lo cual no es el caso.

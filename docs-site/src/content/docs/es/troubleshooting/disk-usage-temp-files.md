@@ -1,5 +1,5 @@
 ---
-title: "Uso del disco desde archivos Temp"
+title: "Uso del disco por archivos temporales"
 description: "Qué son los archivos responses-state.json.ocx.*.tmp, por qué podrían acumularse y cómo recuperarlos."
 ---
 
@@ -11,7 +11,7 @@ Algunos usuarios encontraron muchos gigabytes de archivos nombrados como `respon
 
 opencodex mantiene una caché de continuación para que las cadenas `previous_response_id` sobrevivan a un reinicio proxy. Escribe esa instantánea atómicamente: el contenido va primero a un archivo temporal y luego reemplaza el archivo real en un solo paso. Eso es lo que impide que una caída a mitad de la escritura deje una instantánea a mitad de la escritura.
 
-La temperatura normalmente se elimina en el instante en que se completa el intercambio. Si el proceso muere entre los dos pasos, la temperatura sobrevive.
+El archivo temporal se elimina normalmente en cuanto termina el reemplazo. Si el proceso termina entre ambos pasos, ese archivo permanece en el disco.
 
 Cada archivo puede ser de hasta 24 MB porque la instantánea se reescribe entera, no anexada. Por lo tanto, unos pocos cientos de archivos abandonados se suman rápidamente.
 
@@ -23,7 +23,7 @@ Cada archivo puede ser de hasta 24 MB porque la instantánea se reescribe entera
 
 Una limpieza ya existía, pero se ejecutó en un solo momento: cuando un proxy cargó la caché de continuación por primera vez, lo que sucede *antes* ese proceso escribe cualquier cosa. Dos consecuencias siguieron.
 
-Un proxy que se estrelló y se reinició se barrió demasiado pronto para ver la temperatura que su predecesor acababa de dejar, hay un período de gracia de 15 minutos para que un archivo que se está escribiendo en este momento nunca se toque, y nunca volvió a mirar por el resto de su vida. Cada reinicio agregó un archivo más.
+Al reiniciarse tras un fallo, el proxy ejecutaba la limpieza demasiado pronto para detectar el archivo temporal de su predecesor: hay un período de gracia de 15 minutos para no tocar archivos que aún se están escribiendo. Después no volvía a comprobarlos durante el resto de su ejecución. Así, cada reinicio podía dejar otro archivo.
 
 Peor aún, la limpieza omitió cualquier archivo cuyo ID de proceso de posesión todavía estaba vivo. Después de un reinicio, el sistema operativo vuelve a emitir rutinariamente los mismos ID de proceso, por lo que un archivo antiguo podría confundirse permanentemente con uno que pertenece a un proceso en ejecución. Es por eso que el crecimiento rastreó reinicios.
 
@@ -53,7 +53,7 @@ Un apagado elegante se descarga inmediatamente en lugar de esperar el temporizad
 
 Si el proxy se ejecuta, esto sucede automáticamente en uno o dos minutos.
 
-Si el proxy se iniciará **no** - el caso en que la pila crece más rápido - comprobar y reclamar desde la línea de comandos:
+Si el proxy **no se inicia**, que es cuando la acumulación puede crecer más rápido, comprueba y recupera el espacio desde la línea de comandos:
 
 ```bash
 ocx doctor
@@ -71,7 +71,7 @@ Ambos comandos funcionan sin un proxy en ejecución. Los archivos actualmente bl
 
 Si un backlog muy grande excede una pasada, el comando dice cuántos archivos quedan para que pueda ejecutarlo de nuevo.
 
-Esto cubre específicamente las temperaturas de instantáneas de estado de respuesta. Otros componentes escriben sus propios archivos temporales con un nombre similar, y esos no se tocan aquí.
+Esta limpieza solo cubre los archivos temporales de las instantáneas del estado de respuestas. Los archivos temporales de otros componentes, aunque tengan nombres similares, no se modifican.
 
 <a id="spill-files-responses-state-spill"></a>
 

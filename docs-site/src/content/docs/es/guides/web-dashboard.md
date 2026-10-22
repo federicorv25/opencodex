@@ -1,9 +1,9 @@
 ---
 title: "Dashboard web"
-description: "El opencodex GUI para la salud de proxy, proveedores, modelos, orientación de delegación, grupos de autenticación, uso y registros."
+description: "Dashboard de opencodex para gestionar el proxy, proveedores, modelos, delegación, cuentas, uso y registros."
 ---
 
-opencodex envía un panel de control web local (una aplicación Vite/React bajo `gui/`) servido desde el proxy. Es el camino más corto a la gestión de proveedores, cuentas Codex/ChatGPT, modelos de catálogo, sidecars, sub-agente configuración y solicitar tráfico.
+opencodex incluye un dashboard web local, una aplicación Vite/React en `gui/` servida por el proxy. Permite gestionar proveedores, cuentas de Codex/ChatGPT, el catálogo de modelos, sidecars, subagentes y tráfico de solicitudes.
 
 <a id="opening-it"></a>
 
@@ -13,7 +13,7 @@ opencodex envía un panel de control web local (una aplicación Vite/React bajo 
 ocx gui
 ```
 
-Esto abre `http://localhost:<port>` en su navegador — `http://127.0.0.1:<management port>` Cuando hub administración de ingreso está habilitado — auto-arranque del proxy primero si es necesario. En Puede ejecutar el servidor de desarrollo GUI por separado contra un proxy en ejecución:
+El comando abre `http://localhost:<port>` en el navegador, o `http://127.0.0.1:<management port>` si está habilitado el acceso de administración del hub. Si hace falta, inicia primero el proxy. Para desarrollar, puedes ejecutar el servidor de la GUI por separado contra un proxy activo; inicia cada comando en su propia terminal:
 
 ```bash
 ocx start
@@ -24,60 +24,57 @@ bun run dev:gui
 
 ## Iniciar sesión
 
-En el enlace de bucle de retorno predeterminado (`localhost` / `127.0.0.1`) el panel nunca pide un token: el proxy realiza sesiones de corta duración de GUI en la página servida y las renueva silenciosamente cuando expiran o el proxy se reinicia. Solo se requiere un panel de control vinculado a un nombre de host que no sea loopback el administrador token (`OPENCODEX_ADMIN_AUTH_TOKEN`O el auto-generado
-`~/.opencodex/admin-api-token` archivo).
+Cuando el proxy escucha en la dirección local predeterminada de loopback (`localhost` / `127.0.0.1`), el dashboard no pide un token. El proxy incorpora sesiones de GUI de corta duración en la página servida y las renueva automáticamente cuando caducan o se reinicia. Solo un dashboard que escucha en un hostname fuera de loopback requiere el token de administración: `OPENCODEX_ADMIN_AUTH_TOKEN` o el archivo generado automáticamente `~/.opencodex/admin-api-token`.
 
-Cuando un panel de control remoto necesita esa credencial, presenta un formulario de contraseña estándar para que un navegador administrador de contraseñas puede ofrecer para guardar y autocompletar. El panel de instrumentos en sí todavía mantiene el token solo en la memoria y no lo escribe para `localStorage` o `sessionStorage`El hecho de que se salve es totalmente la decisión del navegador o administrador de contraseñas.
+Si el dashboard remoto necesita esa credencial, muestra un formulario de contraseña estándar para que el gestor de contraseñas del navegador pueda ofrecer guardarla y completarla. El dashboard conserva el token únicamente en memoria y nunca lo escribe en `localStorage` ni en `sessionStorage`. Guardarlo depende exclusivamente del navegador o del gestor de contraseñas.
 
 <a id="finding-the-admin-token"></a>
 
-### Encontrar el administrador token
+### Encontrar el token de administración
 
-Solo necesitas esto en un enlace que no sea de bucle. Un panel de control local nunca pregunta, y si uno local
-*hace* preguntar, el token no es el problema — ver [Cuando un panel local no puede iniciar un período de sesiones](#when-a-local-dashboard-cannot-start-a-session) abajo.
+Solo necesitas este token cuando el proxy escucha fuera de loopback. Un dashboard local no lo pide. Si uno local solicita autenticación, consulta [Cuando un panel local no puede iniciar una sesión](#when-a-local-dashboard-cannot-start-a-session).
 
-El proxy genera el token para usted la primera vez que se inicia. No está impreso en ningún lado, por diseño, así que léelo del archivo:
+El proxy genera el token la primera vez que se inicia. Por diseño, no lo imprime. Puedes leerlo desde su archivo:
 
 ```bash
 cat ~/.opencodex/admin-api-token
 ```
 
-Si `OPENCODEX_HOME` está establecido, el archivo vive en `$OPENCODEX_HOME/admin-api-token` En su lugar. En marcha Windows que es `%USERPROFILE%\.opencodex\admin-api-token`. Un token generado se parece
-`ocx_admin_` seguido de 43 caracteres; el proxy rechaza un archivo que no coincide con ese forma en lugar de regenerar silenciosamente uno.
+Si `OPENCODEX_HOME` está establecido, la ruta es `$OPENCODEX_HOME/admin-api-token`. En Windows, la ubicación predeterminada es `%USERPROFILE%\.opencodex\admin-api-token`. Un token generado consta de `ocx_admin_` seguido de 43 caracteres. Si un archivo no tiene ese formato, el proxy lo rechaza en lugar de regenerarlo silenciosamente.
 
-Para elegir el valor usted mismo, establezca `OPENCODEX_ADMIN_AUTH_TOKEN` Antes de iniciar el proxy. Lo tiene prioridad sobre el archivo, y el archivo no se lee ni se crea. Escoge algo distinto de su credencial de plano de datos (`OPENCODEX_API_AUTH_TOKEN` o una clave API configurada) — La reutilización de uno es rechazada.
+Para elegir el valor, establece `OPENCODEX_ADMIN_AUTH_TOKEN` antes de iniciar el proxy. La variable tiene prioridad: en ese caso no se lee ni se crea el archivo. Usa un valor diferente de la credencial de datos (`OPENCODEX_API_AUTH_TOKEN` o una clave API configurada); se rechaza la reutilización de una misma credencial en ambos planos.
 
-No hay ningún comando CLI que imprima el token. `ocx doctor` Informar deliberadamente si un credencial está presente sin revelar nunca su valor.
+Ningún comando de la CLI imprime el token. `ocx doctor` solo informa si hay una credencial, sin revelar su valor.
 
 <a id="when-a-local-dashboard-cannot-start-a-session"></a>
 
 ### Cuando un panel local no puede iniciar una sesión
 
-Un panel de control en `localhost` Mints su propia sesión, por lo que no le pedirá un token. Si es informa que no pudo iniciar una sesión, la causa es la dirección que está utilizando en lugar de una falta credencial — el proxy no reconoció la solicitud como loopback. Abra el panel de control en la dirección que imprime el proxy al iniciarse (normalmente `http://127.0.0.1:<port>`), y prefieren que sea exacto host y puerto sobre una IP LAN o un alias.
+El dashboard en `localhost` obtiene su propia sesión y no debería pedir un token. Si no puede iniciar una sesión, la causa es la dirección utilizada: el proxy no reconoció la solicitud como loopback. Abre la dirección exacta que muestra el proxy al iniciar, normalmente `http://127.0.0.1:<port>`, y usa ese host y puerto en lugar de una IP de la red local o un alias.
 
 <a id="dashboard-layout"></a>
 
 ## Diseño de panel
 
-La barra lateral tiene ocho filas, en orden: **Panel**, **Conectar**, **Codex**, **Proveedores**, **Modelos**, **Subagentes**, **Uso y registros**, y **Enlace remoto**. **Conectar** abre la página que encabeza **Conectar**, con su tira de pestañas ordenada **Codex**, **Claude**, **Escritorio Claude**, **Grok Build**, luego las integraciones restantes. Claude no tiene subpestañas; muestra la configuración de Claude Code directamente. El escritorio Claude es una pestaña de conexión separada en `#claude/desktop`. Connect no tiene conmutador de sección. **Subagentes** opens Subagentes y grupos Subagentes y Asesor (`#advisor`) con un interruptor de sección en forma de píldora. **Uso y registros** abre Uso y grupos Uso, Registros y depuración y Almacenamiento con un conmutador de secciones en forma de píldora. La última fila, **Enlace remoto**, grupos Enlace remoto (`#remote`) y el espacio de trabajo remoto (`#remote-workspace`, cuando esté disponible) con el mismo conmutador. **Codex** es el rebautizado **Conjunto Codex** fila; las URL conservadas incluyen `#codex-set`, `#claude`, `#claude/code`, y `#claude/desktop`; el ex `#claude/settings` bookmark abre Código. El ex `#claude/account` Marcador redirige a `#providers?provider=anthropic&tab=accounts`. Inicio (`#startup`) se queda fuera de la barra lateral.
+La barra lateral tiene ocho entradas: **Dashboard**, **Conectar**, **Codex**, **Proveedores**, **Modelos**, **Subagentes**, **Uso y registros** y **Enlace remoto**. **Conectar** muestra las pestañas **Codex**, **Claude**, **Claude Desktop**, **Grok Build** y las demás integraciones. Claude muestra directamente los ajustes de Claude Code, sin subpestañas; Claude Desktop tiene una pestaña independiente en `#claude/desktop`. Conectar no usa un selector de secciones. **Subagentes** agrupa Subagentes y Asesor (`#advisor`); **Uso y registros** agrupa Uso, Registros y depuración, y Almacenamiento; **Enlace remoto** agrupa Enlace remoto (`#remote`) y Espacio de trabajo remoto (`#remote-workspace`, si está disponible). Estos grupos usan un selector de secciones. **Codex** sustituye el nombre anterior **Codex Set**. Se conservan `#codex-set`, `#claude`, `#claude/code` y `#claude/desktop`; el marcador antiguo `#claude/settings` abre Code y `#claude/account` redirige a `#providers?provider=anthropic&tab=accounts`. Inicio (`#startup`) no aparece en la barra lateral.
 
-La sincronización de primera salida Responses incluye argumentos de función transmitidos y entrada de herramienta personalizada, también como texto y razonamiento. Por lo tanto, un giro de solo herramienta puede tener un primer tiempo de salida incluso sin prosa. Los deltas vacíos y las notificaciones de inicio de herramientas no inician este temporizador. Mide el primer proxy salida observada, no el comienzo del razonamiento oculto del modelo o el rendimiento exacto de la decodificación del modelo.
+La medición del tiempo hasta la primera salida de Responses incluye texto, razonamiento, argumentos de funciones transmitidos y entradas de herramientas personalizadas. Por tanto, un turno que solo llama a herramientas puede tener esa medición aunque no genere prosa. Los deltas vacíos y los avisos de inicio de herramienta no activan el temporizador. Se mide la primera salida observada por el proxy, no el comienzo del razonamiento oculto ni la velocidad exacta de generación del modelo.
 
-Overview utiliza tarjetas de estado coincidentes y filas de configuración de ancho completo. En pantallas anchas, las etiquetas comparten una columna y los controles de modelo/esfuerzo comparten otra. En pantallas más estrechas, los controles se mueven por debajo de su etiquetas en el mismo orden de lectura. Las etiquetas de versión larga se acortan visualmente; pase la versión o el valor de la versión para leer el valor completo.
+La vista general usa tarjetas de estado y filas de ajustes de ancho completo. En pantallas amplias, las etiquetas comparten una columna y los controles de modelo y esfuerzo otra. En pantallas estrechas, los controles pasan debajo de sus etiquetas y conservan el orden de lectura. Las versiones largas se acortan visualmente; pasa el puntero por la etiqueta o el valor para leerlos completos.
 
 <a id="quota-summary-bar"></a>
 
 ### Barra de resumen de cuotas
 
-Un resumen de una línea en la parte superior de cada página, excepto la página de inicio, muestra el estado actual de cada proveedor. uso de cuotas, por ejemplo `OpenAI 31% | Claude 54% | xAI 12% | Google 8%`. Lee el mismo proveedor informes de cuotas como el área de trabajo Proveedores (`GET /api/provider-quotas`, cada 60 segundos mientras la pestaña es visible) y nunca fuerza una actualización de origen.
+La parte superior de cada página, salvo Inicio, muestra en una línea el uso de cuota de los proveedores, por ejemplo `OpenAI 31% | Claude 54% | xAI 12% | Google 8%`. Lee los mismos informes de `GET /api/provider-quotas` que la página Proveedores, cada 60 segundos mientras la pestaña está visible, y nunca fuerza una actualización al proveedor.
 
-- Cada chip muestra la ventana preferida: primero semanalmente, luego mensualmente, luego 5 horas, luego una hora. ventana con nombre de proveedor o créditos prepagados.
-- Un chip se vuelve ámbar al 70% utilizado y rojo al 90% utilizado.
-- Pase el ratón o enfoque el teclado en un chip para ver cada ventana reportada con su hora de reinicio y la hora en que se La lectura fue tomada. Los detalles permanecen abiertos a medida que el puntero se mueve desde el chip hacia el popover, incluyendo a través de la pequeña brecha visual. En una pantalla táctil, el primer toque muestra esos detalles.
-- Haga clic en un chip (o tóquelo por segunda vez) para abrir la pestaña Cuentas de ese proveedor en Proveedores, donde se gestionan sus cuentas o claves API. El popover **Gestión de cuentas abiertas** El enlace abre el mismo tab; los usuarios de teclado pueden Tab desde el chip a este enlace y presione Enter. Escape cierra el popover y devuelve el foco al chip cuando el foco estaba dentro del popover.
-- El bar siempre se queda en una línea. Cuando los chips no encajen, desplácelo hacia los lados o use el « y » botones en cada extremo.
-- Los proveedores que no reportan ninguna ventana de cuota se quedan fuera. La barra se oculta cuando ningún proveedor informa de uno.
-- El borde derecho muestra cuándo fue la última vez que el panel leyó los informes. Se vuelve ámbar cuando el último read falló y la lectura anterior todavía se muestra.
+- Cada indicador muestra una ventana preferida entre las informadas: primero la semanal, luego la mensual, la de cinco horas y, por último, una ventana con nombre propio del proveedor o sus créditos prepagados.
+- El indicador se vuelve ámbar al 70 % de uso y rojo al 90 %.
+- Pasa el puntero o enfoca el indicador con el teclado para ver todas las ventanas informadas, sus reinicios y la hora de lectura. El detalle sigue abierto al mover el puntero hacia él, incluso al cruzar la separación visual. En una pantalla táctil, el primer toque abre el detalle.
+- Haz clic, o toca por segunda vez, para abrir la pestaña Cuentas de ese proveedor. El enlace **Abrir gestión de cuentas** del detalle abre la misma pestaña; se puede alcanzar con Tab y activar con Enter. Escape cierra el detalle y devuelve el foco al indicador si estaba dentro.
+- La barra permanece en una línea. Si no caben los indicadores, desplázala horizontalmente o usa los botones « y » de los extremos.
+- Se omiten los proveedores sin ventanas de cuota informadas. Si ninguno informa una, la barra se oculta.
+- El extremo derecho muestra la hora de la última lectura del dashboard. Se vuelve ámbar si falló la lectura más reciente y se siguen mostrando los datos anteriores.
 
 <a id="what-you-can-do"></a>
 
@@ -173,10 +170,9 @@ El recuento de modelos del proveedor es el número de entradas únicas no desact
 
 ## Selector de delegación vs enrutamiento de generación
 
-El Dashboard de **Delegación de subagentes** tiendas de recolectores `injectionModel` y, opcionalmente,
-`injectionEffort`. **Guía multiagente OpenCodex** Controla de forma independiente la delegación instrucciones que utilizan estos valores. En turnos elegibles v2, esa guía le dice al padre El modelo exacto y el esfuerzo de razonamiento para pasar a `spawn_agent`; limpiar el modelo también limpia El esfuerzo almacenado.
+El selector **Delegación de subagentes** guarda `injectionModel` y, opcionalmente, `injectionEffort`. **Guía multiagente de OpenCodex** controla de forma independiente las instrucciones de delegación que usan esos valores. En los turnos v2 elegibles, la guía indica al agente principal qué modelo y esfuerzo pasar a `spawn_agent`. Borrar el modelo también borra el esfuerzo guardado.
 
-El default-off **Usar como subagentes por defecto nativos de Codex** switch aplica la misma selección a Codex Nativo `[agents]` se establece de forma predeterminada en la siguiente sincronización/reiniciación cuando OpenCodex administra el enrutamiento activo Codex. Las configuración de proveedores externos administrados por el usuario permanecen intactas. Esos valores predeterminados afectan a las tareas Codex recién creadas y no causen ellos mismos delegación. Los usuarios existentes `[agents]` Los valores predeterminados se conservan en lugar de de sobrescritura, por lo que pueden continuar anulando los valores predeterminados solicitados.
+La opción **Usar como valores predeterminados de subagentes nativos de Codex** está desactivada de forma predeterminada. Si OpenCodex administra el enrutamiento activo, aplica la misma selección a los valores nativos de `[agents]` en la siguiente sincronización o reinicio. Respeta la configuración de proveedores externos del usuario. Solo afecta a tareas de Codex creadas después y no provoca delegación por sí misma. Los valores de `[agents]` definidos por el usuario se conservan, por lo que pueden seguir teniendo prioridad sobre los solicitados.
 
 :::caution
 Ninguno de los controles es un router de generación de modelos cruzados del lado proxy. La guía OpenCodex le pide a Codex que pase Anulaciones para `spawn_agent`; nativo `[agents]` los valores predeterminados se aplican solo cuando Codex crea una nueva tarea después de han sido sincronizados. Véase
@@ -185,33 +181,29 @@ Ninguno de los controles es un router de generación de modelos cruzados del lad
 
 <a id="remote-hub-sessions-keys-and-usage"></a>
 
-## Sesiones, teclas y uso de Remote Hub
+## Sesiones, claves y uso de Remote Hub
 
-En **Conecte las teclas → API**, cada fila de la tabla clave tiene su propio botón de eliminación, que pide confirmación. Al hacer clic en una clave puede mostrar su valor completo con un **Copiar** botón solo de una sesión autorizada independientemente.
+En **Conectar → Claves API**, cada fila tiene un botón para eliminar su clave tras pedir confirmación. Al pulsar una clave, una sesión autorizada de forma independiente puede mostrar su valor completo y un botón **Copiar**.
 
 <a id="reading-an-existing-api-key"></a>
 
 ### Lectura de una clave API existente
 
-Mostrar el valor completo de una clave almacenada requiere una sesión de panel establecida por emparejamiento explícito o Identidad de Tailscale de confianza. Una sesión de panel de control local automática aún puede mostrar la lista de claves enmascaradas, pero no puede revelar los valores existentes; un administrador token sin procesar tampoco puede llamar a esta acción de solo sesión. Utilizar el existente [flujo de emparejamiento de panel](/es/guides/remote-hub/#pairing-this-browser-with-a-hub) Para establecer un sesión autorizada por el operador antes de solicitar un valor almacenado; una revelación rechazada indica el requisito en la página. El formulario de emparejamiento local se ofrece solo mediante un panel independiente del mismo origen abierto sobre HTTP en el literal `127.0.0.1` o `[::1]` dirección. El origen debe coincidir con el del servidor Loopback bind. En marcha `http://localhost:<port>` (u otro alias localhost), comprobar el enlace del servidor: reabrir `http://127.0.0.1:<port>` por a `127.0.0.1` enlace o
-`http://[::1]:<port>` por a `::1` atar, y luego emparejar allí. Un servidor configurado con hostname
-`localhost` no tiene un origen de emparejamiento local elegible. El panel de control no puede inferir el bind de un alias URL, por lo que muestra la negación genérica sin sugerir un reemplazo URL. Utilice el flujo de emparejamiento de concentrador remoto existente o el inicio de sesión de Tailscale de confianza cuando esté disponible. Pare de nuevo si la sesión autorizada expira o es revocada. Iniciar sesión en el panel de control ordinario, La creación, rotación y eliminación de claves no han cambiado.
+Para mostrar el valor completo de una clave guardada, se necesita una sesión del dashboard autorizada mediante emparejamiento explícito o una identidad de Tailscale de confianza. Una sesión local automática puede mostrar la lista enmascarada, pero no revelar valores existentes; un token de administración sin esa sesión tampoco sirve. Usa el [flujo de emparejamiento](/es/guides/remote-hub/#pairing-this-browser-with-a-hub) antes de solicitar el valor. Si se rechaza, la página explica el requisito. El formulario local solo se ofrece en un dashboard independiente del mismo origen, abierto por HTTP en la dirección literal `127.0.0.1` o `[::1]`, y el origen debe coincidir con la dirección literal de loopback configurada en el servidor. Si abriste `http://localhost:<port>` u otro alias, comprueba esa configuración y abre `http://127.0.0.1:<port>` para un servidor enlazado a `127.0.0.1`, o `http://[::1]:<port>` para uno enlazado a `::1`. Un servidor configurado con hostname `localhost` no tiene un origen local elegible para este formulario. El dashboard no puede deducir la dirección configurada a partir de un alias; por eso muestra una denegación genérica sin proponer otra URL. En ese caso usa el emparejamiento de Remote Hub o Tailscale de confianza, si está disponible. Vuelve a emparejar si la sesión caduca o se revoca. El inicio de sesión normal y la creación, rotación y eliminación de claves no cambian.
 
-Después de emparejar, haga clic en la clave nuevamente para solicitar su valor. El emparejamiento en sí nunca revela una clave. Los valores de clave visualizados y la retroalimentación de copia se borran cuando se borra o reemplaza la sesión compartida. se inicia la vinculación, abandona este panel, oculta la pestaña del navegador o la ventana de escritorio, o cambia de servidor. Esto también borra los valores recién creados y de reemplazo, por lo que copia un valor de una sola vez antes de salir el panel. Si la creación o rotación tiene éxito después de que cambie la sesión o vista, se El valor permanece oculto. Después de cambiar los servidores, volver a la El servidor original revalida su lista de claves. Las rotaciones pendientes siguen estando disponibles para la confirmación explícita o el aborto.
+Después del emparejamiento, vuelve a pulsar la clave para solicitar su valor; emparejar por sí solo no revela ninguna clave. Los valores visibles y los avisos de copia se borran al quitar o sustituir la sesión compartida, iniciar un emparejamiento, salir de esta página, ocultar la pestaña o ventana de Desktop, o cambiar de servidor. Esto también afecta a los valores recién creados o de reemplazo: copia el valor de una sola visualización antes de salir. Si una creación o rotación termina después de cambiar de sesión o vista, su valor permanece oculto. Al regresar al servidor original, se vuelve a validar la lista de claves. Las rotaciones pendientes siguen disponibles para confirmarlas o cancelarlas expresamente.
 
-El plano de gestión del panel está separado del tráfico del modelo client→hub directo. **Conecte las teclas → API** muestra rotaciones pendientes, muestra un secreto de reemplazo solo una vez y requiere confirmación explícita o cancelación. El cierre de sesión del navegador solo invalida la sesión remota actual. El uso conectado es la tienda central filtrada por el cliente. `apiKeyId`; el uso desconectado es local, sin duplicación.
+La administración desde el dashboard está separada del tráfico de modelos directo entre cliente y hub. **Conectar → Claves API** muestra las rotaciones pendientes, revela el secreto de reemplazo una sola vez y requiere confirmación o cancelación explícita. Cerrar sesión en el navegador invalida únicamente la sesión remota actual. Con conexión se consulta el uso guardado en el hub filtrado por el `apiKeyId` del cliente; sin conexión se muestra el uso local, sin duplicarlo.
 
-La garantía de anulación se aplica a la **incorporado** v2 texto de orientación. Una costumbre
-`injectionPrompt` sustituye a este texto por completo y debe incluir `{{model}}` y `{{effort}}`
-. y opcionalmente. `{{roster}}`) o esos valores no aparecerán en el orientación.
+La garantía de anulación del modelo solo se aplica a la guía v2 **incorporada**. Un `injectionPrompt` personalizado la reemplaza por completo y debe incluir `{{model}}` y `{{effort}}`, y opcionalmente `{{roster}}`, para que esos valores aparezcan en la guía.
 
 El selector ofrece modelos nativos y enrutados habilitados, además de la escalera de esfuerzo global Codex. El API valida el esfuerzo seleccionado globalmente; Codex todavía valida un esfuerzo de generación contra el objetivo Entrada de catálogo.
 
 <a id="codex-auth-and-account-pools"></a>
 
-## Codex Grupos de autenticación y cuentas
+## Autenticación de Codex y grupos de cuentas
 
-Los **Codex Autonomía** página administra la ruta nativa ChatGPT/Codex:
+La página **Codex Auth** administra la ruta nativa de ChatGPT/Codex:
 
 El modo Pool selecciona en las cuentas Codex principales y agregadas; Direct utiliza solo el inicio de sesión de la persona que llama/principal. Las solicitudes en vuelo mantienen sus credenciales capturadas y una reautenticación 401/403 o un tiempo de reutilización 429 puede borrar la afinidad y rotar a otra cuenta Pool elegible. Esto es separado de `openai-apikey`
 y otros proveedores.
@@ -221,14 +213,14 @@ El grupo de cuentas es una función técnica de administración de cuentas, enru
 [Términos de uso de OpenAI](https://openai.com/policies/terms-of-use/).
 :::
 
-- La elección manual de una cuenta se aplica de inmediato: un hilo ya vinculado se mueve a él en su siguiente solicitud, y solo las solicitudes que ya están en vuelo mantienen la cuenta que capturaron. La elección manual también es pinned: la tarjeta muestra un **FIJADA** insignia, y un orden de selección más alto no puede adelantarse a esa cuenta hasta que se agote, seleccione otra cuenta o cambie el orden de selección de cualquier cuenta. Al seleccionar la insignia nuevamente se pide liberar el pin: confirmar borra la selección, encuadernar hilos mantener su cuenta capturada, y las solicitudes nuevas o no vinculadas regresan al orden de selección y umbrales. Si el pin cambia mientras la confirmación está abierta, esa confirmación no puede liberar el pin más nuevo. Después de un lanzamiento rechazado o incierto, la vista de cuenta se actualiza; revise la selección actual antes de confirmar nuevamente.
-- Cada tarjeta de cuenta lleva un **Orden de selección** control (primero, anterior, normal, posterior, último). El orden superior se utiliza primero, y el grupo cae a un orden inferior solo una vez que cada cuenta por encima de él es drenado o no disponible. Se aplica una orden modificada a partir de la siguiente solicitud no vinculada y nunca se mueve a hilo que ya está encuadernado. La cuenta de escritorio (principal) Codex está ordenada como cualquier otra, por lo que puede Estar configurado para **Ultima** y se mantuvo como reserva. Una orden establecida de `ocx account priority` fuera de aquellos cinco preconfiguración permanecen visibles y seleccionables en la tarjeta.
-- La afinidad del hilo evita el aleteo por solicitud. Con `pool.cacheAffinity` en (el valor predeterminado), a hilo de larga duración no es rebote simplemente porque el uso cruzó el umbral, sino que se queda hasta el cuenta se agote o no puede servir, y luego solo en una cuenta con margen de cuota genuino y estrictamente un uso más bajo. Establecer la bandera `false` para restaurar el reencuadernación del umbral, todavía solamente en tal destino.
+- La elección manual se aplica en la siguiente solicitud, incluso de un hilo ya vinculado; las solicitudes en curso conservan las credenciales que capturaron. Además, la cuenta queda fijada con una insignia **FIJADA**: ninguna prioridad superior la sustituye hasta que se agote, elijas otra o cambies el orden de selección de alguna cuenta. Pulsar de nuevo la insignia pide confirmar que se libere esa fijación. Al confirmar, los hilos vinculados conservan su cuenta y las solicitudes nuevas o no vinculadas vuelven al orden y los umbrales. Una confirmación antigua no puede liberar una fijación más reciente. Si la operación se rechaza o su resultado es incierto, revisa la vista actualizada antes de volver a confirmar.
+- Cada cuenta tiene un control **Orden de selección**: primero, antes, normal, después y último. Solo se recurre a un orden inferior cuando todas las cuentas superiores están agotadas o no disponibles. El cambio afecta a la siguiente solicitud no vinculada, sin mover hilos que ya tengan cuenta. La cuenta principal de Codex participa en el mismo orden y puede reservarse como **Última**. Una prioridad personalizada de `ocx account priority` sigue siendo visible y seleccionable aunque no coincida con esos cinco valores.
+- La afinidad evita cambiar de cuenta en cada solicitud. Con `pool.cacheAffinity` activado por defecto, un hilo mantiene su cuenta aunque cruce el umbral de uso, hasta que se agote o no pueda atenderlo. Solo se mueve a otra con margen de cuota real y uso estrictamente menor. `false` permite volver a evaluar el cambio al cruzar el umbral, pero mantiene esos requisitos del destino.
 - Las sesiones nuevas pueden elegir la cuenta elegible de menor uso. Los planes pagados puntúan las 5h más calientes conocidas, semanal, o 30d ventana; Los planes Go/Free solo usan la ventana 30d.
-- Cuando WHAM suministra `limit_window_seconds`, Codex Auth clasifica una ventana primaria de al menos 28 días como 30d en lugar de asumir que cada ventana principal es semanal. Responses sin una duración mantener La interpretación semanal del legado.
+- Si WHAM proporciona `limit_window_seconds`, Codex Auth clasifica como 30d una ventana principal de al menos 28 días, en lugar de suponer que es semanal. Si la respuesta no indica la duración, conserva la interpretación semanal anterior.
 - **Actualizar las cuotas** vuelve a leer el uso de la cuenta inmediatamente, por lo que el enrutamiento y las tarjetas de cuenta usan lo mismo valores.
 - Los registros de solicitudes Pool usan etiquetas opacas, como `p3fa91c`, nunca correos electrónicos de cuenta.
-- Cada tarjeta de cuenta también muestra esa etiqueta de registro estable, el total observado de 30 días de token, una cifra aproximada de API-costo equivalente utilizando los precios de visualización configurados actualmente, y la fracción de intentos con uso medido. Usuario activo `modelCosts` las superposiciones tienen prioridad sobre el catálogo verificado y caídas de precios, y el uso histórico se vuelve a estimar a partir del precio activo cuando se lee. El costo es una estimación para la conciliación, no una factura de suscripción ChatGPT Plus / Pro. El Barco Histórico `openai` las filas que preceden la atribución explícita permanecen ambiguas en lugar de ser asignado a la cuenta principal actual.
+- Cada cuenta también muestra su etiqueta de registro estable, el total de tokens observado en 30 días, una estimación de coste equivalente de API y la proporción de intentos con uso medido. Los precios personalizados de `modelCosts` tienen prioridad sobre el catálogo verificado y los precios de respaldo; el uso histórico se vuelve a valorar con los precios activos al consultarlo. Es una estimación para conciliación, no una factura de ChatGPT Plus o Pro. Los registros históricos de `openai` anteriores a la atribución explícita siguen siendo ambiguos y no se asignan a la cuenta principal actual.
 - **Apuntar a una cuenta específica de Codex desde el selector de modelos** Es una opción explícita. Cuando está habilitado, Las filas del selector GPT ordinarias se reemplazan por una entrada por selector de cuenta pública. La elección de uno bloquea esa conversación a la cuenta asignada: no rota, retrocede o cambiar la cuenta Pool activa. El inicio de sesión de la aplicación Codex incorporado tiene su propio selector; mapas generados normalmente utilizan `main`con un sufijo de colisión segura como `main-2` cuando sea necesario. Cuentas añadidas reciba etiquetas estables y seguras para la privacidad, y se conservan las etiquetas selectoras personalizadas existentes. Las conversaciones existentes y las selecciones de modelo guardadas continúan el enrutamiento. Desactivar la configuración Oculta las entradas generadas del selector sin eliminar cuentas, selectores ni rutas exactas. Llanura GPT Los ID de modelo continúan usando el comportamiento configurado Pool o Direct.
 - Los cambios de agregar, quitar y seleccionar cuentas se guardan antes de actualizar el catálogo de modelos. Si esa actualización limitada no puede terminar, el panel de control muestra un aviso ámbar de éxito con recuperación; ejecutar `ocx sync` para reintentar. El cambio de cuenta o configuración en sí permanece guardado.
 
@@ -241,7 +233,7 @@ La descripción general de los proveedores resume por separado el uso del modo P
 
 El botón de la barra lateral y la pregunta que `ocx start` muestra en una terminal interactiva usan **tu propia sesión de `gh`**. opencodex no guarda un token de GitHub para esta acción; solo registra tu respuesta.
 
-Debido a que eso se escribe en su cuenta GitHub, se rechazan las llamadas dirigidas por agentes en lugar de Se le permite responder por usted:
+Como esta acción modifica tu cuenta de GitHub, se rechazan las llamadas dirigidas por agentes en lugar de permitir que respondan por ti:
 
 - `ocx start` y `ocx service install` omiten la pregunta interactiva cuando detectan un agente o entorno automático (`CLAUDECODE`, `CODEX_THREAD_ID`, `CURSOR_TRACE_ID`, `CI`, entre otros). El agente debe trasladar la pregunta una sola vez con una opción clara Sí/No. El silencio queda pendiente: no se registra como Sí ni como No y el agente no debe repetirla en respuestas o sesiones posteriores. Una versión posterior puede volver a activar el aviso de la CLI según los plazos de `AGENTS_INSTALL.md`.
 - `POST /api/github/star` devuelve `403` con `code: "agent_consent_required"` cuando el proxy detecta una sesión de agente y la solicitud no acredita una sesión del navegador del panel. Tener el token de administración no constituye consentimiento: un agente local puede leer ese archivo.
@@ -252,7 +244,7 @@ Debido a que eso se escribe en su cuenta GitHub, se rechazan las llamadas dirigi
 
 ## Cómo el panel de control habla con el proxy
 
-Los GUI es un cliente ligero sobre el proxy JSON gestión API. Los puntos finales útiles incluyen:
+La GUI es un cliente ligero de la API JSON de administración del proxy. Algunos endpoints útiles son:
 
 | Punto de conexión | Finalidad |
 | --- | --- |
@@ -261,7 +253,7 @@ Los GUI es un cliente ligero sobre el proxy JSON gestión API. Los puntos finale
 | `GET /api/startup-health` | Lea los diagnósticos de enrutamiento, servicio, shim y seguridad de reinicio sin secretos. |
 | `POST /api/startup-action` | Instale el servicio en segundo plano o la shim de lanzador Codex a través de acciones fijas y permitidas. |
 | `GET` / `POST /api/windows-tray` | Lea o cambie la instalación de la bandeja Windows y el estado del proceso visible. POST acepta `install`, `start`, `stop`, o `uninstall`. |
-| `POST /api/sync` | Reconstruir el catálogo de modelos compartidos y rancio la caché del modelo Codex. |
+| `POST /api/sync` | Reconstruye el catálogo compartido y marca la caché de modelos de Codex como obsoleta. |
 | `GET /api/update/check` · `POST /api/update/run` · `GET /api/update/status` | Revisar, ejecutar y supervisar los trabajos de autoactualización. Los PID de los trabajadores persisten para que un trabajo bloqueado se recupere automáticamente; los trabajos heredados sin PID se recuperan después de diez minutos. |
 | `GET` / `PUT /api/sidecar-settings` | Leer o establecer la configuración del modelo de búsqueda/visión sidecar. |
 | `GET` / `PUT /api/injection-model` | Leer o establecer la selección compartida de modelo/esfuerzo de subagente y los conmutadores de orientación/nativo-predeterminado independientes. |

@@ -55,12 +55,12 @@ Factory documenta `droid exec` como su superficie de automatización no interact
 
 ## Contrato de puente
 
-Unir el puente a `127.0.0.1`, requerir un token portador generado aleatoriamente, tamaños de solicitud de límite e ID de modelo de lista de permisos. El puente mínimo acepta solo estas formas Responses `input`:
+Antes de aceptar entradas, el puente debe escuchar únicamente en `127.0.0.1`, exigir un token bearer aleatorio, limitar el tamaño de las solicitudes y permitir solo los identificadores de modelo de una lista explícita. El puente mínimo acepta únicamente estas formas de `input` de Responses:
 
-- una cadena no vacía; o
-- una matriz que contiene solo `message` elementos. Cada mensaje debe tener un rol `user`, `developer`, `system` o `assistant` y contenido de cadena o partes de contenido solo de texto (`input_text` para roles de entrada y `output_text` para el historial de asistentes).
+- Una cadena no vacía; o
+- Una matriz formada exclusivamente por elementos `message`. Cada mensaje debe usar el rol `user`, `developer`, `system` o `assistant` y contener una cadena o partes solo de texto: `input_text` para los roles de entrada y `output_text` para el historial del asistente.
 
-Valide la solicitud completa antes de invocar Droid. Si una parte de entrada es una imagen o un archivo, `tools` contiene cualquier definición de herramienta, o `input` contiene una llamada o resultado de herramienta (`function_call`, `function_call_output`, `custom_tool_call` o `custom_tool_call_output`), devuelve HTTP `400` con un Responses-estilo `invalid_request_error`. Utilice un código específico de puente estable como `unsupported_bridge_input` e identifique el campo rechazado en el mensaje. Haga esto antes de iniciar SSE, incluso cuando `stream: true`; nunca descarte, enderece o aplane el contenido no compatible en el mensaje.
+Valida toda la solicitud antes de invocar Droid. Si una parte de entrada es una imagen o un archivo, `tools` contiene alguna definición de herramienta, o `input` incluye una llamada o resultado de herramienta (`function_call`, `function_call_output`, `custom_tool_call` o `custom_tool_call_output`), devuelve HTTP `400` con un `invalid_request_error` de formato Responses. Usa un código estable del puente, como `unsupported_bridge_input`, e identifica el campo rechazado. Rechaza la solicitud antes de iniciar SSE, incluso con `stream: true`; nunca descartes ni conviertas silenciosamente el contenido no compatible en texto del prompt.
 
 ```json
 {

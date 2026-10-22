@@ -90,11 +90,12 @@ tells you exactly what to change:
   lockfile changed without its manifest each need an explicit approval label.
   A comment-only change to a source file is not a behavior change and owes no
   test.
-- **Cross-platform CI.** Pull requests run only the fast Ubuntu subset. Full
-  macOS and Windows CI runs through `workflow_dispatch` and on the release
-  lines `main` and `preview`, as defined in `AGENTS.md`. Do not add `dev` push
-  runs or macOS/Windows pull-request jobs. The aggregate `ci` check is created
-  for every pull request; changed-path detection decides which expensive jobs
+- **Cross-platform CI.** Pull requests run the fast Ubuntu subset. Non-PR jobs run through
+  `workflow_dispatch` and on the release lines `main` and `preview`, subject to lane selection
+  and path filters. The full `platform-windows` test job runs only on the nightly schedule or
+  on `workflow_dispatch` with the default or `all` lane; a release-line push does not run it.
+  Do not add `dev` push runs or macOS/Windows pull-request platform jobs. The aggregate `ci`
+  check is created for every pull request; changed-path detection decides which expensive jobs
   are needed, including for a stacked child whose base is another open PR's head.
 
 - **Type label.** The `label` check derives `bug` / `enhancement` /

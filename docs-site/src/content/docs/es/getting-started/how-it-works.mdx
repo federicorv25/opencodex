@@ -58,11 +58,11 @@ En una instalación nueva, `subagentModels` ofrece `gpt-6-astra`, `gpt-6.1-sol` 
 
 5. **Camino rápido de paso**: si el adaptador es un paso Responses (`openai-responses` o `azure-openai`), opencodex mantiene el cuerpo Responses, aplica enrutamiento dirigido y reescribe la compatibilidad, luego retransmite la respuesta del proveedor sin convertirlo a través de `AdapterEvent` s.
 
-6. **Sidecar de búsqueda web (opcional)** — si Codex habilitado alojado `web_search` pero el modelo enrutado es non-OpenAI, opencodex expone un sintético `web_search` función y ejecuta el modelo en un pequeño bucle angélico, ejecutando búsquedas reales a través de `gpt-5.6-luna` por defecto sobre su inicio de sesión ChatGPT e inyectando los resultados como resultados de la herramienta.
+6. **Sidecar de búsqueda web (opcional)** — si Codex solicita la herramienta alojada `web_search` y el modelo enrutado no es de OpenAI, opencodex expone una función sintética `web_search` y ejecuta el modelo en un pequeño bucle de agente. Las búsquedas reales se realizan mediante `gpt-5.6-luna` de forma predeterminada, con tu sesión de ChatGPT, y los resultados se incorporan como respuestas de la herramienta.
 
 7. **Compacto (cuando se solicita)** - Codex v1 llama `POST /v1/responses/compact`; v2 agrega un `compaction_trigger` a un giro Responses. Las rutas de paso nativas se compactan aguas arriba, mientras que un modelo enrutado se ejecuta como un resumen sin herramientas y devuelve la forma de historial de reemplazo que espera Codex.
 
-8. **Adaptar** - de lo contrario, el `buildRequest()` del adaptador elegido produce la solicitud aguas arriba HTTP (URL, encabezados, cuerpo) en el formato nativo del proveedor, y opencodex `fetch` es él.
+8. **Adaptar** — en los demás casos, `buildRequest()` del adaptador elegido construye la solicitud HTTP al proveedor (URL, encabezados y cuerpo) en su formato nativo. opencodex envía esa solicitud mediante `fetch`.
 
 9. **Puente** - el adaptador `parseStream()` (o `parseResponse()`) produce `AdapterEvent` s interno (texto, razonamiento, inicio/delta/fin de llamada de herramienta, hecho, error). `bridge.ts` convierte ese flujo en Responses SSE eventos - `response.output_text.delta`, `response.reasoning_summary_text.delta`, `response.function_call_arguments.delta`, `response.completed`, y así sucesivamente. El transporte opcional WebSocket envía las mismas cargas útiles de eventos que los marcos de texto.
 
