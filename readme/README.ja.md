@@ -77,7 +77,7 @@ Sol がセッションを進め、Kimi K3 のサブエージェントを呼び�
 </table>
 
 <p align="center">
-  <a href="../README.md">English</a> · <a href="README.fr.md">Français</a> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ru.md">Русский</a> · <b>日本語</b> · <a href="README.tr.md">Türkçe</a> · 📖 <a href="https://opencodex.me/ja/"><b>完全なドキュメント →</b></a>
+  <a href="../README.md">English</a> · <a href="README.fr.md">Français</a> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ru.md">Русский</a> · <b>日本語</b> · <a href="README.tr.md">Türkçe</a> · <a href="README.es.md">Español</a> · 📖 <a href="https://opencodex.me/ja/"><b>完全なドキュメント →</b></a>
 </p>
 
 opencodex は、Codex の Responses API をプロバイダーが話すプロトコルへ変換する軽量なローカルプロキシ
@@ -251,9 +251,7 @@ ocx start     # または `ocx service`
 ocx init      # 対話式セットアップ: ~/.opencodex/config.json を書き、Codex を接続します
 ```
 
-`ocx init` はプロキシを起動しません。先に起動してください（後でもかまいません。順番は問いませんが、
-`ocx provider add` や `ocx combo set` のようなヘッドレスコマンドは**動作中の**プロキシと通信し、
-届かなければ非ゼロで終了します）。`ocx status` / `ocx doctor` / `ocx health` が動作状態を報告します。
+`ocx init` はプロキシを起動しません。設定の前後どちらで起動してもかまいません。`ocx provider add` はローカル設定を書き込むため、動作中のプロキシは不要です。`ocx combo set` などのライブ管理コマンドは**動作中の**プロキシと通信し、接続できない場合は非ゼロの終了コードを返します。 `ocx status` / `ocx doctor` / `ocx health` が動作状態を報告します。
 
 > **opencodex をインストールまたは実行するエージェントへ:**
 > [`AGENTS_INSTALL.md`](../AGENTS_INSTALL.md) を読んでください。対話的な `ocx start` は、このリポジトリ
@@ -433,11 +431,14 @@ npm uninstall -g @bitkyc08/opencodex
 
 ## リモートアクセス
 
-opencodex は既定で `127.0.0.1` にバインドし、追加の認証を必要としません。ループバックの外へ
-バインドする場合（`"hostname": "0.0.0.0"`）は bearer トークンが**必須**です。
-`OPENCODEX_API_AUTH_TOKEN` がなければプロキシは起動を拒否し、すべてのクライアントリクエストは
-`x-opencodex-api-key` としてトークンを乗せる必要があります。詳細は
-[設定リファレンス](https://opencodex.me/ja/reference/configuration/)にあります。
+opencodex は既定で `127.0.0.1` にバインドし、データプレーンの追加認証は不要です。
+ループバックの外へバインドする場合（`"hostname": "0.0.0.0"`）は、**データプレーンの認証情報が必要**です。
+データトークンは `OPENCODEX_API_AUTH_TOKEN`、`OCX_API_TOKEN_FILE`、または所有者だけがアクセスできる
+`service-api-token` ファイルから取得できます。このファイルは `ocx service install` で作成できます。
+設定済みのクライアント API キーもデータプレーンへのアクセスに使用できます。クライアントは有効な認証情報を
+`x-opencodex-api-key` で送信します。管理用の認証情報は別で、`OPENCODEX_ADMIN_AUTH_TOKEN` または
+生成された管理トークンを使います。データトークンでは管理機能にアクセスできません。詳細は
+[設定リファレンス](https://opencodex.me/ja/reference/configuration/)を参照してください。
 
 ## ドキュメント
 

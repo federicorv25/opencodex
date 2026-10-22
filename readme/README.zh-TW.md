@@ -77,7 +77,7 @@ Sol 主導會話，並呼叫 Kimi K3 子代理。
 </table>
 
 <p align="center">
-  <a href="../README.md">English</a> · <a href="README.fr.md">Français</a> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <b>繁體中文</b> · <a href="README.ru.md">Русский</a> · <a href="README.ja.md">日本語</a> · <a href="README.tr.md">Türkçe</a> · 📖 <a href="https://opencodex.me/zh-tw/"><b>完整文件 →</b></a>
+  <a href="../README.md">English</a> · <a href="README.fr.md">Français</a> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <b>繁體中文</b> · <a href="README.ru.md">Русский</a> · <a href="README.ja.md">日本語</a> · <a href="README.tr.md">Türkçe</a> · <a href="README.es.md">Español</a> · 📖 <a href="https://opencodex.me/zh-tw/"><b>完整文件 →</b></a>
 </p>
 
 opencodex 是輕量級本機代理，把 Codex 的 Responses API 翻譯成你的供應商所用的協議——串流、工具呼叫、
@@ -242,8 +242,7 @@ ocx start     # 或 `ocx service`
 ocx init      # 互動式設定：寫入 ~/.opencodex/config.json 並接上 Codex
 ```
 
-`ocx init` 永遠不會啟動代理；請先啟動（或之後再啟動——順序都可以，但像
-`ocx provider add` 與 `ocx combo set` 這類無介面命令會跟**正在執行**的代理通訊，連不上就以非零結束碼結束）。`ocx status` / `ocx doctor` / `ocx health` 回報執行狀態。
+`ocx init` 不會啟動代理；你可以在設定前或設定後啟動代理。`ocx provider add` 寫入本機設定，不需要正在執行的代理。`ocx combo set` 等即時管理命令會連線至**正在執行**的代理，無法存取時會以非零結束碼結束。 `ocx status` / `ocx doctor` / `ocx health` 回報執行狀態。
 
 > **正在安裝或執行 opencodex 的 agent：** 請讀
 > [`AGENTS_INSTALL.md`](../AGENTS_INSTALL.md)。互動式 `ocx start` 可能會問一次要不要
@@ -412,10 +411,13 @@ npm uninstall -g @bitkyc08/opencodex
 
 ## 遠端存取
 
-預設 opencodex 綁定 `127.0.0.1`，不必額外認證。綁定超出
-迴環（`"hostname": "0.0.0.0"`）**必須**有 bearer 權杖——沒有
-`OPENCODEX_API_AUTH_TOKEN` 代理會拒絕啟動，每個用戶端請求都必須以
-`x-opencodex-api-key` 帶上它。細節：[設定參考](https://opencodex.me/zh-tw/reference/configuration/)。
+預設情況下，opencodex 綁定 `127.0.0.1`，不需要額外的資料平面認證。
+綁定至迴環位址之外（`"hostname": "0.0.0.0"`）時，**必須提供資料平面憑證**。
+資料權杖可來自 `OPENCODEX_API_AUTH_TOKEN`、`OCX_API_TOKEN_FILE`，
+或僅擁有者可存取的 `service-api-token` 檔案；`ocx service install` 可以建立此檔案。
+已設定的用戶端 API 金鑰也可用於資料平面准入。用戶端透過 `x-opencodex-api-key` 傳送有效憑證。
+管理功能使用獨立的 `OPENCODEX_ADMIN_AUTH_TOKEN` 或自動產生的管理權杖；
+資料權杖不授予管理權限。詳情：[設定參考](https://opencodex.me/zh-tw/reference/configuration/)。
 
 ## 文件
 

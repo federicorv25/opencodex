@@ -77,7 +77,7 @@ Sol이 세션을 이끌고 Kimi K3 서브에이전트를 호출합니다.
 </table>
 
 <p align="center">
-  <a href="../README.md">English</a> · <a href="README.fr.md">Français</a> · <b>한국어</b> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ru.md">Русский</a> · <a href="README.ja.md">日本語</a> · <a href="README.tr.md">Türkçe</a> · 📖 <a href="https://opencodex.me/ko/"><b>전체 문서 →</b></a>
+  <a href="../README.md">English</a> · <a href="README.fr.md">Français</a> · <b>한국어</b> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ru.md">Русский</a> · <a href="README.ja.md">日本語</a> · <a href="README.tr.md">Türkçe</a> · <a href="README.es.md">Español</a> · 📖 <a href="https://opencodex.me/ko/"><b>전체 문서 →</b></a>
 </p>
 
 opencodex는 Codex의 Responses API를 프로바이더가 쓰는 프로토콜로 변환하는 가벼운 로컬 프록시입니다.
@@ -244,9 +244,7 @@ ocx start     # 또는 `ocx service`
 ocx init      # 대화형 설정: ~/.opencodex/config.json을 쓰고 Codex를 연결합니다
 ```
 
-`ocx init`은 프록시를 시작하지 않습니다. 먼저 시작하세요. 나중이어도 순서는 상관없지만,
-`ocx provider add`와 `ocx combo set` 같은 헤드리스 명령은 **실행 중인** 프록시와 통신하며
-닿지 않으면 nonzero로 종료합니다. `ocx status` / `ocx doctor` / `ocx health`는 실행 상태를 보고합니다.
+`ocx init`은 프록시를 시작하지 않습니다. 설정 전이나 후에 시작할 수 있습니다. `ocx provider add`는 로컬 설정을 기록하므로 실행 중인 프록시가 필요하지 않습니다. `ocx combo set` 같은 실시간 관리 명령은 **실행 중인** 프록시와 통신하며, 접근할 수 없으면 0이 아닌 종료 코드를 반환합니다. `ocx status` / `ocx doctor` / `ocx health`는 실행 상태를 보고합니다.
 
 > **opencodex를 설치하거나 실행하는 에이전트:**
 > [`AGENTS_INSTALL.md`](../AGENTS_INSTALL.md)를 읽으세요. 대화형 `ocx start`는 이 저장소를 star할지
@@ -417,10 +415,14 @@ npm uninstall -g @bitkyc08/opencodex
 
 ## 원격 접근
 
-기본적으로 opencodex는 `127.0.0.1`에 바인딩되며 추가 인증이 필요 없습니다. 루프백 밖으로 바인딩하면
-(`"hostname": "0.0.0.0"`) bearer 토큰이 **필수**입니다. `OPENCODEX_API_AUTH_TOKEN`이 없으면 프록시가
-시작을 거부하고, 모든 클라이언트 요청은 `x-opencodex-api-key`로 토큰을 실어야 합니다. 자세한 내용은
-[설정 레퍼런스](https://opencodex.me/ko/reference/configuration/)를 보세요.
+기본적으로 opencodex는 `127.0.0.1`에 바인딩되며 데이터 영역의 추가 인증이 필요 없습니다.
+루프백 밖으로 바인딩하면(`"hostname": "0.0.0.0"`) **데이터 영역 인증 정보가 필요**합니다.
+데이터 토큰은 `OPENCODEX_API_AUTH_TOKEN`, `OCX_API_TOKEN_FILE` 또는 소유자만 접근할 수 있는
+`service-api-token` 파일에서 가져올 수 있습니다. 이 파일은 `ocx service install`로 생성할 수 있습니다.
+설정된 클라이언트 API 키도 데이터 영역 접근에 사용할 수 있습니다. 클라이언트는 허용된 인증 정보를
+`x-opencodex-api-key`로 보냅니다. 관리 기능은 별도의 `OPENCODEX_ADMIN_AUTH_TOKEN` 또는
+생성된 관리 토큰을 사용하며, 데이터 토큰으로 관리 기능에 접근할 수 없습니다.
+자세한 내용은 [설정 레퍼런스](https://opencodex.me/ko/reference/configuration/)를 보세요.
 
 ## 문서
 

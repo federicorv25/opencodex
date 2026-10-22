@@ -77,7 +77,7 @@ Sol oturumu yürütüyor ve bir Kimi K3 alt ajanını çağırıyor.
 </table>
 
 <p align="center">
-  <a href="../README.md">English</a> · <a href="README.fr.md">Français</a> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ru.md">Русский</a> · <a href="README.ja.md">日本語</a> · <b>Türkçe</b> · 📖 <a href="https://opencodex.me/tr/"><b>Tüm dokümantasyon →</b></a>
+  <a href="../README.md">English</a> · <a href="README.fr.md">Français</a> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ru.md">Русский</a> · <a href="README.ja.md">日本語</a> · <b>Türkçe</b> · <a href="README.es.md">Español</a> · 📖 <a href="https://opencodex.me/tr/"><b>Tüm dokümantasyon →</b></a>
 </p>
 
 opencodex, Codex'in Responses API'sini sağlayıcınızın konuştuğu protokole çeviren hafif bir yerel
@@ -254,9 +254,7 @@ ocx start     # ya da `ocx service`
 ocx init      # etkileşimli kurulum: ~/.opencodex/config.json yazar ve Codex'i bağlar
 ```
 
-`ocx init` proxy'yi hiçbir zaman başlatmaz; önce onu başlatın (ya da sonra — sıra fark etmez, ancak
-`ocx provider add` ve `ocx combo set` gibi başsız komutlar **çalışan** proxy ile konuşur ve ona
-ulaşamadıklarında sıfırdan farklı bir kodla çıkar). `ocx status` / `ocx doctor` / `ocx health`
+`ocx init` proxy’yi başlatmaz; kurulumdan önce veya sonra başlatabilirsiniz. `ocx provider add` yerel yapılandırmayı yazar ve çalışan bir proxy gerektirmez. `ocx combo set` gibi canlı yönetim komutları **çalışan** proxy ile iletişim kurar ve erişilemediğinde sıfırdan farklı bir çıkış kodu döndürür. `ocx status` / `ocx doctor` / `ocx health`
 çalışma durumunu bildirir.
 
 > **opencodex'i kuran ya da çalıştıran ajanlar:**
@@ -440,11 +438,14 @@ npm uninstall -g @bitkyc08/opencodex
 
 ## Uzaktan erişim
 
-opencodex varsayılan olarak `127.0.0.1` adresine bağlanır ve ek bir kimlik doğrulaması gerektirmez.
-Geri döngünün dışına bağlanmak (`"hostname": "0.0.0.0"`) bir bearer belirteci **gerektirir**: proxy
-`OPENCODEX_API_AUTH_TOKEN` olmadan başlamayı reddeder ve her istemci isteği bu belirteci
-`x-opencodex-api-key` olarak taşımalıdır. Ayrıntılar:
-[yapılandırma başvurusu](https://opencodex.me/tr/reference/configuration/).
+opencodex varsayılan olarak `127.0.0.1` adresine bağlanır ve veri düzlemi için ek kimlik doğrulaması gerektirmez.
+Geri döngü dışına bağlanmak (`"hostname": "0.0.0.0"`) **veri düzlemi kimlik bilgisi gerektirir**.
+Veri belirteci `OPENCODEX_API_AUTH_TOKEN`, `OCX_API_TOKEN_FILE` veya yalnızca sahibinin erişebildiği
+`service-api-token` dosyasından alınabilir; `ocx service install` bu dosyayı oluşturabilir.
+Yapılandırılmış istemci API anahtarları da veri düzlemine erişim sağlar. İstemciler kabul edilen
+kimlik bilgisini `x-opencodex-api-key` içinde gönderir. Yönetim için ayrı bir
+`OPENCODEX_ADMIN_AUTH_TOKEN` veya oluşturulmuş yönetici belirteci kullanılır; veri belirteci
+yönetim erişimi sağlamaz. Ayrıntılar: [yapılandırma başvurusu](https://opencodex.me/tr/reference/configuration/).
 
 ## Belgeler
 

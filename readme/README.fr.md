@@ -77,7 +77,7 @@ Sol pilote la session et appelle un sous-agent Kimi K3.
 </table>
 
 <p align="center">
-  <a href="../README.md">English</a> · <b>Français</b> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ru.md">Русский</a> · <a href="README.ja.md">日本語</a> · <a href="README.tr.md">Türkçe</a> · 📖 <a href="https://opencodex.me/fr/"><b>Documentation complète →</b></a>
+  <a href="../README.md">English</a> · <b>Français</b> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ru.md">Русский</a> · <a href="README.ja.md">日本語</a> · <a href="README.tr.md">Türkçe</a> · <a href="README.es.md">Español</a> · 📖 <a href="https://opencodex.me/fr/"><b>Documentation complète →</b></a>
 </p>
 
 opencodex est un proxy local léger qui traduit l'API Responses de Codex vers le protocole utilisé
@@ -257,9 +257,7 @@ ocx start     # ou `ocx service`
 ocx init      # configuration interactive : écrit ~/.opencodex/config.json et relie Codex
 ```
 
-`ocx init` ne démarre jamais le proxy ; démarrez-le d'abord (ou après — les deux ordres fonctionnent, mais les commandes
-sans interface comme `ocx provider add` et `ocx combo set` communiquent avec le proxy **actif** et se terminent avec un code différent de zéro
-s'il est inaccessible). `ocx status` / `ocx doctor` / `ocx health` indiquent l'état d'exécution.
+`ocx init` ne démarre jamais le proxy ; vous pouvez le démarrer avant ou après la configuration. `ocx provider add` écrit la configuration locale et ne nécessite pas de proxy en cours d’exécution. Les commandes de gestion en direct comme `ocx combo set` communiquent avec le proxy **actif** et se terminent avec un code différent de zéro s’il est inaccessible. `ocx status` / `ocx doctor` / `ocx health` indiquent l'état d'exécution.
 
 > **Agents qui installent ou exécutent opencodex :** lisez
 > [`AGENTS_INSTALL.md`](../AGENTS_INSTALL.md). Une exécution interactive de `ocx start` peut demander une
@@ -438,10 +436,14 @@ npm uninstall -g @bitkyc08/opencodex
 
 ## Accès distant
 
-Par défaut, opencodex se lie à `127.0.0.1` et ne nécessite aucune authentification supplémentaire. Une liaison au-delà
-de l'adresse de bouclage (`"hostname": "0.0.0.0"`) **nécessite** un jeton bearer — le proxy refuse de démarrer
-sans `OPENCODEX_API_AUTH_TOKEN`, et chaque requête cliente doit le fournir dans
-`x-opencodex-api-key`. Détails : [référence de configuration](https://opencodex.me/fr/reference/configuration/).
+Par défaut, opencodex écoute sur `127.0.0.1` sans authentification supplémentaire du plan de données.
+Une écoute au-delà de la boucle locale (`"hostname": "0.0.0.0"`) **exige un identifiant d'accès au plan de données**.
+Le jeton peut provenir de `OPENCODEX_API_AUTH_TOKEN`, de `OCX_API_TOKEN_FILE` ou du fichier
+`service-api-token`, accessible uniquement à son propriétaire et que `ocx service install` peut créer.
+Les clés API clientes configurées permettent également cet accès. Les clients envoient un identifiant
+accepté dans `x-opencodex-api-key`. L'administration utilise un jeton distinct :
+`OPENCODEX_ADMIN_AUTH_TOKEN` ou le jeton d'administration généré. Un jeton de données ne donne
+pas accès à l'administration. Détails : [référence de configuration](https://opencodex.me/fr/reference/configuration/).
 
 ## Documentation
 

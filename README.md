@@ -77,7 +77,7 @@ Sol drives the session and calls a Kimi K3 subagent.
 </table>
 
 <p align="center">
-  <a href="README.md">English</a> · <a href="readme/README.fr.md">Français</a> · <a href="readme/README.ko.md">한국어</a> · <a href="readme/README.zh-CN.md">简体中文</a> · <a href="readme/README.zh-TW.md">繁體中文</a> · <a href="readme/README.ru.md">Русский</a> · <a href="readme/README.ja.md">日本語</a> · <a href="readme/README.tr.md">Türkçe</a> · 📖 <a href="https://opencodex.me/"><b>Full documentation →</b></a>
+  <a href="README.md">English</a> · <a href="readme/README.fr.md">Français</a> · <a href="readme/README.ko.md">한국어</a> · <a href="readme/README.zh-CN.md">简体中文</a> · <a href="readme/README.zh-TW.md">繁體中文</a> · <a href="readme/README.ru.md">Русский</a> · <a href="readme/README.ja.md">日本語</a> · <a href="readme/README.tr.md">Türkçe</a> · <a href="readme/README.es.md">Español</a> · 📖 <a href="https://opencodex.me/"><b>Full documentation →</b></a>
 </p>
 
 opencodex is a lightweight local proxy that translates Codex's Responses API into whatever your
@@ -251,9 +251,7 @@ ocx start     # or `ocx service`
 ocx init      # interactive setup: writes ~/.opencodex/config.json and wires Codex
 ```
 
-`ocx init` never starts the proxy; start it first (or after — either order works, but headless
-commands like `ocx provider add` and `ocx combo set` talk to the **live** proxy and exit nonzero
-when it is unreachable). `ocx status` / `ocx doctor` / `ocx health` report the running state.
+`ocx init` never starts the proxy; you can start it before or after setup. `ocx provider add` writes local configuration and does not require a running proxy. Live management commands such as `ocx combo set` communicate with the **running** proxy and exit nonzero when it is unreachable. `ocx status` / `ocx doctor` / `ocx health` report the running state.
 
 > **Agents installing or running opencodex:** read
 > [`AGENTS_INSTALL.md`](./AGENTS_INSTALL.md). An interactive `ocx start` may ask once whether to
@@ -432,10 +430,14 @@ npm uninstall -g @bitkyc08/opencodex
 
 ## Remote access
 
-By default opencodex binds to `127.0.0.1` and needs no extra authentication. Binding beyond
-loopback (`"hostname": "0.0.0.0"`) **requires** a bearer token — the proxy refuses to start
-without `OPENCODEX_API_AUTH_TOKEN`, and every client request must carry it as
-`x-opencodex-api-key`. Details: [configuration reference](https://opencodex.me/reference/configuration/).
+By default opencodex binds to `127.0.0.1` and needs no extra data-plane authentication.
+Binding beyond loopback (`"hostname": "0.0.0.0"`) **requires a data-plane credential**.
+The data token can come from `OPENCODEX_API_AUTH_TOKEN`, `OCX_API_TOKEN_FILE`, or the
+owner-only `service-api-token` file that `ocx service install` can provision.
+Configured client API keys also provide data-plane admission. Clients send an accepted
+credential in `x-opencodex-api-key`. Management uses a separate
+`OPENCODEX_ADMIN_AUTH_TOKEN` or generated admin token; a data token does not grant
+management access. Details: [configuration reference](https://opencodex.me/reference/configuration/).
 
 ## Documentation
 

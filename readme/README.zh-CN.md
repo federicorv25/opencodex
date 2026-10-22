@@ -77,7 +77,7 @@ Sol 驱动会话，并调用 Kimi K3 子代理。
 </table>
 
 <p align="center">
-  <a href="../README.md">English</a> · <a href="README.fr.md">Français</a> · <a href="README.ko.md">한국어</a> · <b>简体中文</b> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ru.md">Русский</a> · <a href="README.ja.md">日本語</a> · <a href="README.tr.md">Türkçe</a> · 📖 <a href="https://opencodex.me/zh-cn/"><b>完整文档 →</b></a>
+  <a href="../README.md">English</a> · <a href="README.fr.md">Français</a> · <a href="README.ko.md">한국어</a> · <b>简体中文</b> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ru.md">Русский</a> · <a href="README.ja.md">日本語</a> · <a href="README.tr.md">Türkçe</a> · <a href="README.es.md">Español</a> · 📖 <a href="https://opencodex.me/zh-cn/"><b>完整文档 →</b></a>
 </p>
 
 opencodex 是一个轻量级本地代理，把 Codex 的 Responses API 翻译成你的提供商所讲的协议 ——
@@ -244,9 +244,7 @@ ocx start     # 或 `ocx service`
 ocx init      # 交互式设置：写入 ~/.opencodex/config.json 并接入 Codex
 ```
 
-`ocx init` 从不启动代理；先启动也可以，后启动也可以 —— 两种顺序都可行，但
-`ocx provider add`、`ocx combo set` 这类无头命令会连接**正在运行的**代理，无法访问时
-以非零状态退出。`ocx status` / `ocx doctor` / `ocx health` 报告运行状态。
+`ocx init` 不会启动代理；你可以在配置前或配置后启动代理。`ocx provider add` 写入本地配置，不要求代理正在运行。`ocx combo set` 等实时管理命令会连接**正在运行的**代理，无法访问时以非零状态退出。 `ocx status` / `ocx doctor` / `ocx health` 报告运行状态。
 
 > **正在安装或运行 opencodex 的代理：** 请阅读
 > [`AGENTS_INSTALL.md`](../AGENTS_INSTALL.md)。交互式 `ocx start` 可能会询问一次是否为
@@ -415,10 +413,13 @@ npm uninstall -g @bitkyc08/opencodex
 
 ## 远程访问
 
-默认情况下 opencodex 绑定到 `127.0.0.1`，无需额外认证。绑定超出
-回环（`"hostname": "0.0.0.0"`）**必须**提供 bearer 令牌 —— 没有
-`OPENCODEX_API_AUTH_TOKEN` 时代理会拒绝启动，并且每个客户端请求都必须把它放在
-`x-opencodex-api-key` 中。详情：[配置参考](https://opencodex.me/zh-cn/reference/configuration/)。
+默认情况下，opencodex 绑定到 `127.0.0.1`，不需要额外的数据平面认证。
+绑定到回环地址之外（`"hostname": "0.0.0.0"`）时，**必须提供数据平面凭据**。
+数据令牌可以来自 `OPENCODEX_API_AUTH_TOKEN`、`OCX_API_TOKEN_FILE`，
+或仅所有者可访问的 `service-api-token` 文件；`ocx service install` 可以创建此文件。
+已配置的客户端 API 密钥也可用于数据平面准入。客户端通过 `x-opencodex-api-key` 发送有效凭据。
+管理功能使用独立的 `OPENCODEX_ADMIN_AUTH_TOKEN` 或自动生成的管理令牌；
+数据令牌不授予管理权限。详情：[配置参考](https://opencodex.me/zh-cn/reference/configuration/)。
 
 ## 文档
 

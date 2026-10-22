@@ -77,7 +77,7 @@ Sol ведёт сессию и вызывает подагента Kimi K3.
 </table>
 
 <p align="center">
-  <a href="../README.md">English</a> · <a href="README.fr.md">Français</a> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.zh-TW.md">繁體中文</a> · <b>Русский</b> · <a href="README.ja.md">日本語</a> · <a href="README.tr.md">Türkçe</a> · 📖 <a href="https://opencodex.me/ru/"><b>Полная документация →</b></a>
+  <a href="../README.md">English</a> · <a href="README.fr.md">Français</a> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.zh-TW.md">繁體中文</a> · <b>Русский</b> · <a href="README.ja.md">日本語</a> · <a href="README.tr.md">Türkçe</a> · <a href="README.es.md">Español</a> · 📖 <a href="https://opencodex.me/ru/"><b>Полная документация →</b></a>
 </p>
 
 opencodex — лёгкий локальный прокси, который транслирует Responses API Codex в протокол,
@@ -261,9 +261,7 @@ ocx start     # или `ocx service`
 ocx init      # интерактивная настройка: пишет ~/.opencodex/config.json и подключает Codex
 ```
 
-`ocx init` никогда не запускает прокси; запустите его сначала (или после — оба порядка
-работают, но headless-команды вроде `ocx provider add` и `ocx combo set` обращаются к
-**живому** прокси и завершаются с ненулевым кодом, если он недоступен). `ocx status` /
+`ocx init` никогда не запускает прокси; его можно запустить до или после настройки. `ocx provider add` записывает локальную конфигурацию и не требует работающего прокси. Команды оперативного управления, например `ocx combo set`, обращаются к **работающему** прокси и завершаются с ненулевым кодом, если он недоступен. `ocx status` /
 `ocx doctor` / `ocx health` показывают состояние запущенного процесса.
 
 > **Агентам, которые устанавливают или запускают opencodex:** прочитайте
@@ -445,10 +443,14 @@ npm uninstall -g @bitkyc08/opencodex
 
 ## Удалённый доступ
 
-По умолчанию opencodex привязывается к `127.0.0.1` и не требует дополнительной аутентификации.
-Привязка за пределами loopback (`"hostname": "0.0.0.0"`) **требует** bearer-токен — прокси
-откажется запускаться без `OPENCODEX_API_AUTH_TOKEN`, и каждый клиентский запрос должен нести его
-как `x-opencodex-api-key`. Подробности: [справочник по конфигурации](https://opencodex.me/ru/reference/configuration/).
+По умолчанию opencodex привязывается к `127.0.0.1` без дополнительной аутентификации запросов к моделям.
+Привязка за пределами loopback (`"hostname": "0.0.0.0"`) **требует учётных данных для доступа к моделям**.
+Токен может поступать из `OPENCODEX_API_AUTH_TOKEN`, `OCX_API_TOKEN_FILE` или файла
+`service-api-token`, доступного только владельцу; этот файл может создать `ocx service install`.
+Настроенные клиентские API-ключи также разрешают доступ к моделям. Клиенты передают допустимые
+учётные данные в `x-opencodex-api-key`. Для управления используется отдельный
+`OPENCODEX_ADMIN_AUTH_TOKEN` или сгенерированный административный токен. Токен доступа к моделям
+не даёт прав управления. Подробности: [справочник по конфигурации](https://opencodex.me/ru/reference/configuration/).
 
 ## Документация
 
