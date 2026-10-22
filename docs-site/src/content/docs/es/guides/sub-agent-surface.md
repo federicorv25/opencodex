@@ -59,6 +59,44 @@ opencodex aplica esto como el pase final tanto al catálogo en vivo `/v1/models`
 
 Para una lista v2, la elegibilidad tiene tres estados: una entrada sellada `"v2"`, explícitamente establecida en `null`, o con ningún campo `multi_agent_version` es elegible. Se excluye un pin genuino `"v1"` porque establece que el modelo pertenece a la otra superficie de colaboración.
 
+<a id="which-models-spawn_agent-advertises"></a>
+
+## Qué modelos anuncia `spawn_agent`
+
+Codex muestra como máximo cinco modelos en la descripción de `spawn_agent`. Los elige ordenando las filas visibles del catálogo por `priority`, de menor a mayor, y tomando las cinco primeras. La lista de la página **Subagentes** (`subagentModels`) influye en esa selección al asignar a sus modelos las prioridades más bajas, en el orden configurado (`0` a `4` si no hay selectores de cuenta). No limita la selección exclusivamente a esos modelos.
+
+Si destacas entre uno y cuatro modelos, Codex completa los espacios restantes con las siguientes filas por prioridad. Esas filas no las elegiste tú y el dashboard no muestra cuáles son. Dependen del catálogo:
+
+| Catálogo | Filas que completan los espacios restantes |
+| --- | --- |
+| Sin selectores de cuenta de Codex | Las demás filas enrutadas `provider/model`. Todas tienen prioridad `5`, por lo que se ordenan alfabéticamente por proveedor y después por identificador de modelo. Las filas GPT nativas no destacadas tienen una prioridad de al menos `100` más la cantidad de identificadores destacados, y aparecen después. |
+| Con selectores de cuenta de Codex | Las filas nativas calificadas por cuenta (`<selector>/<native-model>`), inmediatamente después de las destacadas. Las filas enrutadas no destacadas pasan a la prioridad `1005` y quedan detrás. |
+
+Por ejemplo, sin selectores de cuenta y con esta lista:
+
+```json
+{ "subagentModels": ["xai/grok-4.5", "anthropic/claude-sonnet-5"] }
+```
+
+| Posición | Modelo | Prioridad | Motivo |
+| ---: | --- | ---: | --- |
+| 1 | `xai/grok-4.5` | `0` | Primera entrada de la lista |
+| 2 | `anthropic/claude-sonnet-5` | `1` | Segunda entrada de la lista |
+| 3 | `deepseek/deepseek-v4-flash` | `5` | Primera fila enrutada restante en orden alfabético |
+| 4 | `google/gemini-3-pro` | `5` | Siguiente fila enrutada |
+| 5 | `moonshot/kimi-k3` | `5` | Siguiente fila enrutada |
+| 6+ | `zai/glm-5.2`, y después las filas GPT nativas | `5`, y después `102` | Fuera de las cinco primeras |
+
+Con la lista vacía, opencodex no fija ninguna prioridad y se eligen las cinco filas según las prioridades habituales del catálogo.
+
+Los modelos que completan la lista se anuncian normalmente, así que el agente principal puede elegirlos. La lista tampoco es una lista de permisos: Codex acepta un modelo del catálogo que esté fuera de las cinco primeras filas si el agente principal lo nombra exactamente. Para controlar lo que anuncia Codex:
+
+- Destaca cinco modelos. Una lista completa no deja espacios por rellenar.
+- Desactiva un modelo que no quieras que se ofrezca, o exclúyelo de `selectedModels` de su proveedor. Sale del selector y no puede completar un espacio.
+- `modelPickerOrder` cambia las prioridades usadas para ordenar. Una lista formada solo por modelos enrutados mueve sus filas no destacadas a `1000` o más, de modo que las filas enrutadas que no figuren en ella completan primero los espacios. Si contiene un identificador nativo sin calificar, ordena todo el selector, incluidas las filas destacadas: las filas de la lista ocupan los espacios antes que cualquier fila que no figure en ella. Véase [Orden de modelos](/es/guides/model-ordering/).
+
+En v2, Codex excluye las filas con valor fijo `"disabled"` antes de elegir las cinco; el resto funciona igual. La guía v2 de opencodex (`{{roster}}`) solo nombra los modelos configurados que estén entre esas cinco filas. Por eso los modelos de relleno aparecen en la descripción de la herramienta de Codex, pero no en la guía de opencodex. Codex lee el catálogo al iniciar una sesión, así que los cambios de la lista se aplican a sesiones nuevas.
+
 <a id="delegation-model-and-effort"></a>
 
 ## Modelo de delegación y esfuerzo
@@ -208,7 +246,7 @@ No. La guía puede recomendar un modelo, y la sincronización nativa predetermin
 
 <a id="why-did-my-v2-child-use-the-parent-model"></a>
 
-### ¿Por qué mi hijo v2 usó el modelo de padre?
+### ¿Por qué mi subagente v2 usó el modelo principal?
 
 Una bifurcación v2 con el historial completo hereda el modelo del agente principal. Para indicar otro modelo o esfuerzo de razonamiento al crear el subagente, establezca `fork_turns` en `"none"` o en un recuento parcial positivo.
 
@@ -218,9 +256,15 @@ Una bifurcación v2 con el historial completo hereda el modelo del agente princi
 
 Puede estar oculto por el selector, fuera del límite de visualización de cinco modelos, falta en el catálogo o anclado a v1. Un `"v2"`, `null`, o el valor de superficie ausente es elegible; un verdadero `"v1"` pin no lo es.
 
+<a id="why-does-spawn_agent-list-models-i-did-not-feature"></a>
+
+### ¿Por qué `spawn_agent` muestra modelos que no destaqué?
+
+Codex completa hasta cinco posiciones según la prioridad de las filas del catálogo. Si destacas menos de cinco modelos, las filas siguientes ocupan los espacios restantes. Véase [Qué modelos anuncia `spawn_agent`](#which-models-spawn_agent-advertises).
+
 <a id="do-mode-changes-affect-running-sessions"></a>
 
-### ¿Los cambios de modo afectan a las sesiones de running?
+### ¿Los cambios de modo afectan a las sesiones en ejecución?
 
 No. Inicie una nueva sesión Codex después de cambiar el modo. Si un host de aplicaciones de larga duración aún muestra un estado de catálogo obsoleto, ejecute `ocx sync` y reinicie esa superficie Codex.
 

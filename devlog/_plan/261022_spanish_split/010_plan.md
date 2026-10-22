@@ -86,8 +86,10 @@ and workflow implementations remain outside this contribution.
 
 Merged dev at `ec8b8cfac11e8f179c4351f01baa32d76a71dd1b`, preserving both the new
 chat layout shard and this branch's docs shard, then at
-`9164950d926c770875a267edfeb74183af5caebc`. Spanish now includes the latest Desktop
-picker-state uncertainty and Antigravity family-quota evidence rules.
+`9164950d926c770875a267edfeb74183af5caebc` and the docs-only update
+`880127dbd356c720779222a14a97c11adc8cf881`. Spanish now includes Desktop
+picker-state uncertainty, Antigravity family-quota evidence and the five-slot
+`spawn_agent` model-selection rules, including both account-selector cases.
 
 Current validation: frozen root/docs installs, root typecheck and structure check
 passed. The explicit docs/layout/hygiene/export/preview/service-auth group ran 588
@@ -95,8 +97,8 @@ tests: 587 passed and the repository file-size scan timed out under the parallel
 runner. Its isolated retry passed all 9 cases, with the repository scan completing
 in 602 ms; no size cap or guard was changed. The root-suite resource exception
 above still applies. The final Spanish-doc regression run passed all 15 tests
-(2,126 assertions). The final offline site build completed with 667 pages and
-97,587 checked internal links, Pagefind and sitemap. Desktop authentication and
+(2,132 assertions). The final offline site build completed with 667 pages and
+97,652 checked internal links, Pagefind and sitemap. Desktop authentication and
 service-token sections, mobile sidecar controls, six rendered coding benchmark
 boards and Spanish search results were inspected in the real browser. The token
 search returned 49 results. Screenshot evidence is pinned outside the source
