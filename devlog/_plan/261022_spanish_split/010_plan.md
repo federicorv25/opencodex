@@ -19,8 +19,10 @@ own diff; a clean merge today does not guarantee compatibility with future dev.
 
 ## Documentation base and scope
 
-Base: `782655d2317d4c14a99d6db72e9be3368a27886d`, 23 commits after the combined
-PR's last integration base. Recovered changes use that base's files and retain
+Initial base: `782655d2317d4c14a99d6db72e9be3368a27886d`, 23 commits after the combined
+PR's last integration base. Before submission dev advanced to
+`5f7f7db5765c7e99ab2f52c04d9fe0e4ce7608cf`; it was merged and its published
+macOS storage-refusal clarification was synchronized in Spanish. Recovered changes use that base's files and retain
 its new CLI registration and fallback navigation. The docs branch changes no
 dashboard catalog, backend source, dependency, release or workflow implementation.
 
@@ -38,6 +40,11 @@ The timezone-dependent GUI test belongs to the separate dashboard branch.
   1.4.4; tests use the required Bun 1.4.3 in ignored scratch space. Its official
   archive SHA-256 was verified against the GitHub release asset digest.
 - Root `bun run typecheck`: passed.
+- Final Spanish docs after the Pi contract guard: 15 passed, 0 failed (2,126 assertions).
+- Structure and privacy scan: passed on staged files.
+- Actual-browser inspection: Spanish landing/fallback guide at 1366 px, Pi at
+  390 px, localized code controls, no horizontal page overflow, and 17 Spanish
+  Pagefind results for fallback. Captures remain outside the source branch.
 - Initial Spanish docs and both layout tests: 41 passed, 0 failed.
 - All docs guards, structure/hygiene/size and CLI export: 445 passed, one size
   scan timed out while the docs build was running. Isolated size-guard retry
