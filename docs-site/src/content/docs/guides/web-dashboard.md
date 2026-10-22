@@ -190,6 +190,8 @@ the surface selector. These controls do not query historical records beyond the 
 
 The language picker includes **Português** (Brazilian Portuguese, `pt-BR`). Portuguese browser languages select it automatically unless a supported language preference is already saved.
 
+**Español** uses neutral Spanish. Spanish browser locales such as `es-BO`, `es-MX` and `es-ES` select it automatically unless a supported `ocx-lang` preference is already saved. The document language is `es`, and quota dates use Spanish regional formatting.
+
 ### Linking to a section
 
 There is a single layout, so there is no layout switch to configure. Dashboard sections are
