@@ -114,6 +114,6 @@ Un fallo del asesor no bloquea la tarea. Si una consulta ya enviada (DISPATCHED)
 
 ## Limitaciones
 
-- Los giros de paso nativos OpenAI (ChatGPT -trabajadores de el grupo) no obtienen la herramienta sintética; el soporte del asesor cubre los proveedores enrutados (traducidos). La consulta previa se aplica a los adaptadores de ejecución-giro; la herramienta no.
+- Los giros de paso nativos OpenAI (ChatGPT -trabajadores del grupo) no obtienen la herramienta sintética; el soporte del asesor cubre los proveedores enrutados (traducidos). La consulta previa se aplica a los adaptadores de ejecución-giro; la herramienta no.
 - No hay detección semántica atascada, revisión de finalización, escalada de niveles, múltiples asesores o votación. La consulta adaptativa requiere la validación/edición/evidencia de reintento estructurada descrita anteriormente.
 - El libro mayor de desarrollo previo al vuelo es local de proceso; después de un reinicio proxy, una tarea en progreso puede recibir un intento más de prevuelo.

@@ -83,7 +83,7 @@ La parte superior de cada página, salvo Inicio, muestra en una línea el uso de
 | Zona | Lo que hace |
 | --- | --- |
 | **Resumen del panel** | Modo multiagente, estado en línea, versión, tiempo de actividad, recuento de proveedores, total de 30 días de token, proveedores activos y modelos nativos/enrutados disponibles. |
-| **Retención del razonamiento nativo** | Opte independientemente por razonar el reenvío de texto cifrado en el modelo nativo o los cambios en la cuenta. Ambos por defecto fuera; retención de la cuenta es experimental. Véase [el ámbito de configuración](/es/reference/configuration/server/#native-reasoning-retention). |
+| **Retención del razonamiento nativo** | Activa por separado el reenvío de razonamiento cifrado al cambiar de modelo nativo o de cuenta. Ambas opciones están desactivadas por defecto; la retención entre cuentas es experimental. Véase [el ámbito de configuración](/es/reference/configuration/server/#native-reasoning-retention). |
 | **Delegación de subagentes** | Elija un modelo nativo o enrutado y un esfuerzo de razonamiento opcional compartido por la guía de delegación OpenCodex y el opt-in nativo predeterminado separado. Este no es un router proxy por spawn; ver más abajo. |
 | **Sidecares** | Elija el modelo de búsqueda web y el esfuerzo más el modelo de descripción de la visión. Los cambios se aplican en la siguiente solicitud. |
 | **Mantenimiento** | Vuelva a sincronizar el catálogo de modelos Codex, inspeccione las advertencias de omisión de configuración de proyecto-local, compruebe la versión más reciente o de vista previa y ejecute una actualización con reinicio proxy opcional. En el shell de escritorio, su entrada de actualización abre la página de actualización de la aplicación nativa en lugar de ejecutar el actualizador de paquetes. |
@@ -225,7 +225,7 @@ El grupo de cuentas es una función técnica de administración de cuentas, enru
 - Los cambios de agregar, quitar y seleccionar cuentas se guardan antes de actualizar el catálogo de modelos. Si esa actualización limitada no puede terminar, el panel de control muestra un aviso ámbar de éxito con recuperación; ejecutar `ocx sync` para reintentar. El cambio de cuenta o configuración en sí permanece guardado.
 
 La descripción general de los proveedores resume por separado el uso del modo Pool como una capacidad ponderada solo para pantalla estimación, junto con la cuota bruta de la cuenta efectiva y la próxima recuperación de capacidad. Véase
-[Capacidad de la grupo](/es/guides/providers/#providers-overview-pool-capacity) por el campos visibles, significado de cobertura incompleta y límite de enrutamiento.
+[Capacidad del grupo](/es/guides/providers/#providers-overview-pool-capacity) por el campos visibles, significado de cobertura incompleta y límite de enrutamiento.
 
 <a id="starring-is-yours-to-decide-not-an-agents"></a>
 
@@ -312,6 +312,6 @@ En **Proveedores**, **Conexión de prueba** comprueba la conectividad de descubr
 
 La prueba de finalización envía `Reply exactly OK.` una vez con una tapa de salida 32-token, una fecha límite de 20 segundos y un límite de 64 KiB. Se reporta TTFT en el primer delta de texto no vacío, latencia total, el modelo informado en sentido ascendente y una coincidencia, Desajuste o comparación desconocida con el id del modelo de cable. Falta o conflicto Los metadatos ascendentes no verifican la identidad del modelo. El panel muestra la razón de aplicabilidad cuando se configura la autenticación, el adaptador o el transporte no puede ser probado. No se muestra ningún texto generado, y el diagnóstico no actualizar el estado de enrutamiento, el historial de solicitudes o el catálogo de proveedores.
 
-El punto final de administración autenticado es
+El endpoint de administración autenticado es
 `POST /api/providers/test-completion?name=<provider>` con exactamente
-`{"model":"<model>","confirm":true}`. Las sesiones del panel requieren su CSRF habitual token. La entrada no válida devuelve 400, los proveedores desconocidos devuelven 404 y una entrada concurrente 400. prueba para el mismo proveedor devuelve 409. Diagnóstico y aplicabilidad completos resultados devuelven 200, incluyendo un error estructurado cuando falla la inferencia. Destino Se aplican las configuración de política y salida del proveedor; los redireccionamientos, reintentos y conmutación por error están deshabilitados. Para el flujo de trabajo CLI, consulte [Proveedores y cuentas](/es/reference/cli/providers-accounts/).
+`{"model":"<model>","confirm":true}`. Las sesiones del dashboard requieren su token CSRF habitual. La entrada inválida devuelve 400, un proveedor desconocido devuelve 404 y otra prueba concurrente para el mismo proveedor devuelve 409. Diagnóstico y aplicabilidad completos resultados devuelven 200, incluyendo un error estructurado cuando falla la inferencia. Destino Se aplican las configuración de política y salida del proveedor; los redireccionamientos, reintentos y conmutación por error están deshabilitados. Para el flujo de trabajo CLI, consulte [Proveedores y cuentas](/es/reference/cli/providers-accounts/).

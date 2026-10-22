@@ -257,7 +257,7 @@ Cuando se omite `--management-url`, se toma de la respuesta `/readyz`, que infor
 
 Esa trampa es sobre el **enlace**, y sigue siendo cierto. Obtener un conector `127.0.0.1` en un concentrador para los propios procesos del concentrador es un problema diferente, y [`unauthenticatedLoopbackListener`](#one-port-and-the-ported-alternative) es la respuesta sancionada: el enlace público permanece en la dirección de la red Tailscale con la admisión activada, y un segundo conector sirve a las personas que llaman locales. No es un objetivo TLS, por la razón dada anteriormente.
 
-La vinculación `0.0.0.0` también funciona y elimina la necesidad de un promotor, ya que el oyente es entonces accesible en loopback también. Publica el puerto de datos en cada interfaz, por lo que lo prefiere solo donde el host no tiene otra red que le importe, y tenga en cuenta que la forma complementaria de `unauthenticatedLoopbackListener` se rechaza en un enlace comodín, porque el oyente público ya tiene `127.0.0.1:<port>` allí.
+La vinculación `0.0.0.0` también funciona y elimina la necesidad de un promotor, ya que el oyente es entonces accesible en loopback también. Publica el puerto de datos en cada interfaz, por lo que lo prefiere solo dondel host no tiene otra red que le importe, y tenga en cuenta que la forma complementaria de `unauthenticatedLoopbackListener` se rechaza en un enlace comodín, porque el oyente público ya tiene `127.0.0.1:<port>` allí.
 
 Vuelva a ejecutar las comprobaciones de aceptación contra el origen de datos HTTPS una vez que Serve esté activo: `/readyz`, un `GET /v1/catalog` autenticado y una respuesta enrutada real.
 

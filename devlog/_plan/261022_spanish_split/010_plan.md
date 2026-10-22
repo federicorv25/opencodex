@@ -66,3 +66,40 @@ Keep the first submission Draft for owner/localization acceptance. Do not reuse
 old CI receipts as validation of a new head. Do not repeatedly request bot
 reviews or wait for their completion after publication; the contributor will
 inspect the result. Screenshot evidence belongs outside the feature branches.
+
+## PR #7559 consolidated review correction
+
+Reviewed all 36 CodeRabbit threads against canonical English and, for operational
+claims, the current service guards, stop path, sidecar settings and CI workflow.
+The corrections cover authentication, service repair/restart, search disable and
+journal recovery, preview exit codes, adapter contracts and Spanish terminology.
+Two suggested premises needed qualification: explicit `ocx stop` stops a managed
+service and then restores native Codex; a valid refused preview can exit 0 because
+inspection succeeded without applying a change. Neither was changed into the
+incorrect behavior suggested by the review wording.
+
+The adjacent semantic pass also restored default-off wording for subagent force,
+native subagent defaults, native WebSocket controls and custom context inference.
+It checked account/queue/adapter state distinctions and removed unavailable
+benchmark-filter instructions from every locale. The current backend, dependency
+and workflow implementations remain outside this contribution.
+
+Merged dev at `ec8b8cfac11e8f179c4351f01baa32d76a71dd1b`, preserving both the new
+chat layout shard and this branch's docs shard, then at
+`9164950d926c770875a267edfeb74183af5caebc`. Spanish now includes the latest Desktop
+picker-state uncertainty and Antigravity family-quota evidence rules.
+
+Current validation: frozen root/docs installs, root typecheck and structure check
+passed. The explicit docs/layout/hygiene/export/preview/service-auth group ran 588
+tests: 587 passed and the repository file-size scan timed out under the parallel
+runner. Its isolated retry passed all 9 cases, with the repository scan completing
+in 602 ms; no size cap or guard was changed. The root-suite resource exception
+above still applies. The final Spanish-doc regression run passed all 15 tests
+(2,126 assertions). The final offline site build completed with 667 pages and
+97,587 checked internal links, Pagefind and sitemap. Desktop authentication and
+service-token sections, mobile sidecar controls, six rendered coding benchmark
+boards and Spanish search results were inspected in the real browser. The token
+search returned 49 results. Screenshot evidence is pinned outside the source
+branch at `588c95e9e636700f2035311017328d5670451e4a` on `pr-assets`.
+Privacy scan and diff whitespace checks passed. Keep the Draft and independent
+human language/render-acceptance hold; an agent's inspection is not that approval.
