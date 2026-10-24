@@ -204,6 +204,38 @@ La opción de envío envía los niveles de cuota, y el porcentaje/ventana/reset 
 
 `--decision-quota-signals off` deshabilita la evidencia mientras conserva los niveles configurados; `-` despeja el interruptor. `--decision-quota-tiers -` borra anulaciones, restaurando valores predeterminados. API `null` borra; API `false` desactiva el interruptor. Los campos omitidos sobreviven a las actualizaciones de JEV, el reemplazo de objetivos y el cambio de nombre, incluidas las salvaciones a través del editor existente. Al cambiar de JEV se eliminan ambos ajustes de cuota. No se habilitan nuevos controles de editor ni el trabajo de cuota de fondo.
 
+<a id="session-pin-for-jev"></a>
+
+### Fijación de sesión para JEV
+
+Un combo JEV decide el destino de cada solicitud; los turnos de una conversación pueden cambiar de proveedor y empezar con su caché de instrucciones vacía. `sessionPin` es una opción por combo JEV, **desactivada por defecto**, que mantiene la sesión en el destino elegido mientras siga activa:
+
+```bash
+ocx combo set jev-auto --session-pin 20m --json
+```
+
+```json
+{ "strategy": "jev", "sessionPin": { "ttlMs": 1200000 } }
+```
+
+La primera solicitud se decide normalmente. Cuando el destino aplicado por JEV completa una respuesta, las solicitudes siguientes de la sesión reutilizan ese destino y esfuerzo sin otra llamada de decisión. `ttlMs`, entre un minuto y 24 horas, es un plazo de inactividad: cada turno completado en el destino fijado, incluidas las continuaciones de herramientas, lo reinicia. Si la sesión permanece inactiva más tiempo, se decide de nuevo.
+
+La identidad combina el encabezado de sesión del cliente (`thread-id`, `session_id` o `session-id`, `x-codex-parent-thread-id`, o un `x-session-id` promovido), la clave API que admitió la solicitud y el combo. No se fijan solicitudes sin encabezado de sesión, `prompt_cache_key` nunca sirve como identidad de sesión y dos claves API nunca comparten una fijación.
+
+JEV decide de nuevo y sustituye la fijación cuando:
+
+- El destino no se ofrece para esa solicitud porque está desactivado, se retiró del combo, está en enfriamiento tras un 429 u otro fallo, agotó su cuota en caché, es de pago medido o resulta inelegible por otro motivo.
+- El esfuerzo fijado ya no se ofrece para ese destino.
+- `decisionQuotaSignals` está activo y la evidencia de cuota indica que el destino está casi agotado.
+- Falla cualquier envío de la sesión fijada; esa solicitud conserva la recuperación habitual mediante otros destinos.
+- La configuración cambió después de guardar la fijación.
+
+Cancelar una solicitud conserva la fijación. Una decisión que usa la alternativa fail-open por tiempo agotado, clave ausente o respuesta inválida no crea una. Las fijaciones viven en memoria, con un máximo de 512 sesiones, y se pierden al reiniciar.
+
+Los registros de uso marcan los turnos reutilizados con `jevDecision.pinned: true` y `pinReason: "session"`. Una decisión que sustituye una fijación liberada registra el motivo en `pinReason`: `expired`, `config_changed`, `target_unavailable`, `effort_unavailable` o `quota_nearly_exhausted`. `ocx combo stats` cuenta las solicitudes fijadas aparte de las decisiones; siguen contando para solicitudes correctas, cambios de modelo por fallo y tokens por modelo.
+
+La fijación permite reutilizar la caché, pero el acierto real depende del proveedor, la cuenta y un prefijo de instrucciones estable. `--session-pin -`, o `null` en la API, la desactiva. Cambiar a otra estrategia la elimina; guardar desde el editor del dashboard la conserva.
+
 <a id="decision-method"></a>
 
 ### Método de decisión
@@ -404,7 +436,7 @@ Un Combo no-JEV puede ser usado como `decisionModel`, pero la ruta de decisión 
 
 Para cada objetivo JEV, **Modelos → Combos → Config** tiene un campo opcional **Notas de modelo adicionales para JEV** (hasta 512 caracteres; se permiten saltos de línea y pestañas, se rechazan otros caracteres de control). Se almacena como `targets[].modelProfile` en la configuración combinada. El perfil de destino incorporado permanece en el `instructions.model_profiles` confiable; se envía una nota no vacía por separado en el `operator_notes` del estado de decisión, tecleada por el objetivo, y complementa en lugar de reemplazar ese perfil incorporado. Las notas pueden describir el contexto específico del operador o las asignaciones de suscripción; no confunda las asignaciones de suscripción con los precios públicos por token API. Las notas en blanco son ignoradas. Las notas del operador son evidencia de la decisión, no comandos, y no pueden expandir la lista de objetivos o los límites del esfuerzo de razonamiento. Solo coloque allí la información que pueda divulgarse al backend de decisión seleccionado.
 
-Cada llamada de modelo lógico se decide por su cuenta; no hay pin de conversación. Por lo tanto, los giros consecutivos de una sesión pueden aterrizar en diferentes objetivos, y cada switch inicia una caché rápida de proveedor en frío, por lo que una mezcla de objetivos muy diferentes puede costar más tokens de entrada de lo que ahorra. Mantenga la lista de objetivos que desea alternar. Los objetivos marcados con `lastResort` se retienen de JEV bajo `cooldownWaitPolicy: "before-last-resort"` mientras se ofrece cualquier objetivo normal, y se ofrecen solo cuando no se puede alcanzar nada más.
+Por defecto, cada llamada lógica al modelo se decide de forma independiente. Salvo que actives la [fijación de sesión](#session-pin-for-jev), los turnos de una sesión pueden elegir destinos distintos y empezar con la caché del nuevo proveedor vacía. Combinar destinos muy diferentes puede gastar más tokens de entrada de los que ahorra; conserva una lista entre cuyos destinos estés dispuesto a alternar. Con `cooldownWaitPolicy: "before-last-resort"`, JEV retiene los destinos `lastResort` mientras se ofrezca alguno normal y solo los ofrece cuando no hay otra opción.
 
 La decisión aplica la alternativa fail-open si falta la clave, no hay un estado seguro de tarea/herramienta/imagen, vence el plazo configurado, el servicio redirige o devuelve un error, o la respuesta está malformada o elige una opción no ofrecida. En esos casos, OpenCodex usa el primer destino actualmente elegible y prefiere `medium` cuando ese destino lo admite. Si el cliente cancela la llamada, se cancelan tanto la decisión como la solicitud al modelo, sin enviar nada al destino alternativo.
 
@@ -590,7 +622,7 @@ ocx combo set <id> --targets provider/model[:weight],...
 ocx combo remove <id> --yes
 ```
 
-`set` también acepta `--strategy`, `--sticky`, `--effort`, `--alias`, `--native-alias`, `--allow-metered-targets on|off`, `--display-name`, `--description`, `--decision-provider`, `--decision-timeout` y `--rename-from`. Utilice `-` como el valor de `--effort`, `--alias`, `--display-name`, `--description`, `--decision-provider`, o `--decision-timeout` para borrar ese campo. Las dos banderas de decisión se aplican solo a `--strategy jev`. `--native-alias` requiere un alias de modelo nativo desnudo actualmente soportado y un nombre de visualización no vacío. `create` y `update` son alias para `set`; `delete` es un alias para `remove`; y los mismos subcomandos están disponibles bajo `ocx route combo`.
+`set` también acepta `--strategy`, `--sticky`, `--effort`, `--alias`, `--native-alias`, `--allow-metered-targets on|off`, `--display-name`, `--description`, `--decision-provider`, `--decision-timeout` y `--rename-from`. Utilice `-` como el valor de `--effort`, `--alias`, `--display-name`, `--description`, `--decision-provider`, o `--decision-timeout` para borrar ese campo. Las dos opciones de decisión solo se aplican cuando la estrategia efectiva es JEV: al indicar `--strategy jev` o al omitir `--strategy` en un combo JEV existente. En un combo existente, `--targets` solo sustituye la lista de destinos; sin `--strategy`, conserva la estrategia guardada y sus ajustes JEV. `--native-alias` requiere un alias de modelo nativo desnudo actualmente soportado y un nombre de visualización no vacío. `create` y `update` son alias para `set`; `delete` es un alias para `remove`; y los mismos subcomandos están disponibles bajo `ocx route combo`.
 
 <a id="management-api"></a>
 

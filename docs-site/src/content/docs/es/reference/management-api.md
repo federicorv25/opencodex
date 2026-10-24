@@ -192,7 +192,7 @@ Las instantáneas de sesión incluyen `resumable`. Se vuelve cierto sólo despu�
 | Método y ruta | Finalidad | Errores notables |
 | --- | --- | --- |
 | `GET /api/combos` | Lista de combos normalizados y sus ID de modelo público | El trabajo del catálogo puede devolver `catalog_busy` |
-| `PUT /api/combos` | Crear, reemplazar o cambiar el nombre de un combo | 400 identificación inválida, destino, configuración, cambio de nombre o colisión ordinaria; 409 Codex -colisión de espacio de nombres de cuenta |
+| `PUT /api/combos` | Crea, sustituye o renombra un combo. | 400 si el identificador, destino, configuración o cambio de nombre son inválidos, o hay una colisión ordinaria; un 400 de validación también identifica el primer campo superior inválido en `field`, por ejemplo `targets` o `decisionProvider`. 409 si hay colisión con el espacio de nombres de una cuenta Codex. |
 | `DELETE /api/combos?id=...` | Eliminar un combo y borrar su estado de selección/enfriamiento | 400 identificaciones faltantes; 404 - Categoría no encontrada |
 
 Consulte [Combos](/es/guides/combos/) para conocer las estrategias de destino, los tiempos de reutilización, los alias y los fallos de enrutamiento.

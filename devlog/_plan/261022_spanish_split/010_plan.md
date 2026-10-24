@@ -105,3 +105,51 @@ search returned 49 results. Screenshot evidence is pinned outside the source
 branch at `588c95e9e636700f2035311017328d5670451e4a` on `pr-assets`.
 Privacy scan and diff whitespace checks passed. Keep the Draft and independent
 human language/render-acceptance hold; an agent's inspection is not that approval.
+
+## PR #7559 owner-requested refresh, October 23
+
+Addressed the owner's [October 24 UTC triage comment](https://github.com/lidge-jun/opencodex/pull/7559#issuecomment-6378349500).
+Merged `dev` first at `2494848f56e8a4f283722b2ebd816977e828c7af`, then at
+`ceef4889e4666dc0492a375d272eafa5b785361e` (2.93.0), preserving published history.
+All eight upstream test-layout shards remain byte-for-byte identical to that
+base; the Spanish documentation shard is appended without dropping any shard.
+The provider documentation retains upstream's new Alibaba Token Plan section.
+
+Corrected the remaining nonblank condition in `es/reference/adapters.md`: a
+string must contain a non-whitespace character to be converted, while empty and
+whitespace-only strings remain unchanged. The existing runtime regression file
+checks those cases and exact whitespace preservation. Updated Spanish to match
+current JEV session pinning and saved strategies, Antigravity per-account model
+availability, provider discovery and credits, Hermes affinity, native effort
+normalization, Remote Link readiness/retry diagnostics, and the Bun 1.4.4 runtime.
+The landing also translates the new code-signing-policy link while retaining the
+required English signing attribution verbatim.
+
+Validation for this refresh:
+
+- Frozen root, GUI and docs-site installs passed; no contribution-owned lockfile
+  or dependency changes. Tests use isolated Bun 1.4.3 through `scripts/test.ts`.
+- All docs guards plus layout, structure, hygiene, routed-agent conversion and
+  CLI-export regressions: 512 passed, 0 failed, 4,661 assertions across 20 files.
+- Separate file-size guard: 9 passed, 0 failed, 85 assertions. No cap changed.
+- After the final upstream merge, fixture teardown, Codex auth-context and
+  server-management-auth regressions: 143 passed, 0 failed, 693 assertions.
+- After the final Spanish edits, the Spanish documentation guard was rechecked:
+  15 passed, 0 failed, 2,138 assertions. These 15 are already included in the
+  512-test group and are not an additional coverage count.
+- Root typecheck and structure check passed again after the final upstream merge.
+- The offline documentation build checks all 667 pages, internal links, Pagefind
+  and sitemap. Final build and staged privacy-scan receipts are recorded in the
+  PR's Verification section before publication.
+- Actual-browser DOM checks confirmed the corrected adapter paragraph and JEV
+  section, Spanish language metadata, mobile navigation, and no page overflow at
+  1366px and 390px. The browser screenshot service returned "Unable to capture
+  screenshot", including on a fresh tab, so this refresh has no new capture and
+  does not claim fresh visual acceptance. Existing captures stay on `pr-assets`.
+
+The documented full-root-suite resource exception still applies. Hosted CI for
+the new exact head, including the owner's requested `lane=all`, requires
+maintainer authorization. Human Spanish/render acceptance and fresh review are
+still pending; keep Draft and do not describe a skipped bot review or an
+`action_required` workflow as passing. Request one consolidated CodeRabbit
+review after publication without waiting for its result.
