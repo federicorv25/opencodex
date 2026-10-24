@@ -91,6 +91,7 @@ const es: Record<keyof typeof fr, string> = {
 	"GitHub, {count} stars": "GitHub, {count} estrellas",
 };
 
+/** Select navigation copy; typed dictionaries require complete French and Spanish keys. */
 const t = <K extends keyof typeof fr>(en: K, ko: string, zh: string, ru: string, ja: string, zhTW: string, tr: string): string =>
 	locale === 'es' ? es[en] : locale === 'fr' ? fr[en] : locale === 'ko' ? ko : locale === 'zh-cn' ? zh : locale === 'zh-tw' ? zhTW : locale === 'ru' ? ru : locale === 'ja' ? ja : locale === 'tr' ? tr : en;
 

@@ -1,6 +1,6 @@
 ---
 title: "Advisor"
-description: "Consulta independiente de expertos con políticas adaptativas manuales, previas y basadas en la evidencia."
+description: "Consulta independiente a un modelo experto, con políticas manuales, previas a la tarea o adaptativas basadas en evidencia."
 ---
 
 El asesor es un modelo de experto independiente que revisa la tarea del trabajador y devuelve el asesoramiento. OpenCodex posee la consulta de extremo a extremo: el proxy inyecta una herramienta sintética `advisor` en el turno del trabajador, ejecuta la consulta a través de la autoridad de enrutamiento normal y vuelve a inyectar el consejo para que el trabajador original continúe. El trabajador nunca delega, genera nada o lleva credenciales de proveedor.

@@ -14,7 +14,7 @@ conocidas, las mitigaciones disponibles y sus límites.
 
 Las versiones anteriores de OpenCodex incluían Bun **1.3.14**. La tabla siguiente recoge
 la investigación del 23 de julio de 2026: es evidencia histórica, no el estado actual de
-las incidencias de Bun. El paquete actual incluye Bun **1.4.2** y el control de
+las incidencias de Bun. El paquete actual incluye Bun **1.4.4** y el control de
 compatibilidad reconoce Bun estable 1.4.0 o posterior como portador de la corrección de
 cancelación async-pull. Esto no demuestra que se hayan resuelto todas las causas del
 crecimiento de memoria en Windows.
@@ -155,7 +155,7 @@ launchd o systemd) ya lo reinician.
 ## Sus opciones
 
 1. **Compruebe el entorno y la ruta de transmisión efectivos.** El paquete actual
-   incluye Bun 1.4.2 y el control de compatibilidad acepta versiones estables desde
+   incluye Bun 1.4.4 y el control de compatibilidad acepta versiones estables desde
    1.4.0. En Windows, `auto` ya puede seleccionar el relé acotado cuando corresponde;
    no es necesario esperar otra actualización para habilitarlo. Una selección
    explícita de `legacy-tee` conserva tee. Esto no demuestra que estén resueltas

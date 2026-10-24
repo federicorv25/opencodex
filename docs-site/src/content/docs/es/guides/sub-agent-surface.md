@@ -1,5 +1,5 @@
 ---
-title: "Superficie del subagente (v1 / base / v2)"
+title: "Interfaz de subagentes (v1 / base / v2)"
 description: "Controle cómo Codex genera y gestiona subagentes en todos los modelos."
 ---
 
@@ -128,7 +128,7 @@ La guía v2 incorporada tiene un presupuesto de 700 caracteres. Si superara el p
 
 En la v1, opencodex inyecta la misma orientación de delegación proactiva que el preajuste recomendado de v2 solo a `max` o `ultra` esfuerzo. Solo cambia el desencadenador de delegación: no se necesita ninguna solicitud de delegación por separado; todavía se aplican las instrucciones de usuario, la autoridad, el alcance de la tarea y las reglas de la herramienta de colaboración. No agrega un modelo preferido, una lista, una lista de reserva o un mensaje personalizado en la v1. En el modo de código Codex, opencodex ve las herramientas v1 cuando la descripción de la herramienta `exec` las enumera. Cuando Codex los aplaza para la búsqueda de herramientas, lo que hace para cada modelo de catálogo opencodex, opencodex se basa en la lista de herramientas diferidas que Codex Desktop envía con la conversación; si esa lista nombra `multi_agent_v1`, se agrega la guía proactiva. Un cliente Codex que no envía la lista no da opencodex ninguna señal de que v1 está disponible, por lo que la guía no se agrega allí.
 
-La opción `syncCodexSubagentDefaults` está **desactivada de forma predeterminada** y es independiente de la guía para el agente. Si opencodex administra el enrutamiento activo de Codex, al sincronizar o reiniciar puede escribir los valores elegidos en `[agents] default_subagent_model` y `default_subagent_reasoning_effort`, con marcadores de propiedad, dentro del TOML de Codex. Solo actualiza o elimina campos que tengan esos marcadores. Si cualquiera de los dos campos pertenece al usuario, deja ambos intactos en lugar de escribirlos parcialmente. Si el TOML es ambiguo, rechaza la escritura. También respeta los gestores de proveedores externos y el enrutamiento raíz definido por el usuario.
+La opción `syncCodexSubagentDefaults` está **desactivada por defecto** y es independiente de la guía para el agente. Si opencodex administra el enrutamiento activo de Codex, al sincronizar o reiniciar puede escribir los valores elegidos en `[agents] default_subagent_model` y `default_subagent_reasoning_effort`, con sus marcadores de propiedad, dentro del TOML de Codex. Solo actualiza o elimina campos que conservan esos marcadores. Si editas un valor administrado, la siguiente sincronización conserva tu valor, retira el marcador y trata el campo como tuyo desde entonces. La restauración también conserva esas ediciones aunque reproduzcan contenidos inyectados anteriormente. Si cualquiera de los dos campos pertenece al usuario, deja ambos intactos; un TOML ambiguo impide escribir. También respeta los gestores externos y el enrutamiento raíz definido por el usuario.
 
 <a id="fallback-chains"></a>
 

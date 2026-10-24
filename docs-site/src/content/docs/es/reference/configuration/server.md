@@ -1,6 +1,6 @@
 ---
 title: "Configuración de servidor y entorno de ejecución"
-description: "Escuchador, acceso remoto, claves de admisión, tiempos de espera, almacenamiento, sidecars, llamadas de sombra y comportamiento de inicio."
+description: "Listener, acceso remoto, claves de admisión, tiempos de espera, almacenamiento, sidecars, llamadas auxiliares e inicio del entorno."
 ---
 
 La configuración del servidor controla la forma en que el proxy local escucha, protege el tráfico remoto, administra los recursos y ejecuta las funciones de ayuda en torno a las solicitudes del proveedor.

@@ -1,6 +1,6 @@
 ---
 title: "Despliegue de Remote Hub"
-description: "Ejecute un concentrador opencodex de un puerto en Linux, macOS o Docker con un loopback acompañante, un token de datos autoaprovisionado, ocx hub invite, una entrada de administración solo loopback, Tailscale Serve y OAuth sin cabeza."
+description: "Despliega un Hub opencodex de un puerto en Linux, macOS o Docker, con listener local auxiliar, token de datos, ocx hub invite, administración por loopback, Tailscale Serve y OAuth remoto."
 ---
 
 Para enlaces de máquinas SSH, véase [Enlace remoto](/es/guides/remote-link/).

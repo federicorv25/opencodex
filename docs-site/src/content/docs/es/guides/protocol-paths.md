@@ -1,6 +1,6 @@
 ---
 title: "Rutas de protocolo"
-description: "Cómo una solicitud en el Responses, Chat Completions o Messages API llega a un proveedor, cómo obtener una vista previa y rastrear esa ruta, y los switches por etapas que la cambian."
+description: "Cómo llegan las solicitudes de Responses, Chat Completions o Messages a un proveedor, cómo inspeccionar su ruta y qué opciones la modifican."
 ---
 
 opencodex sirve a tres API de cliente: **Responses** (`/v1/responses`), **Chat Completions** (`/v1/chat/completions`) y **Messages** (`/v1/messages`). Cada proveedor recibe un cable ascendente, decidido por su adaptador. Cuando el cliente API y el cable ascendente difieren, la solicitud se convierte en el camino de entrada y la respuesta se convierte en el camino de regreso. Esta página explica cómo se nombra esa ruta, cómo verla antes y después de una solicitud y qué ajustes la cambian.
@@ -72,7 +72,7 @@ Cada solicitud que llegó a un proveedor, o fue rechazada antes de enviar, regis
 - `legacy` (predeterminado): la solicitud se envía como antes, y la pérdida solo aparece en los efectos de la característica de seguimiento.
 - `reject`: la solicitud se rechaza con HTTP 400 antes de que se envíe nada, nombrando solo las claves de características. Chat respuestas `invalid_request_error` con código `unsupported_feature`; Messages respuestas `invalid_request_error`. El trazo es `blocked`.
 
-Bajo `reject`, una ruta directa se juzga en el ingreso una vez que su proveedor y el alambre se establecen. Los combos y las políticas no se juzgan en el ingreso; con `nativeChatCombos` encendido, un combo de Chat juzga a cada candidato y omite uno que no puede llevar la solicitud.
+Bajo `reject`, una ruta directa se juzga en el ingreso una vez que su proveedor y el protocolo están determinados. Los combos y las políticas no se juzgan en el ingreso; con `nativeChatCombos` encendido, un combo de Chat juzga a cada candidato y omite uno que no puede llevar la solicitud.
 
 <a id="rollout-switches"></a>
 

@@ -210,6 +210,8 @@ La opción de envío envía los niveles de cuota, y el porcentaje/ventana/reset 
 
 Un combo JEV decide el destino de cada solicitud; los turnos de una conversación pueden cambiar de proveedor y empezar con su caché de instrucciones vacía. `sessionPin` es una opción por combo JEV, **desactivada por defecto**, que mantiene la sesión en el destino elegido mientras siga activa:
 
+En el dashboard, abre **Decision method** en el editor del combo JEV y activa **Keep a session on its decided target**. Configura **Idle window (ms)** y guarda. El intervalo válido es 60000–86400000 ms (un minuto–24 horas); al activar una fijación nueva, empieza en 60000 ms. Para desactivarla, desmarca la casilla y guarda. Un intervalo vacío o inválido impide guardar mientras la opción esté activa. Si falla el guardado, se conservan las ediciones para reintentarlo. Las respuestas antiguas que omiten este ajuste lo mantienen omitido hasta que lo cambies.
+
 ```bash
 ocx combo set jev-auto --session-pin 20m --json
 ```

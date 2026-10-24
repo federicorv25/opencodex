@@ -61,6 +61,8 @@ En un panel de Hub abierto a través de una dirección que no sea de loopback, e
 
 El rol **Child** también requiere un entorno de ejecución independiente OpenCodex que se ejecuta en su puerto configurado, porque el Child se reinicia exactamente en ese puerto. Si el panel de control dice que OpenCodex no se está ejecutando en su puerto configurado, reinicie allí primero.
 
+`ocx stop` en un Child detiene su proxy y conserva el enrutamiento de Codex, su catálogo y la configuración de Grok. `ocx start`, o `ocx service start`, lo pone de nuevo en marcha con esos ajustes. Si `ocx status` informa que Codex usa enrutamiento nativo, ejecuta `ocx sync --restart-codex`: `ocx start` no reescribe el enrutamiento de Codex en un Child.
+
 <a id="link-status"></a>
 
 ## Estado del enlace

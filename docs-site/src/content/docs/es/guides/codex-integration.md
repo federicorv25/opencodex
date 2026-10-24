@@ -190,6 +190,8 @@ Cuando OpenCodex posee enrutamiento, ambos modos escriben `$CODEX_HOME/opencodex
 Claves de raíz como `openai_base_url`, `model_provider`, y `model_catalog_json` **debe** sentarse antes de la primero `[table]` cabecera. El inyector garantiza esa colocación, elimina su propio rancio / duplicado copia, y nunca sobrescribe una raíz propiedad del usuario `openai_base_url`; si existe, la sincronización actualiza el catálogo, pero informa que el enrutamiento no fue inyectado.
 :::
 
+La sincronización y la restauración también conservan el `model_context_window` raíz: OpenCodex nunca escribe esa clave. Codex la usa en lugar de la ventana de catálogo de cada modelo, limitada al máximo de ese modelo. Elimínala tú mismo si quieres que cada modelo muestre su propia ventana.
+
 <a id="shared-model-catalog"></a>
 
 ## Catálogo de modelos compartido
@@ -782,9 +784,9 @@ Para un cliente compatible que envía mensajes OpenAI multiagente `response.inje
 }
 ```
 
-El `response.create` inicial debe incluir explícitamente `"multi_agent": { "enabled": true }`. OpenCodex no lo habilita basado en un nombre de modelo. Un proveedor público OpenAI API debe usar `adapter: "openai-responses"`, `baseUrl: "https://api.openai.com/v1"`, su autenticación de clave API normal y `upstreamWebsocket: true`. Enruta el modelo inicial a través del prefijo configurado de ese proveedor. El relé agrega el token beta `responses_multi_agent=v1` requerido solo en esa conexión pública API, preservando otros tokens beta configurados. No sustituye una credencial de suscripción, crea una cuenta API o cambia automáticamente a una API facturada por separado.
+El `response.create` inicial debe incluir expresamente `"multi_agent": { "enabled": true }`. OpenCodex no lo activa por el nombre del modelo. Un proveedor de la API pública de OpenAI debe usar `adapter: "openai-responses"`, `baseUrl: "https://api.openai.com/v1"`, su autenticación normal con clave API y `upstreamWebsocket: true`. Enruta el modelo inicial con el prefijo configurado de ese proveedor. Solo en esa conexión a la API pública se añade el token beta obligatorio `responses_multi_agent=v1`, conservando los demás tokens beta configurados. OpenCodex no sustituye una credencial de suscripción, ni crea una cuenta API, ni cambia automáticamente a una API con facturación separada.
 
-Canonical ChatGPT conexiones hacia adelante pueden optar por el mismo transporte experimentalmente, pero el contrato público API hace **no** establecer ChatGPT suscripción o Codex App / CLI apoyo. Todavía se requiere un modelo ascendente compatible y un modo de ejecución. Ver el [OpenAI Protocolo multiagente](https://developers.openai.com/api/docs/guides/responses-multi-agent).
+Las conexiones canónicas de reenvío a ChatGPT pueden activar experimentalmente el mismo transporte, pero el contrato de la API pública **no garantiza** compatibilidad con suscripciones ChatGPT ni con Codex App o CLI. Siguen siendo necesarios un modelo y un modo de ejecución compatibles del proveedor. Consulta el [protocolo multiagente de OpenAI](https://developers.openai.com/api/docs/guides/responses-multi-agent).
 
 Devuelve un resultado de la herramienta guardada después de que la llamada a la función de desarrollador correspondiente haya finalizado:
 
@@ -834,7 +836,7 @@ La dirección nativa está restringida a la ruta canónica de suscripción ChatG
 
 <a id="executable-direct-versus-proxy-wire-probe"></a>
 
-### Sonda de alambre directa contra proxy ejecutable
+### Prueba ejecutable del protocolo directo frente al proxy
 
 Desde una comprobación de origen, ejecute el control positivo fuera de línea:
 
@@ -856,7 +858,7 @@ Solo después de revisar el plan, suministre `STEERING_DIRECT_TOKEN` y `STEERING
 
 La ejecución en vivo envía cuatro solicitudes iniciales sintéticas (dos escenarios por ruta), más cualquier sucesor resultante o continuación de resultado requerido, y **puede consumir el uso del modelo**. Un escenario comprueba un sucesor automático; el otro devuelve un resultado sintético fijo solo para la función anunciada del propio script y cambia el razonamiento/verbosidad en su continuación explícita. No se ejecuta ninguna herramienta externa y no se infiere ninguna aprobación. No hay reintentos ni solicitudes de recuperación automática. Cada escenario está limitado a 120 segundos, 5.000 eventos y 2 MiB de datos recibidos.
 
-El informe JSON contiene solo resultados, tiempos y puntos de control booleanos. Un pase requiere una aceptación en cola, un sucesor creado y el marcador sintético en su salida completada. Las confirmaciones que faltan son `unknown`; si el modelo nunca entra en la ruta de entrada requerida, el resultado es `not_exercised`. Tampoco se cuenta como pase. El proceso sale de 0 solo si pasan los cuatro escenarios en vivo, 1 en caso contrario y 2 para argumentos no válidos o credenciales faltantes. Se trata de un **diagnóstico de alambre**, no una prueba de interfaz de extremo a extremo Codex App / CLI, certificación en vivo o instrucción para habilitar la función experimental para el trabajo de producción.
+El informe JSON contiene solo resultados, tiempos y puntos de control booleanos. Un pase requiere una aceptación en cola, un sucesor creado y el marcador sintético en su salida completada. Las confirmaciones que faltan son `unknown`; si el modelo nunca entra en la ruta de entrada requerida, el resultado es `not_exercised`. Tampoco se cuenta como pase. El proceso sale de 0 solo si pasan los cuatro escenarios en vivo, 1 en caso contrario y 2 para argumentos no válidos o credenciales faltantes. Se trata de un **diagnóstico del protocolo**, no una prueba de interfaz de extremo a extremo Codex App / CLI, certificación en vivo o instrucción para habilitar la función experimental para el trabajo de producción.
 
 <a id="streaming-line-endings"></a>
 

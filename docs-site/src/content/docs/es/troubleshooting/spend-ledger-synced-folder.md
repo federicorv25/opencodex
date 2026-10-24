@@ -1,6 +1,6 @@
 ---
 title: "Registro de gastos rechazado en una carpeta sincronizada"
-description: "¿Por qué las solicitudes pueden fallar con \"El almacenamiento de Spend-ledger no se pudo abrir de forma segura\" cuando el directorio de estado opencodex está dentro de iCloud Drive u otra carpeta sincronizada, y cómo solucionarlo."
+description: "Por qué puede rechazarse el registro de gastos dentro de iCloud Drive u otra carpeta sincronizada y cómo recuperar un almacenamiento seguro."
 ---
 
 Los rechazos de almacenamiento de registro de gastos devuelven HTTP 503 con el tipo de error `server_error` y el código `spend_ledger_storage_unavailable`. Este es un problema de almacenamiento local; no cuenta contra el proveedor o el estado de la cuenta. Los registros de solicitudes lo atribuyen como `local-refusal`. Una respuesta de flujo continuo ya lleva el mismo código en su evento de error de terminal. Otras solicitudes en la misma sesión pueden tener éxito si la condición del archivo es temporal.

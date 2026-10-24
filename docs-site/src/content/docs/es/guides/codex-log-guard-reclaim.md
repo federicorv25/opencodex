@@ -1,5 +1,5 @@
 ---
-title: "Codex Log Guard Reclamación"
+title: "Recuperación de espacio de Codex Log Guard"
 description: "Recupera manualmente páginas libres de SQLite en la base de datos de registros de Codex, con límites y comprobaciones de integridad."
 ---
 
@@ -34,7 +34,7 @@ Los límites de bytes se convierten en recuentos de páginas usando el tamaño d
 
 ## Garantías de seguridad
 
-Reclamar deliberadamente hace **no**:
+Esta operación no realiza lo siguiente:
 
 - Ejecutar `VACUUM` completo;
 - cambiar el modo `auto_vacuum` en una base de datos Codex existente;

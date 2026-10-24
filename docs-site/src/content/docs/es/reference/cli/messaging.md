@@ -1,6 +1,6 @@
 ---
-title: "Codex Mensajería"
-description: "Cola de mensajes correlacionados con sesiones Codex cargadas localmente o a través de pares SSH explícitos."
+title: "Mensajería de Codex"
+description: "Envía mensajes correlacionados a sesiones de Codex cargadas localmente o mediante pares SSH registrados expresamente."
 ---
 
 `ocx message` es una superficie opt-in para Codex sesiones existentes. No inicia ningún proxy o servidor de aplicaciones, no reanuda ningún hilo ni instala ninguna habilidad. Linux / macOS Sockets Unix son compatibles; Windows falla explícitamente. El demonio Codex existente debe soportar el experimento `thread/queue/add`. No se requiere un pin de versión CLI o selección `CODEX_CLI_PATH`.

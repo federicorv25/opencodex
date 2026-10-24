@@ -1,5 +1,5 @@
 ---
-title: "CLI Referencia"
+title: "Referencia de CLI"
 description: "Despacho de comandos, códigos de salida y enlaces a cada familia de comandos ocx."
 ---
 
@@ -90,7 +90,7 @@ Familias de comandos adicionales:
 
 ## Comportamiento sin cabeza
 
-La administración ordena el viaje de ida y vuelta de la administración del proxy en vivo API, utilizando el puerto de entorno de ejecución registrado y las verificaciones de identidad en lugar de mantener una segunda ruta de configuración. Un proxy detenido o inalcanzable se representa como HTTP 503 y produce una salida no cero CLI. Los comandos explícitamente documentados como operaciones de configuración sin conexión pueden validar y editar el archivo de configuración sin un proxy en vivo.
+Los comandos de administración se comunican con la API del proxy activo mediante el puerto registrado y las comprobaciones de identidad, sin mantener una segunda ruta de configuración. Si el proxy está detenido o no es accesible, devuelven HTTP 503 y la CLI termina con un código distinto de cero. Los comandos documentados expresamente como operaciones sin conexión pueden validar y editar el archivo de configuración sin un proxy activo.
 
 `ocx system codex-cli-update check` no necesita proxy en vivo y no hace ninguna solicitud de registro de paquetes. Inspecciona los metadatos de procedencia limitada para el candidato de instalación configurado, incluida su ubicación ejecutable redactada y la evidencia de propiedad. El contexto del lanzador publicado de confianza autentica esa instantánea candidata, no una ejecución exitosa de Codex. En POSIX, `selectionAttested` puede ser `true` cuando el solucionador en entorno de ejecución selecciona el mismo candidato de entorno canónico sin ejecutarlo. Un manifiesto de paquete global vinculado npm puede establecer `managed: true` cuando prueba la propiedad y, si se informa de una versión candidata, esa versión coincide con el manifiesto; los candidatos persistentes permanecen sin certificar. El informe JSON expone `candidateAvailable`, `candidateVersion`, `candidateSource` y `selectionAttested`. Inspeccionar el candidato configurado requiere un contexto de lanzador publicado de confianza; un lanzamiento directo Bun /source no tiene tal prueba, ignora el estado del candidato ambiental y persistente, y puede informar `candidate_unavailable` en POSIX o `windows_inspection_deferred` en Windows. En Windows este primer segmento no realiza ninguna E/S candidata o de sistema de archivos de configuración: solo un candidato de entorno absoluto capturado por prueba puede recibir etiquetas de paquete de aplicaciones léxicas o gestor de versiones; cada otro candidato Windows falla cerrado. El comando no instala ni repara software, ejecuta Codex o npm, controla un proceso en ejecución ni escribe el estado de configuración/caché.
 
@@ -133,7 +133,7 @@ Salida 0 significa que no se informó ningún error. Los verbos de vista previa 
 
 Las operaciones de eliminación destructiva, importación, consumo de crédito y actualización que anuncian la confirmación requieren `--yes` en uso no interactivo. La bandera es un opt-in explícito; omitirla no debe confirmar silenciosamente la acción.
 
-`ocx storage cleanup` va más allá: sin `--yes` se ejecuta la vista previa e imprime lo que *se habría* se libera, luego sale 0 sin haber cambiado nada. No hay confirmación interactiva para ninguno de estos - una indicación de que un llamante automático puede responder no es un límite de seguridad, por lo que la bandera es el límite.
+`ocx storage cleanup` sin `--yes` solo muestra una vista previa: imprime lo que liberaría, no cambia nada y termina con código 0. Estas operaciones no ofrecen confirmación interactiva. Una pregunta que un agente puede responder automáticamente no establece un límite de consentimiento; la opción explícita es el requisito para aplicar la operación.
 
 <a id="driving-the-cli-from-an-agent"></a>
 

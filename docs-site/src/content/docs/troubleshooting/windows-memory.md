@@ -10,7 +10,7 @@ what is actually happening and what you can do about it, honestly.
 
 ## Root cause: upstream Bun runtime issues
 
-Older OpenCodex versions bundled Bun **1.3.14**. The issue table below records the investigation as of July 23, 2026; it is historical evidence, not a statement of current upstream issue status. The current package bundles Bun **1.4.2**, and the stream-capability gate recognizes stable Bun 1.4.0 or newer as carrying the async-pull cancellation fix. This does not prove that every source of Windows memory growth is resolved.
+Older OpenCodex versions bundled Bun **1.3.14**. The issue table below records the investigation as of July 23, 2026; it is historical evidence, not a statement of current upstream issue status. The current package bundles Bun **1.4.4**, and the stream-capability gate recognizes stable Bun 1.4.0 or newer as carrying the async-pull cancellation fix. This does not prove that every source of Windows memory growth is resolved.
 
 | Bun issue | State (checked 2026-07-23) |
 |---|---|
@@ -110,7 +110,7 @@ restart it.
 
 ## Your options
 
-1. **Check the selected runtime and actual stream decision.** The current package bundles Bun 1.4.2 and the capability gate accepts stable releases from 1.4.0. Windows `auto` can already select bounded eager relay when applicable; another bundled update is not required to enable it. An explicit `legacy-tee` selection preserves tee. This does not prove every source of memory growth is fixed.
+1. **Check the selected runtime and actual stream decision.** The current package bundles Bun 1.4.4 and the capability gate accepts stable releases from 1.4.0. Windows `auto` can already select bounded eager relay when applicable; another bundled update is not required to enable it. An explicit `legacy-tee` selection preserves tee. This does not prove every source of memory growth is fixed.
 
 2. **Run a Bun runtime you trust with `OPENCODEX_BUN_PATH`.** Set the variable before launching `ocx` from that shell, then run `ocx service repair` to bake the selected runtime into the service definition. A later project `.env` does not change selection; changing the environment alone does not update an installed service.
 

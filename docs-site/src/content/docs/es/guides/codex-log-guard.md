@@ -1,6 +1,6 @@
 ---
 title: "Codex Log Guard"
-description: "Inspeccione y reduzca explícitamente la persistencia del registro de diagnóstico Codex sin exponer los cuerpos de registro."
+description: "Inspecciona y reduce de forma explícita la persistencia de registros de diagnóstico de Codex sin exponer su contenido."
 ---
 
 OpenCodex puede inspeccionar la base de datos persistente de registros de diagnóstico de Codex y, si lo activas expresamente, reducir las filas que Codex guarda. La inspección es de solo lectura. Activar la protección modifica la base de datos y solo se permite cuando coincide el esquema de registros conocido y Codex está detenido.

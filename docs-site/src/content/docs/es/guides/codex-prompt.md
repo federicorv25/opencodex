@@ -1,6 +1,6 @@
 ---
 title: "Capas de instrucciones de Codex"
-description: "Lea lo que Codex realmente envía, apague las piezas que no necesita y agregue sus propias instrucciones como capas."
+description: "Consulta qué instrucciones envía Codex, desactiva las partes innecesarias y añade tus propias capas."
 ---
 
 Codex ensambla su solicitud a partir de capas: sus propias instrucciones básicas, los documentos de su proyecto, el contexto de permisos y entorno, las habilidades que ha instalado y más. **Codex Set → Prompt** muestra esa pila, le dice lo que cuesta cada capa y le permite desactivar las piezas que no desea.

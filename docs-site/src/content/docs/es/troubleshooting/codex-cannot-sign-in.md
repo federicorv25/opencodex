@@ -53,7 +53,10 @@ ocx status --json
 ocx service install   # keep it running across restarts
 ocx ready --json
 ocx status --json
+ocx service status --json
 ```
+
+La instalación explícita del servicio detiene el proxy independiente registrado antes de iniciar el servicio administrado; por eso la primera terminal puede finalizar durante la instalación. Si esa limpieza no puede completarse de forma segura, la instalación se rechaza. Después comprueba que un entorno OpenCodex responda en el puerto del servicio instalado. La consulta de disponibilidad anterior a la instalación solo verifica el proxy independiente. Usa las comprobaciones posteriores de disponibilidad, estado del proxy y estado del servicio para verificar el cambio de supervisor.
 
 `ocx status` informa si el proxy está respondiendo y si Codex está actualmente enrutado a través de él. `ocx doctor` explica el mismo estado con más detalle y nombra la reparación que recomienda.
 

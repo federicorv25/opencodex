@@ -1,6 +1,6 @@
 ---
 title: "Puente de video"
-description: "Generar vídeos con Grok Imagine Video a través de un modelo que no sea OpenAI."
+description: "Genera videos con Grok Imagine Video desde un modelo distinto de OpenAI."
 ---
 
 <a id="overview"></a>

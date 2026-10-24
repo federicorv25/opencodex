@@ -1,6 +1,6 @@
 ---
-title: "Codex reintentar diagnósticos"
-description: "Distinguir el asesoramiento de límite de velocidad, la retransmisión automática, la recuperación del proveedor y las notificaciones de escritorio."
+title: "Diagnósticos de reintentos de Codex"
+description: "Distingue los avisos de límites de solicitudes, la repetición automática, la recuperación del proveedor y las notificaciones de escritorio."
 ---
 
 OpenCodex [Adaptador Devin](/es/reference/adapters/#devin) conserva una pista de reintento utilizable en el contrato de error Codex entiende. Esto no garantiza que Desktop muestre una fila de reconexión o que el proveedor acepte la siguiente solicitud.

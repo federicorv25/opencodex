@@ -1,6 +1,6 @@
 ---
 title: "Clientes MiniMax"
-description: "Enrutar código MiniMax y comandos de texto MiniMax CLI a través de OpenCodex sin exponer las credenciales MiniMax."
+description: "Enruta MiniMax Code y los comandos de texto de MiniMax CLI mediante OpenCodex sin exponer sus credenciales."
 ---
 
 MiniMax publica dos productos de línea de comandos diferentes. OpenCodex integra cada uno en el límite del protocolo que realmente expone:

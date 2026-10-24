@@ -1,6 +1,6 @@
 ---
 title: "Orden de modelos"
-description: "Cómo determina opencodex el orden del modelo en el selector Codex y el modelo spawn_agent anula."
+description: "Cómo determina opencodex el orden de los modelos en el selector de Codex y las anulaciones de modelo de spawn_agent."
 ---
 
 El selector de modelos Codex no conserva el orden de las declaraciones del proveedor o las matrices de modelos en la configuración opencodex. Su orden final proviene de las prioridades del catálogo, con un orden alfabético determinista para los modelos enrutados que comparten la misma prioridad.

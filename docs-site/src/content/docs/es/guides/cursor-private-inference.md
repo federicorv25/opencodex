@@ -92,7 +92,7 @@ El selector es opencodex lista cruda `/v1/models`. Dos cosas deciden si una fila
 1. opencodex debe anunciar capacidades en la fila (`api_types` más un objeto `capabilities`). Lo hace, a partir de v2.41. Los proxies más antiguos muestran los modelos pero no controlan el esfuerzo.
 2. El ID del modelo, después de despojar todo hasta el último `/` y cualquier sufijo `@…`, debe coincidir con la tabla de esfuerzo propio de Cursor. Esa tabla está compilada en la aplicación (`extensions/cursor-agent-exec/dist/main.js`); opencodex lo lee desde la instalación detectada, por lo que la predicción del panel sigue a una actualización Cursor, y la tarjeta dice qué compilación leyó o "espejo estático" cuando no se encontró nada. Cursor decide la escalera, no opencodex, y no `/v1/models` campo puede añadir un modelo a esa tabla. La matriz a continuación es la instantánea 3.18.25 que lleva el espejo estático:
 
-| ID del modelo (después del último `/`) | Escalera Cursor espectáculos | Campo de alambre |
+| ID del modelo (después del último `/`) | Escalera Cursor espectáculos | Campo del protocolo |
 |---|---|---|
 | `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna` | Bajo, Medio, Alto, Extra Alto | `reasoning.effort` |
 | `gpt-5`, `gpt-5.x` | Bajo, Medio, Alto, Extra Alto | `reasoning.effort` |

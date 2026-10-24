@@ -56,7 +56,11 @@ ocx integration client enable --client qoder
 ocx integration client disable --client qoder
 ```
 
-Qoder usa `settings.json` en `QODER_CONFIG_DIR` cuando esa variable está establecida, y `~/.qoder/settings.json` de lo contrario; se rechaza un relativo `QODER_CONFIG_DIR`. Habilitar fusiona las entradas `providers.opencodex` y OpenCodex en `modelConfigs.customModels`, preservando otros proveedores, modelos personalizados y configuraciones. Desactivar elimina las entradas OpenCodex grabadas; la restauración utiliza el flujo de trabajo de instantáneas existente. El modelo predeterminado del proveedor es el primer modelo de la exportación ordenada. Los modelos personalizados utilizan su ventana de contexto de catálogo, volviendo a 128000 tokens de entrada. La clave API generada es un marcador de posición no secreto: la integración de Qoder requiere acceso de bucle de retorno y rechaza un enlace de no bucle de retorno autenticado. Cuando el oyente de bucle de retorno dedicado no autenticado está habilitado, exporta Qoder a ese oyente. `ocx sync` y los cambios de catálogo actualizan una integración de Qoder ya habilitada como los otros clientes administrados.
+Qoder usa `settings.json` en `QODER_CONFIG_DIR` si esa variable está configurada, o `~/.qoder/settings.json` en caso contrario; rechaza una ruta relativa en `QODER_CONFIG_DIR`. Al habilitar la integración, solo combina `providers.opencodex`, conservando los demás proveedores, modelos personalizados y ajustes. Los modelos se publican una sola vez en el catálogo del proveedor: duplicarlos en `modelConfigs.customModels` hace que Qoder rechace al proveedor. Al actualizar una integración administrada antigua, OpenCodex elimina sus duplicados registrados; las filas editadas por el usuario siguen siendo conflictos. Desactivar elimina las entradas registradas de OpenCodex; restaurar usa las instantáneas existentes. El modelo predeterminado es el primero de la exportación ordenada.
+
+Si `modelConfigs.customModels` ya contiene una fila `opencodex` para un modelo exportado que OpenCodex no escribió, habilitar, actualizar, sobrescribir y desactivar informan un conflicto y dejan el archivo intacto. Elimina o cambia el nombre de esa fila en Qoder y reinténtalo. Las filas de otros proveedores o de modelos ajenos a la exportación no cambian. Los modelos usan su `contextWindow` de catálogo, o 128000 tokens de entrada si no se conoce. Reinicia Qoder tras actualizar una integración existente para recargar su registro de proveedores.
+
+La clave API generada es un marcador no secreto. La integración solo admite acceso mediante loopback y rechaza un enlace autenticado fuera de loopback. Si hay un listener local dedicado sin autenticación, la exportación apunta a él. `ocx sync` y los cambios de catálogo actualizan una integración ya habilitada. Los identificadores que contienen `,` o `]`, como `kimi/k3[1m]`, se exportan igual que los demás.
 
 Los catálogos generados incluyen solo modelos habilitados de cada selección de proveedor. Esto se aplica tanto a las descargas como a las integraciones administradas, incluidas Pi y Aside. La lista de modelos de administración aún muestra la lista completa para que pueda habilitar modelos adicionales.
 
@@ -160,6 +164,8 @@ Aside utiliza la misma vista previa y flujo de confirmación para un perfil sele
 <a id="what-to-expect-honestly"></a>
 
 ## Qué esperar, honestamente
+
+Si una ruta administrada generada no puede representarse de forma segura, ese cliente muestra un estado inseguro y la vista previa rechaza la operación. Los intentos de aplicar, sobrescribir o desactivar devuelven HTTP 409 sin cambiar la configuración. Los demás clientes siguen disponibles.
 
 **Los archivos de configuración administrados están limitados a 4 MiB (4,194,304 bytes UTF-8).** El lector de integración compartida rechaza los archivos más grandes como inseguros para leer, y el escritor rechaza una configuración combinada que excede el mismo límite con `write_failed`, dejando la configuración original sin cambios. El marcador de recuperación de Cline también tiene este límite; incluye el contenido de antes y después de ambos archivos más metadatos, por lo que Cline puede alcanzar el límite incluso cuando cada archivo individual es menor de 4 MiB.
 

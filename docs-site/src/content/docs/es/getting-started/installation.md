@@ -1,6 +1,6 @@
 ---
 title: "Instalación"
-description: "Instale el proxy opencodex (ocx), sus requisitos previos, y compruebe que se ejecuta."
+description: "Instala el proxy opencodex (ocx), prepara sus requisitos y comprueba que funciona."
 ---
 
 opencodex instala dos comandos equivalentes, `ocx` y `opencodex`. Ambos inician el mismo servidor HTTP local escrito para Bun. Las solicitudes se envían al proveedor seleccionado por el enrutamiento. Los sidecars opcionales de visión y búsqueda web también pueden usar tu sesión de ChatGPT cuando un modelo enrutado los necesite.

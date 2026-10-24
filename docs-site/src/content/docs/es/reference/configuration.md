@@ -1,6 +1,6 @@
 ---
 title: "Referencia de configuración"
-description: "Donde opencodex almacena la configuración, cómo se aplican las ediciones y enlaces a cada dominio de configuración."
+description: "Dónde guarda opencodex la configuración, cómo aplica las ediciones y dónde consultar cada área."
 ---
 
 opencodex almacena su configuración persistente en `$OPENCODEX_HOME/config.json`, normalmente `~/.opencodex/config.json`. En Windows, el valor predeterminado es `%USERPROFILE%\.opencodex\config.json`.

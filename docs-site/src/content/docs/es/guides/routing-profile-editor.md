@@ -1,6 +1,6 @@
 ---
 title: "Editor de perfiles de enrutamiento"
-description: "Cree, edite, valide, ejecute en seco y elimine perfiles de directivas de enrutamiento del panel de control de OpenCodex."
+description: "Crea, edita, valida, simula y elimina perfiles de políticas de enrutamiento desde el dashboard de OpenCodex."
 ---
 
 La pestaña **Modelos → Routing** en el panel de control OpenCodex puede administrar `config.routingProfiles` sin editar `config.json` a mano.
@@ -32,7 +32,7 @@ El panel de control envía el mismo objeto de perfil utilizado por `config.routi
 
 Un guardado exitoso mantiene el perfil a través del escritor de configuración normal, reconcilia el estado en vivo y actualiza el catálogo de modelos. Los errores de validación dejan la configuración anterior sin cambios y se muestran en el editor.
 
-Cuando se configura `limits.maxEstimatedCostUsd`, `limits.onUnknownCost` se establece por defecto en `"allow"`: una estimación de costo desconocida no obtiene una exclusión específica de la tapa, y el sello `cost.capOutcome: "unknown-allowed"` de trazas de ruta de ejecución en seco / en vivo para que los operadores puedan decir que la tapa no fue probada. Establecer `"exclude"` cuando el techo debe fallar cerrado (`cost-limit-unknown`, con `cost.capOutcome: "unknown-excluded"`). La configuración de `onUnknownCost` solo es inerte y no emite un resultado de tapa. Esto es independiente de `unknownEvidence.cost`, que aún puede excluir o penalizar precios desconocidos independientemente del resultado del límite.
+Si configuras `limits.maxEstimatedCostUsd`, `limits.onUnknownCost` vale `"allow"` por defecto: una estimación desconocida no excluye al candidato por ese límite, y las trazas de simulación y ejecución muestran `cost.capOutcome: "unknown-allowed"` para indicar que no se pudo comprobar el costo. Usa `"exclude"` si el límite debe rechazar candidatos cuyo costo se desconoce: `cost-limit-unknown` y `cost.capOutcome: "unknown-excluded"`. Configurar solo `onUnknownCost`, sin un límite, no tiene efecto ni genera un resultado de límite. Por separado, `unknownEvidence.cost` aún puede excluir o penalizar precios desconocidos.
 
 <a id="dry-run-a-saved-profile"></a>
 

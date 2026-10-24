@@ -1,5 +1,5 @@
 ---
-title: "Ciclo de vida CLI"
+title: "Ciclo de vida de la CLI"
 description: "Comandos de instalación, inicio, parada, servicio, diagnóstico, sincronización y actualización."
 ---
 
@@ -46,7 +46,13 @@ ocx start --socks5-off
 
 ### `ocx stop [--json]`
 
-Detenga el proxy en ejecución (por PID), elimine el archivo PID y restaure el Codex nativo. Si se instala un servicio administrado en segundo plano, `ocx stop` también lo detiene primero para que no pueda reaparecer el proxy. Mientras que la aplicación de escritorio OpenCodex se está ejecutando, `ocx stop` no mantiene el proxy abajo: la aplicación lo trata como una salida inesperada y comienza un proxy de nuevo, en cuestión de segundos para uno que comenzó y después de aproximadamente un minuto para uno que sólo había unido. Utilice la bandeja de la aplicación **Detener proxy** (para un proxy que inició la aplicación) o **Salir** para mantenerla detenida. Por la misma razón, el botón **Detener** del panel de control se niega con `desktop_supervised`, y no cambia nada, para un proxy la aplicación comenzó. El botón **Detener** del panel de control web ejecuta la misma acción ( `POST /api/stop` ) en cada backend, excepto en el Programador de tareas Windows. Allí, el contenedor puede volver a enviar el proxy después de que finalice la tarea, y solo una parada que se ejecute fuera del proxy puede verificar que la ventana de reinicio antes de restaurar la configuración del cliente, por lo que el panel de control se niega con `respawnable_service`, no cambia nada y le pide que ejecute `ocx stop`.
+Detiene el proxy en ejecución por su PID, elimina el archivo PID y restaura Codex nativo cuando el entorno es independiente. Si hay un servicio administrado, `ocx stop` lo detiene primero para impedir que vuelva a iniciar el proxy.
+
+En un cliente conectado, sea un Child de Remote Link o un cliente de Hub, la parada conserva el enrutamiento de Codex, su catálogo y la configuración de Grok, incluso si se detiene correctamente mediante la API. Esos ajustes pertenecen a la conexión; `ocx start` vuelve a servirlos sin reinyección. Usa `ocx disconnect` para devolver Codex a su propia cuenta. Si un cliente conectado ya muestra enrutamiento nativo, `ocx status` indica `ocx sync --restart-codex` para recuperarlo.
+
+Antes de modificar el servicio, la parada de un cliente conectado verifica el entorno local. Se admite un listener de rol cliente con PID coincidente. Un proxy ordinario debe declarar expresamente que conserva los ajustes al detenerse mediante API, señal y servicio; si es antiguo o no puede verificarse, se rechaza la parada antes de actuar. Actualiza o reinicia ese entorno mediante su supervisor y reinténtalo. Usa `ocx disconnect` solo si quieres liberar las integraciones de la conexión. Si el cliente ya está detenido, otra parada verifica que el gestor del servicio esté inactivo y que no haya listeners en los endpoints locales conocidos antes de devolver el resultado habitual de proceso ausente.
+
+Mientras OpenCodex Desktop esté abierto, `ocx stop` no mantiene detenido el proxy: la aplicación lo trata como una salida inesperada y lo inicia de nuevo, en segundos si lo había iniciado ella o en aproximadamente un minuto si solo se había conectado a él. Usa **Stop proxy** en su bandeja, para un proxy iniciado por la aplicación, o **Quit** para mantenerlo detenido. Por esa misma razón, el botón **Stop** del dashboard rechaza la acción con `desktop_supervised` sin cambios cuando el proxy pertenece a la aplicación. En otros entornos, ejecuta `POST /api/stop`, salvo con el Programador de tareas de Windows: allí un contenedor puede reiniciar el proxy después de terminar la tarea. El dashboard responde `respawnable_service`, no cambia nada y pide ejecutar `ocx stop` desde fuera del proxy para verificar que no reaparezca antes de restaurar los ajustes del cliente.
 
 El panel de control también se niega cuando el proxy está ejecutando *como* el servicio launchd o systemd instalado. Detener ese administrador desde el interior del proxy terminaría el proceso antes de que se restaure el Codex nativo, dejando la configuración del cliente apuntando a un proxy que se ha ido, por lo que el panel de control devuelve `self_unload_service`, no cambia nada y le pide que ejecute `ocx stop`, lo que detiene el servicio desde el exterior y completa la restauración.
 

@@ -11,6 +11,7 @@ const config = source(repoPath("docs-site/astro.config.mjs"));
 // Use the configured locale directories rather than freezing today's page count.
 const localeFolders = new Set([...config.matchAll(/^\s*["']?([a-z]{2}(?:-[a-z]{2})?)["']?:\s*\{\s*label:/gm)]
   .map(match => match[1]!));
+/** List Markdown pages, excluding configured translation trees only at the canonical root. */
 function pages(directory: string, canonical = false): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
     if (entry.isDirectory() && canonical && localeFolders.has(entry.name)) return [];
@@ -19,6 +20,7 @@ function pages(directory: string, canonical = false): string[] {
       : /\.mdx?$/.test(entry.name) ? [entry.name] : [];
   }).sort();
 }
+/** Locate quoted or indented fences; a close needs the same marker and at least its opening length. */
 function fencedBlocks(markdown: string): { start: number; end: number; content: string }[] {
   const lines = [...markdown.matchAll(/[^\n]*(?:\n|$)/g)].filter(line => line[0].length);
   const blocks: { start: number; end: number; content: string }[] = [];
@@ -40,9 +42,11 @@ function fencedBlocks(markdown: string): { start: number; end: number; content: 
   }
   return blocks;
 }
+/** Preserve fenced example bytes so translations cannot silently change executable commands. */
 function codeBlocks(markdown: string): string[] {
   return fencedBlocks(markdown).map(block => block.content);
 }
+/** Remove the same detected fence ranges before checking identifiers in translated prose. */
 function withoutFencedCode(markdown: string): string {
   let prose = "", previous = 0;
   for (const block of fencedBlocks(markdown)) {
@@ -51,6 +55,7 @@ function withoutFencedCode(markdown: string): string {
   }
   return prose + markdown.slice(previous);
 }
+/** Read prose code spans, respecting escaped delimiters, matching backtick runs and wrapped lines. */
 function inlineCode(markdown: string): Set<string> {
   const prose = withoutFencedCode(markdown);
   const values = new Set<string>();
@@ -74,6 +79,7 @@ function inlineCode(markdown: string): Set<string> {
   }
   return values;
 }
+/** Find exact canonical code identifiers absent from the translation, across all model families. */
 function missingInlineIdentifiers(english: string, spanish: string): string[] {
   const translated = inlineCode(spanish);
   return [...inlineCode(english)].filter(value => !translated.has(value));

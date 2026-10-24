@@ -1,6 +1,6 @@
 ---
 title: "Formatos de API del proxy"
-description: "Referencia a nivel de cable para las superficies Responses, Chat Completions, Anthropic Messages, catálogo de modelos, WebSocket, tiempo real y compactación."
+description: "Formatos de protocolo de Responses, Chat Completions, Anthropic Messages, catálogo de modelos, WebSocket, tiempo real y compactación."
 ---
 
 opencodex presenta un proxy local en varios dialectos de cliente. Un cliente Codex puede hablar el Responses API, una aplicación compatible con OpenAI puede hablar Chat Completions, y Claude Code puede hablar Anthropic Messages sin requerir que cada proveedor de origen implemente todos los formatos.
@@ -457,11 +457,11 @@ Decompressed request body exceeds 268435456 bytes [measurement=decoded_lower_bou
 | Medición | Significado de `bytes` |
 | --- | --- |
 | `declared_wire` | `Content-Length` numérico declarado por el remitente; rechazado antes de la lectura, no un tamaño decodificado medido |
-| `observed_wire_lower_bound` | Bytes de alambre encontrados cuando se lee detenido; el cuerpo completo puede ser más grande |
+| `observed_wire_lower_bound` | Bytes recibidos hasta detener la lectura; el cuerpo completo puede ser más grande |
 | `decoded_exact` | Tamaño exacto de la memoria intermedia suministrada al descodificador de identidad o devuelta por un descodificador |
 | `decoded_lower_bound` | Límite de admisión más uno después de abortar la inflación; un límite inferior, nunca el tamaño decodificado exacto |
 
-El sufijo contiene solo una categoría fija y un valor de byte numérico finito. Los cuerpos rechazados no se leen ni se inflan más, se analizan para el recuento de artículos o se retienen para el diagnóstico. Los errores heredados sin procedencia de medición retienen el mensaje de solo límite. El oyente de Bun puede rechazar un cuerpo de alambre sobredimensionado antes de que se ejecute el diagnóstico de la aplicación, por lo que no cada 413 lleva este sufijo. Un diagnóstico de límite inferior no puede establecer el tamaño completo de la carga útil compacta. El límite de admisión y el comportamiento de reintento no cambian.
+El sufijo contiene solo una categoría fija y un valor de byte numérico finito. Los cuerpos rechazados no se leen ni se inflan más, se analizan para el recuento de artículos o se retienen para el diagnóstico. Los errores heredados sin procedencia de medición retienen el mensaje de solo límite. El oyente de Bun puede rechazar un cuerpo recibido que supera el límite antes de que se ejecute el diagnóstico de la aplicación, por lo que no cada 413 lleva este sufijo. Un diagnóstico de límite inferior no puede establecer el tamaño completo de la carga útil compacta. El límite de admisión y el comportamiento de reintento no cambian.
 
 Las respuestas compactas nativas se almacenan en búfer con un máximo separado de 32 MiB, incluidas las respuestas cuyos `Content-Length` declarados ya exceden el límite. Los fallos específicos de los compactos incluyen:
 

@@ -1,6 +1,6 @@
 ---
 title: "API de administración"
-description: "Autenticación, errores y referencia de punto final para el plano de control opencodex."
+description: "Autenticación, errores y endpoints del plano de administración de opencodex."
 ---
 
 El Management API es el plano de control de opencodex. El panel de control en `http://localhost:10100` es un cliente de él; los proveedores, modelos, combos, cuentas, configuraciones, diagnósticos y comandos del ciclo de vida de `ocx` sin cabeza también son clientes. El API solo está disponible mientras el proxy se está ejecutando.
@@ -413,7 +413,7 @@ Las respuestas de la lista de credenciales se enmascaran deliberadamente. Los to
 
 Una vista previa se calcula a partir de la configuración sola. No envía nada a ningún proveedor, no cuesta nada, no avanza la rotación combinada y no se registra. La página API en el panel muestra la misma vista previa en **Solicitar vista previa de ruta**. Un modo de entrega de `native` describe cómo se desplaza la solicitud; no es una verificación de compatibilidad.
 
-El formulario `?provider=` respalda la sección **Alambre corriente arriba** de la configuración de un proveedor. Informa el formato opencodex enviado a ese proveedor; no abre ni cierra ningún cliente API. Para cambiar el adaptador para todo el proveedor, guarde la configuración del proveedor como de costumbre (`PATCH /api/providers`).
+El formulario `?provider=` respalda la sección **Protocolo del proveedor** de la configuración de un proveedor. Informa el formato opencodex enviado a ese proveedor; no abre ni cierra ningún cliente API. Para cambiar el adaptador para todo el proveedor, guarde la configuración del proveedor como de costumbre (`PATCH /api/providers`).
 
 `PATCH /api/protocols/settings` es el único escritor aquí y respalda la palanca Messages en la página API. El CLI conduce estas rutas con `ocx api protocols`, `ocx api explain` y `ocx api policy`. Los interruptores de despliegue están por etapas y desactivados por defecto ([Rutas de protocolo](/es/guides/protocol-paths/#rollout-switches)); consulte [API superficies](/es/reference/configuration/server/#api-surfaces-apisurfaces) para ver cómo interactúa la configuración Messages con `claudeCode.enabled` a través de actualizaciones y degradaciones.
 

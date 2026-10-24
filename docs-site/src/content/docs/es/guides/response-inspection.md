@@ -1,6 +1,6 @@
 ---
-title: "Inspección de respuestas y grandes respuestas"
-description: "Cómo interactúan la retención diagnóstica limitada y la inspección de transmisión con la entrega de respuesta."
+title: "Inspección de respuestas y respuestas grandes"
+description: "Cómo se relacionan la retención limitada de diagnósticos, la inspección en streaming y la entrega de respuestas."
 ---
 
 OpenCodex mantiene los diagnósticos de respuesta limitados sin hacer que el límite de registro sea un límite en los bytes entregados a su cliente. Otros límites de proveedor, solicitud y transporte siguen aplicándose de forma independiente.

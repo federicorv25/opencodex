@@ -153,3 +153,73 @@ maintainer authorization. Human Spanish/render acceptance and fresh review are
 still pending; keep Draft and do not describe a skipped bot review or an
 `action_required` workflow as passing. Request one consolidated CodeRabbit
 review after publication without waiting for its result.
+
+## Consolidated language and contract review, October 24
+
+The contributor authorized corrections after a read-only audit of the completed
+[CodeRabbit review](https://github.com/lidge-jun/opencodex/pull/7559#pullrequestreview-5636437341).
+Its eleven inline findings and two outside-diff findings are addressed together:
+native-context activation and trial wording, the Droid bridge limitation,
+code-mode tool names, architecture metadata, live/offline CLI management,
+cleanup preview behavior, catalog-refresh exit codes, empty effort lists,
+current bundled Bun, the localized signing-policy link, and log scan limits.
+Both files reported for missing final newlines were confirmed and corrected.
+
+The service-install caution was checked against `src/service/cli.ts`,
+`src/service/orchestration.ts` and `src/service/health.ts`: installation stops
+the tracked standalone listener before loading the managed service, then probes
+the installed service port. English and Spanish now explain that handover and
+show a post-install service-status check. This documents existing behavior.
+
+Read CodeRabbit's official [command reference](https://docs.coderabbit.ai/reference/review-commands),
+[configuration reference](https://docs.coderabbit.ai/reference/configuration),
+[path instructions](https://docs.coderabbit.ai/configuration/path-instructions)
+and [pre-merge checks](https://docs.coderabbit.ai/pr-reviews/pre-merge-checks).
+The repository uses the assertive profile and disables automatic Draft review.
+Keep those settings intact. Add useful docstrings to the changed localization
+and parity helpers instead of suppressing coverage checks. Publish one
+consolidated update and request one full review, rather than triggering reviews
+on a sequence of partial pushes. A full review is not an exhaustive guarantee.
+
+Merged current `dev` at `26598df2c4c07d781e344ac6119953fed77ecb27`,
+preserving the complete upstream test-layout roster and this branch's docs shard.
+Spanish now includes JEV pin-editor validation, Qoder provider-only catalogs and
+replay-envelope refusal, connected-client stop preservation, account-slot
+identity and headless listings, safe subagent limit conversion, edited-value
+ownership, the native context-window override, Kimi K3.1 pricing and the
+display-only Business Premium capacity weight.
+
+The broader pass examined every page's metadata, ran command/identifier/link
+parity across all 74 canonical paths, checked negation candidates against their
+English paragraphs, and reviewed operational contracts in the affected guides.
+It corrected literal mistranslations in model names, protocol terminology and
+negative conditions, plus unclear recovery and cost-limit wording. Only the
+two current-bundle statements in each Windows-memory guide changed version;
+historical Bun observations remain historical. A manifest-derived regression
+now covers those statements to prevent the same version drift.
+
+Frozen installs, typecheck and structure checks passed. The expanded docs,
+layout, hygiene, routed-agent, CLI-export, combo-target and service-preflight
+group passed 556 tests with 5,043 assertions across 23 files. The direct
+file-size-ratchet command passed; its first test scan exceeded 120 seconds
+(8 passed, 1 timeout). The separate retry after the build passed all 9 tests
+(85 assertions; repository scan 611 ms), without modifying a cap. Final Spanish
+parity and CLI combo-file validation passed 68 tests (2,304 assertions); the 15
+Spanish cases overlap the first group, while the 53 combo cases are additional.
+The build completed with 667 pages, 97,690 checked internal links, Pagefind and
+sitemap. All nine landing locales were checked for an existing localized
+signing-policy target or the canonical fallback, retaining the required signing
+attribution. The full-root-suite resource exception remains explicit; no
+old-head CI is presented as validation of this update.
+
+Actual-browser inspection confirmed the Spanish signing-policy navigation,
+1280px landing and policy layout, 390px native-context rendering and mobile
+navigation without page overflow, and 41 Spanish Pagefind results for context.
+Fresh screenshots are published on the separate `pr-assets` branch, not this
+source branch. The inspection also found and corrected the hero's accessible
+English conjunction and untranslated beta announcement.
+
+Federico's human Spanish acceptance was recorded on the preceding published
+head. The current correction is not a claim that he executed a new browser or
+native Desktop test. Keep the fresh-review and maintainer-acceptance gates open
+until their actual outcomes are available.

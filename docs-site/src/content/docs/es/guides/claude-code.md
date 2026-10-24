@@ -1,6 +1,6 @@
 ---
 title: "Claude Code"
-description: "Utilice cualquier modelo enrutado de Claude Code — opencodex sirve el Anthropic Messages API y el descubrimiento de modelos de pasarela en el mismo puerto."
+description: "Usa cualquier modelo enrutado desde Claude Code: opencodex ofrece la API Anthropic Messages y el descubrimiento de modelos en el mismo puerto."
 ---
 
 opencodex sirve `POST /v1/messages` (más `count_tokens`) junto con `/v1/responses`, por lo que Claude Code puede usar todos los proveedores enrutados: OAuth inicios de sesión, grupos de cuentas, conmutación por error de claves y sidecars incluidos, con cero trabajo de autenticación adicional.
@@ -217,7 +217,7 @@ ocx claude desktop bind claude-opus-4-6 native/gpt-6.1-sol
 ocx claude desktop unbind claude-opus-4-6
 ```
 
-o utilice **Conectar → Claude Desktop → Fichas de código del modelo** en el panel de control. La selección de **Soneto 4.6** en la pestaña Código es servida por `xai/grok-4.7`. El selector guarda la etiqueta Anthropic, y el modelo todavía se presenta como ese modelo Claude por el indicador del sistema Claude Code, así que prefiere filas que no use de otra manera (las entradas **Más modelos** son buenas candidatas). Los enlaces surten efecto en la siguiente solicitud; El escritorio no necesita un reinicio.
+o utilice **Conectar → Claude Desktop → Fichas de código del modelo** en el panel de control. La selección de **Sonnet 4.6** en la pestaña Código es servida por `xai/grok-4.7`. El selector guarda la etiqueta Anthropic, y el modelo todavía se presenta como ese modelo Claude por el indicador del sistema Claude Code, así que prefiere filas que no use de otra manera (las entradas **Más modelos** son buenas candidatas). Los enlaces surten efecto en la siguiente solicitud; El escritorio no necesita un reinicio.
 
 - Las rutas usan el vocabulario de ruta de escritorio: `provider/model`, o `native/<slug>` para el grupo nativo OpenAI. Una ruta debe ser una de las listas del panel de control como disponible.
 - Un identificador de selector con fecha (`claude-haiku-4-5-20251001`) coincide con una unión sin fecha (`claude-haiku-4-5`), y `[1m]` y las selecciones de modo rápido siguen la misma unión.
@@ -251,7 +251,7 @@ Con el interruptor de primera parte CLI encendido y el enrutamiento Claude habil
 
 ## Claude Perfil de escritorio (modo puerta de enlace)
 
-El perfil de abajo está escrito solo en modo gateway. Claude Desktop utiliza un perfil separado del Claude Code. Abra **Conectar → Claude Desktop** en el tablero de instrumentos. La tarjeta **Modelos** tiene las dos opciones que la mayoría de la gente necesita: **Modelo predeterminado** aparece primero en Claude Desktop y se envía como el nivel Opus, y **Modelo de tarea rápida** responde a las solicitudes de nivel Haiku de Desktop. Elegir un modelo allí lo traslada a esa familia y lo convierte en el valor predeterminado de la familia. Para colocar cada ruta usted mismo, abra **Avanzado: asignación de niveles Claude**, donde cada ruta disponible se encuentra en una de las cuatro familias: Opus, Fábula, Soneto o Haiku. Todas las rutas comienzan en Opus con un nuevo perfil. La primera ruta Opus se convierte en el valor predeterminado general inicial, y cada familia no vacía siempre tiene un valor predeterminado de familia.
+El perfil de abajo está escrito solo en modo gateway. Claude Desktop utiliza un perfil separado del Claude Code. Abra **Conectar → Claude Desktop** en el tablero de instrumentos. La tarjeta **Modelos** tiene las dos opciones que la mayoría de la gente necesita: **Modelo predeterminado** aparece primero en Claude Desktop y se envía como el nivel Opus, y **Modelo de tarea rápida** responde a las solicitudes de nivel Haiku de Desktop. Elegir un modelo allí lo traslada a esa familia y lo convierte en el valor predeterminado de la familia. Para colocar cada ruta usted mismo, abra **Avanzado: asignación de niveles Claude**, donde cada ruta disponible se encuentra en una de las cuatro familias: Opus, Fable, Sonnet o Haiku. Todas las rutas comienzan en Opus con un nuevo perfil. La primera ruta Opus se convierte en el valor predeterminado general inicial, y cada familia no vacía siempre tiene un valor predeterminado de familia.
 
 Arrastre una fila a otra familia si lo desea. El arrastre es opcional: cada fila también tiene un control de movimiento visible que funciona con un mouse, un toque o un teclado. Utilice **Hacer predeterminado** para elegir el valor predeterminado de una familia y, a continuación, seleccione **Guardar y aplicar al escritorio**. Se permiten familias vacías. Si un valor predeterminado guardado no está disponible temporalmente, se utiliza la primera ruta disponible de esa familia hasta que vuelva.
 
@@ -520,7 +520,7 @@ Un catálogo mixto que contiene un puente Codex `exec_command` o `shell_command`
 
 En las solicitudes traducidas Messages → Responses, Claude Code `/effort` Configuración de mapas de la siguiente manera:
 
-| Formato de alambre | Mapeo |
+| Formato de protocolo | Mapeo |
 | --- | --- |
 | `thinking.type: "adaptive"` + `output_config.effort` | Esfuerzo pasado directamente ( `minimal` `low` `medium` `high` `xhigh` `max` `ultra`) |
 | `thinking.type: "enabled"` + `budget_tokens` | ≤ 4096 → `low`, ≤ 16384 → `medium`, por encima de → `high` |

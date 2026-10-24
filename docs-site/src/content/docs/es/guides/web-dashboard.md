@@ -248,7 +248,7 @@ La GUI es un cliente ligero de la API JSON de administración del proxy. Algunos
 
 | Punto de conexión | Finalidad |
 | --- | --- |
-| `GET` / `PUT /api/settings` | Lee los configuración o actualiza el inicio automático Codex, los configuración de flujo/memoria y la visibilidad del selector de segmentación de cuentas. |
+| `GET` / `PUT /api/settings` | Lee los ajustes o actualiza el inicio automático Codex, los ajustes de flujo/memoria y la visibilidad del selector de segmentación de cuentas. |
 | `GET` / `POST /api/github/star` | Lea el `gh`-derivada del estado de estrella, o la estrella del repositorio. El POST es rechazado con `403` `agent_consent_required` para llamadas dirigidas por agentes sin una sesión de panel. |
 | `GET /api/startup-health` | Lea los diagnósticos de enrutamiento, servicio, shim y seguridad de reinicio sin secretos. |
 | `POST /api/startup-action` | Instale el servicio en segundo plano o la shim de lanzador Codex a través de acciones fijas y permitidas. |
