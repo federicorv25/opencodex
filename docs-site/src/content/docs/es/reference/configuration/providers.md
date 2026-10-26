@@ -667,7 +667,11 @@ OrcaRouter expone ambos formularios explícitamente: `orcarouter` es el proveedo
 
 Las pruebas de conexión del panel de control y el descubrimiento de modelos en vivo utilizan un transporte limitado solo GET. Sin un proxy de salida, opencodex resuelve el nombre de host una vez y se conecta solo a esa dirección validada. HTTPS conserva la verificación original de host, SNI y certificado; la configuración del proveedor no puede deshabilitar las verificaciones de certificados.
 
-Estas operaciones utilizan el [servidor configurado fetch](/es/reference/configuration/server/). Un servidor proxy SOCKS5 — establecido con
+Las descargas de respuestas directas se pausan cuando el procesamiento local aún no está listo
+para recibir más datos, también en respuestas gzip y deflate. Esa pausa no cuenta como inactividad
+del proveedor; el plazo total de la solicitud y la cancelación siguen vigentes.
+
+Estas operaciones utilizan el [transporte de salida configurado en el servidor](/es/reference/configuration/server/). Un servidor proxy SOCKS5 — establecido con
 `config.proxy` o heredado de un SOCKS5 `ALL_PROXY` — utiliza el túnel incorporado de OpenCodex cuando
 `NO_PROXY` No exime al objetivo. Esquema específico `HTTP_PROXY` y
 `HTTPS_PROXY` conservar el manejo nativo de HTTP(S) de Bun, mientras que un manejo no SOCKS `ALL_PROXY` No es un nativo Ruta HTTP fetch. URL y las comprobaciones de direcciones literales aún se ejecutan, pero un proxy seleccionado elige el final ruta, respuesta DNS y par, por lo que opencodex no puede fijar o verificar ese par. Este es un explícito Limitación de seguridad.

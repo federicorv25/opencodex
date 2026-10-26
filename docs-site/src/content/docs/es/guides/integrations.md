@@ -149,6 +149,31 @@ Para una integración administrada existente, abra **Conectar → Hermes**, revi
 
 Si ya agregó exactamente `session_affinity_header: session-id` dentro del bloque administrado, Apply puede adoptarlo cuando todas las demás configuraciones administradas aún coincidan con el registro de propiedad. Esta es la estrecha excepción a la regla de conflicto anterior: otras ediciones, un nombre de encabezado diferente o un bloque sin un registro de propiedad coincidente aún requieren resolución de conflictos. La configuración y los comentarios YAML no relacionados permanecen intactos, y el flujo de trabajo de instantánea y restauración existente se aplica a la actualización.
 
+<a id="hermes-profiles"></a>
+
+## Perfiles de Hermes
+
+Hermes mantiene un directorio propio para cada perfil de bot. El perfil predeterminado utiliza
+`~/.hermes/config.yaml` (`%LOCALAPPDATA%\hermes\config.yaml` en Windows, o `$HERMES_HOME/config.yaml`),
+y cada perfil creado con `hermes profile create <name>` utiliza
+`<Hermes home>/profiles/<name>/config.yaml`. Consulta la
+[guía de perfiles de Hermes](https://hermes-agent.nousresearch.com/docs/user-guide/profiles).
+
+Cuando existen perfiles con nombre, **Conectar → Hermes** muestra cada uno con su estado. Selecciona
+un perfil para aplicar, desactivar, reemplazar o restaurar OpenCodex solo en ese perfil. Cada uno
+conserva sus propias copias de seguridad e historial de restauración; los demás no cambian. Cada perfil
+conserva su `model.default` y los otros proveedores: OpenCodex solo añade `providers.opencodex`.
+Si no hay perfiles con nombre, la página funciona como antes y modifica el perfil predeterminado.
+
+La API de administración selecciona un perfil mediante `profile=<name>` en `/api/client-integrations/hermes`
+y mediante `client=hermes&profile=<name>` en los endpoints de vista previa, historial y restauración;
+`GET /api/client-integrations/hermes/profiles` enumera los perfiles. Un directorio dentro de `profiles/`
+solo cuenta si Hermes lo mostraría: debe tener un nombre válido, un archivo de identidad de Hermes como
+`config.yaml` o `SOUL.md` y ningún marcador de eliminación. No se ofrecen perfiles alcanzados mediante
+enlaces simbólicos o junctions. Si posteriormente `HERMES_HOME` apunta a otro directorio de Hermes,
+OpenCodex rechaza un perfil con el mismo nombre allí hasta que desconectes el original, para conservar
+el seguimiento de todos los archivos que modificó.
+
 <a id="preview-and-confirm-changes"></a>
 
 ## Vista previa y confirmación de cambios
@@ -404,7 +429,7 @@ Si la aplicación informa que no hay modelos, compruebe que la URL base termina 
 
 ## modelos de rol omo (Codex / LazyCodex)
 
-Cuando LazyCodex está instalado, la pestaña omo muestra una sección **omo (Codex / LazyCodex)** debajo de los controles omo basados en Pi, enumerando cada función de agente Codex que se encuentra en `$CODEX_HOME/agents/*.toml`, con el modelo al que está anclado cada uno. Codex ejecuta un rol en ese pin sin importar qué modelo pida el padre, así que aquí es donde se decide realmente el modelo de un rol. LazyCodex cuenta como instalado cuando el plugin `omo@sisyphuslabs` Codex está habilitado en `$CODEX_HOME/config.toml` y una copia instalada bajo `$CODEX_HOME/plugins/cache/sisyphuslabs/omo/` lleva su `lazycodex-install.json`. Una carpeta `~/.omo` por sí sola no cuenta, porque el omo basado en Pi también lo crea. Sin LazyCodex, la sección está oculta y la línea de comandos informa que no está instalada. Elija un modelo y un esfuerzo de razonamiento en una fila y presione Guardar. Una fila cuyo rol no tiene pin de modelo puede ahorrar un esfuerzo por sí misma; el rol sigue heredando su modelo:
+Cuando LazyCodex está instalado, la pestaña omo muestra una sección **omo (Codex / LazyCodex)** debajo de los controles omo basados en Pi, enumerando cada función de agente Codex que se encuentra en `$CODEX_HOME/agents/*.toml`, con el modelo al que está anclado cada uno. Codex ejecuta un rol en ese pin sin importar qué modelo pida el padre, así que aquí es donde se decide realmente el modelo de un rol. LazyCodex cuenta como instalado cuando el plugin `omo@sisyphuslabs` Codex está habilitado en `$CODEX_HOME/config.toml` y una copia instalada bajo `$CODEX_HOME/plugins/cache/sisyphuslabs/omo/` contiene su manifiesto de plugin o `lazycodex-install.json`. Una carpeta `~/.omo` por sí sola no cuenta, porque el omo basado en Pi también lo crea. Sin LazyCodex, la sección está oculta y la línea de comandos informa que no está instalada. Elija un modelo y un esfuerzo de razonamiento en una fila y presione Guardar. Una fila cuyo rol no tiene un modelo fijado puede guardar solo el esfuerzo de razonamiento; el rol sigue heredando su modelo:
 
 - opencodex actualiza solo las claves raíz `model = "..."` y `model_reasoning_effort = "..."` del archivo de ese rol. Las clavijas que faltan se insertan cerca de la parte superior. La elección de **Heredar el esfuerzo**, disponible en cada fila, envía `"effort": null` para borrar el pin de esfuerzo, eliminando su línea y el comentario final. Las instrucciones del papel, otros comentarios y otras claves se dejan exactamente como estaban.
 - El modelo está escrito a `[codex].agents.<role>.model` en `~/.omo/omo.jsonc`, que LazyCodex 5.1.1 y posteriores leen, y un esfuerzo cambiado LazyCodex soporta va a `[codex].agents.<role>.reasoning` en la misma entrada. Si ese archivo no existe, no se crea. Si contiene comentarios, se deja sin tocar, porque guardarlos los eliminaría; la pestaña lo dice y puede establecer el valor allí a mano. Los symlinks y archivos no regulares son rechazados; en macOS y Linux, una FIFO es rechazada sin esperar a un escritor. Un espejo omitido no deshace el archivo de rol guardado.

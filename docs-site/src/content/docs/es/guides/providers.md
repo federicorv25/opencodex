@@ -225,13 +225,25 @@ La lista de modelos en vivo de Zed es de metadatos de visualización con alcance
 
 Para los modelos OpenAI alojados en Zed, OpenCodex traduce `developer` instrucciones a `system` mensajes y elimina OpenAI campos privados y herramientas integradas no compatibles como `web_search`. La función y las herramientas personalizadas permanecen disponibles a través del delegado; una opción de herramienta sin herramientas compatibles se convierte en `none`.
 
-Para los preajustes canónicos del Plan de Codificación Kimi (inicio de sesión de cuenta `kimi` y clave `kimi-code` API), opencodex reenvía solo un establo `prompt_cache_key` suministrado por el llamante a la solicitud Chat Completions (el cable Responses acepta el mismo campo, pero opencodex no lo envía allí hoy); nunca genera uno. Kimi documenta una clave de sesión/tarea estable según sea necesario para mejorar las tasas de aciertos de la caché del Plan de código, mientras que las solicitudes sin una clave permanecen sin clave. Si un opt-in aguas arriba rechaza el campo, opencodex no lo elimina y vuelve a intentar o mutar la configuración guardada. Otros proveedores siguen negando por defecto.
+Para los presets canónicos de Kimi Coding Plan (inicio de sesión de cuenta `kimi` y clave API `kimi-code`), opencodex solo reenvía a Chat Completions un `prompt_cache_key` estable proporcionado por el cliente; nunca genera uno. El protocolo Responses acepta el mismo campo, pero actualmente opencodex no lo envía por esa ruta. Kimi exige una clave estable de sesión o tarea para mejorar los aciertos de caché de Code Plan; las solicitudes sin clave permanecen sin ella. Si un proveedor que habilitó esta opción rechaza el campo, opencodex no lo elimina para reintentar ni modifica la configuración guardada. Para los demás proveedores, la opción sigue desactivada por defecto.
 
 Kimi La ruta nativa Responses de Code omite los mensajes del historial del asistente vacíos de contenido explícito para evitar su rechazo `assistant must not be empty`. Texto no vacío, espacios en blanco, rechazos, razonamiento y llamadas/resultados de herramientas son retenidos; el historial del cliente almacenado no es reescrito. Un mensaje vacío referenciado por un `item_reference` en la misma entrada se retiene en lugar de dejar una referencia colgante.
 
 Los precios de uso de Kimi Coding para `k3`, `k3[1m]`, `k3-256k`, `k3.1-pro` y `k3.1-pro-highspeed` son **estimaciones de referencia de la API** para `kimi`, `kimi-code` y `kimi-responses`, con la tarifa publicada de escritura en caché de cinco minutos. El preset de API `moonshot` aplica precios a los mismos modelos como `kimi-k3`, `kimi-k3.1-pro` y `kimi-k3.1-pro-highspeed`. Las estimaciones no reproducen la facturación ni la cuota de Code Plan: la variante de 1M de K3 consume aproximadamente el doble de cuota que `k3-256k`, y K3.1 Pro Highspeed aproximadamente el doble que `k3.1-pro`. El alias `kimi-for-coding` apunta ahora a K2.8 Preview y ya no usa el precio de K2.7; su estimación no está disponible salvo que el operador configure `modelCosts`. Por eso, las políticas y los límites que excluyen precios desconocidos pueden excluir ese alias. Consulta la [configuración de modelos de Kimi](https://www.kimi.com/code/docs/en/kimi-code/models.html) y los [precios de API](https://platform.kimi.ai/docs/pricing/chat).
 
-Un proveedor personalizado de `openai-chat` puede optar por cuando sus documentos ascendentes sean compatibles con `prompt_cache_key`:
+El preset `moonshot` (Kimi API) incluye `kimi-k3.1-pro` y `kimi-k3.1-pro-highspeed` junto a
+`kimi-k3` y los identificadores K2. Ambos tienen una ventana de contexto de 1M de tokens, aceptan texto
+e imágenes y siempre razonan. El selector ofrece `low` / `high` / `max` (por defecto, `max`); el nivel
+`medium` de Codex se envía como `high` y `xhigh` como `max`. Un `none` explícito omite
+`reasoning_effort` para que se aplique el valor predeterminado del proveedor. No se envían parámetros
+de muestreo fijos (`temperature`, `top_p` ni penalizaciones). Al iniciar, una lista guardada de modelos
+de `moonshot` que aún coincida con la anterior lista integrada incorpora ambos identificadores si usa
+el endpoint internacional o el de China. Las listas editadas y las URL personalizadas se conservan.
+El modelo predeterminado del preset sigue siendo `kimi-k2.7-code`. Moonshot dejará de ofrecer la serie
+K2 a cuentas nuevas el 2026-10-31 y prevé retirarla a finales de diciembre de 2026; consulta la
+[lista de modelos de Kimi API](https://platform.kimi.ai/docs/models).
+
+Un proveedor personalizado de `openai-chat` puede habilitar esta opción cuando su proveedor documente compatibilidad con `prompt_cache_key`:
 
 ```json
 {

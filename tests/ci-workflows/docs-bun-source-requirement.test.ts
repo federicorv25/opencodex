@@ -60,6 +60,9 @@ test("contributor docs report the test and shipped Bun pins from package.json", 
     const versions = /The suite uses Bun (\d+\.\d+\.\d+) \([^)]*testRunnerBun[^)]*\) while the shipped runtime is (\d+\.\d+\.\d+)\./.exec(text);
     expect(versions?.slice(1)).toEqual([pkg.testRunnerBun, pkg.dependencies.bun]);
   }
+  const spanish = await Bun.file(repoPath("docs-site/src/content/docs/es/contributing.md")).text();
+  const versions = /La suite usa Bun (\d+\.\d+\.\d+),[^\n]*entorno de ejecución distribuido es (\d+\.\d+\.\d+)\./.exec(spanish);
+  expect(versions?.slice(1)).toEqual([pkg.testRunnerBun, pkg.dependencies.bun]);
 });
 
 test("Windows memory guidance reports the shipped runtime in every current-bundle statement", async () => {

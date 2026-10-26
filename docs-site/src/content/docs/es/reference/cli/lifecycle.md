@@ -268,6 +268,49 @@ Si los procesos de larga vida Codex `app-server` todavía se están ejecutando, 
 
 Cuando el comando se ejecuta desde dentro de la aplicación Codex, el reinicio se transfiere a un ayudante separado y esta sesión finaliza con la aplicación.
 
+<a id="sync-only-from-the-expected-home-expect-link-and-expect-hub-key"></a>
+
+#### Sincronizar solo desde el Home esperado: `--expect-link` y `--expect-hub-key`
+
+```bash
+ocx sync --expect-link <linkId> [--restart-codex]
+ocx sync --expect-hub-key <apiKeyId> [--restart-codex]
+```
+
+Un script que lee `ocx connect status --json` y luego ejecuta `ocx sync` no puede saber si, entre
+ambos comandos, el equipo se desconectó o se vinculó a otro Home. Un `ocx sync` sin más opciones
+sincronizaría entonces los proveedores locales o el catálogo del otro Home. Pasar la identidad leída
+evita esa situación. `--expect-link` recibe el `link.linkId` de un Remote Link Child, y
+`--expect-hub-key` recibe el `apiKeyId` de un cliente de Hub. La comprobación se ejecuta bajo el mismo
+bloqueo que elige la ruta de sincronización, y todas las escrituras posteriores quedan vinculadas
+a la conexión que la superó.
+
+Si la identidad coincide, el comando realiza exactamente la sincronización conectada descrita arriba.
+En otro caso no cambia nada —ni siquiera la reparación automática de la shim de Codex que otros
+comandos ejecutan primero—, nunca sincroniza los proveedores locales, termina con código **5** y
+escribe en stderr una línea legible seguida de una línea JSON, que es la última:
+
+```json
+{"phase":"child_link_mismatch","reason":"other_link"}
+```
+
+`phase` es `child_link_mismatch` para `--expect-link` y `hub_client_mismatch` para `--expect-hub-key`.
+
+| `reason` | Estado del equipo |
+| --- | --- |
+| `disconnected` | No está conectado a ningún Home ni Hub |
+| `invalid_state` | No se puede leer la configuración del cliente o un marcador de conexión |
+| `disconnect_pending` | Se inició una desconexión que aún no termina |
+| `pending_operation` | Hay una rotación de clave, conexión u otra sincronización en curso, incluida una operación que mantiene los bloqueos que esta comprobación necesita |
+| `hub_client` | Se usó `--expect-link` en un cliente de Hub |
+| `link_client` | Se usó `--expect-hub-key` en un Remote Link Child |
+| `other_link` / `other_key` | Está conectado, pero mediante otro enlace o con otra clave |
+
+Un valor ausente o mal formado, una opción repetida o las dos opciones juntas terminan con código 2
+antes de leer ningún estado. Si la conexión cambia después de la comprobación, mientras se obtiene
+el catálogo, la operación falla como una sincronización conectada normal: código 1 y ninguna escritura.
+Las versiones que no admiten estas opciones las ignoran; comprueba antes `ocx --version`.
+
 ### `ocx sync-cache [--restart-codex] [--restart-app-server-only]`
 
 Invalide la caché local del selector de modelos de Codex para que se reconstruya a partir del catálogo activo de opencodex. Se aplican las mismas advertencias obsoletas `app-server` y los indicadores de reinicio opcionales que `ocx sync`.
@@ -300,7 +343,7 @@ ocx catalog pull https://proxy.example.com/v1/catalog \
   --auth-env OPENCODEX_CATALOG_AUTH_TOKEN
 ```
 
-El valor se envía como un token de portador, pero nunca se acepta como un valor de argv. Las redirecciones son rechazadas, por lo que la autorización no puede cruzar orígenes. Las escrituras de catálogo y caché utilizan el bloqueo de catálogo Codex compartido y el escritor atómico. Una recuperación, validación, adquisición de bloqueos, escritura de catálogo o reconstrucción de caché fallida conserva los últimos archivos buenos conocidos. Idénticos bytes de catálogo son una opción prohibida que conserva mtimes y nunca toca los procesos. `--restart-codex`, `--restart-app-server-only` y el alias `--restart-desktop-app` en desuso significan lo mismo aquí que en `ocx sync` y `ocx sync-cache`, y se aplican solo después de una escritura real.
+El valor se envía como un token de portador, pero nunca se acepta como un valor de argv. Las redirecciones son rechazadas, por lo que la autorización no puede cruzar orígenes. Las escrituras de catálogo y caché utilizan el bloqueo de catálogo Codex compartido y el escritor atómico. Una recuperación, validación, adquisición de bloqueos, escritura de catálogo o reconstrucción de caché fallida conserva los últimos archivos buenos conocidos. Si los bytes del catálogo son idénticos, la operación no cambia nada: conserva los mtimes y no modifica los procesos. `--restart-codex`, `--restart-app-server-only` y el alias `--restart-desktop-app` en desuso significan lo mismo aquí que en `ocx sync` y `ocx sync-cache`, y se aplican solo después de una escritura real.
 
 La URL debe nombrar `/v1/catalog` en la raíz del host. Este comando no admite un proxy inverso que sirva el punto final bajo un prefijo de ruta.
 

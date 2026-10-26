@@ -223,3 +223,43 @@ Federico's human Spanish acceptance was recorded on the preceding published
 head. The current correction is not a claim that he executed a new browser or
 native Desktop test. Keep the fresh-review and maintainer-acceptance gates open
 until their actual outcomes are available.
+
+## Final upstream refresh and verification, October 25
+
+Before publication, `dev` advanced another 25 commits. Merged
+`8ebe46b2076445d100cef1e52af4d98d78f8f1e1` without conflicts and retained the
+upstream layout shards. Synchronized the nine changed canonical pages:
+contribution/test-runner guidance, hard-lock candidate inspection, Hermes named
+profiles and marketplace detection, Moonshot K3.1 seeds, Pi startup failures,
+native citation projection, expected-Home sync flags, Kiro overage refusals,
+and response-download backpressure. The test runner pin is now Bun 1.4.4,
+matching the shipped runtime; the Spanish contributor version is covered by
+the manifest-derived regression. Also clarified Kimi cache-key rejection,
+effort-only LazyCodex saves, and identical-catalog no-op behavior.
+
+Final frozen installs changed no dependencies. Typecheck and structure checks
+passed. Under the current 1.4.4 pin, the focused docs/layout/CLI/service group
+passed 611 tests (5,218 assertions, 24 files). Eight additional relevant runtime
+files passed 181 tests (3,465 assertions), including Hermes profiles, guarded
+sync, Kiro, native compact and pinned HTTP. After the final prose edits, the
+Spanish and Bun guards passed 18 tests (2,155 assertions), overlapping the first
+group. The first file-size repository scan exceeded 120 seconds (8 passed,
+1 timeout; 172 seconds observed in the case). The direct ratchet command
+passed, then an isolated retry passed all 9 tests (85 assertions; repository
+scan 447 ms), without a baseline or cap change. These results cover 801 unique
+focused cases; they do not claim a full-root-suite result or establish the
+cause of either earlier scan timeout.
+
+The final offline build completed with 667 pages, 97,705 checked internal links,
+Pagefind and sitemap. Actual-browser inspection checked the newly synchronized
+Hermes and expected-Home sync sections at 390px and recaptured the Spanish
+landing at 1280px. The browser viewport was restored afterward. The additional
+captures are on the fork's separate `pr-assets` branch at
+`73c6b4592d0bd103c9717d049a0c6020b0321dd9`, under `spanish-docs-20261025/`;
+no image is added to this source branch.
+
+Publish the correction commits together, document staged privacy validation,
+resolve the eleven corrected inline threads, and request one full review.
+Do not wait for CodeRabbit's result. The full-root resource exception,
+authorized current-head CI, requested manual `lane=all`, and maintainer
+acceptance remain explicit gates; the PR stays Draft.

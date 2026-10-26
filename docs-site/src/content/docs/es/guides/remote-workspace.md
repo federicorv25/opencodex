@@ -125,6 +125,8 @@ Envía mensajes desde el panel de Hub en el ordenador 1, el ordenador 3 o un tel
 
 La presentación inmediata reconoce la aceptación de inmediato; el panel de control sondea la sesión para el progreso y la finalización. Si se pierde el acuse de recibo, el borrador permanece visible con un aviso de envío desconocido. Compruebe el progreso de la sesión antes de volver a enviarla; el panel de control nunca vuelve a intentar un mensaje automáticamente.
 
+Si el proceso Pi termina o falla su extensión mientras empieza un turno, la sesión informa del fallo aunque Pi todavía no haya confirmado ese turno.
+
 **Detener** permanece disponible mientras se ejecuta un mensaje. Interrumpe el giro del agente de codificación Hub, cancela un comando activo del Ejecutor y evita que una respuesta tardía vuelva a abrir la sesión detenida.
 
 <a id="work-with-sessions-side-by-side"></a>

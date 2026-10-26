@@ -20,7 +20,7 @@ Un fallback es un salto a un **modelo diferente** o un **proveedor diferente**:
 
 La rotación entre cuentas o claves API de **un mismo pool de proveedor** para el mismo modelo no es fallback. Permite absorber el límite de tasa de una cuenta y sigue funcionando con cualquier ajuste de esta página. Tampoco se consideran fallback los reintentos al mismo destino ni los cambios de transporte que conservan ese destino.
 
-Cuando el bloqueo de la cuenta principal dirige la solicitud a un perfil, el primer destino seleccionado también respeta estos controles. Permitir el fallback entre proveedores no permite elegir otro modelo del mismo proveedor si el fallback de modelo está desactivado, aunque el perfil incluya otro proveedor.
+Cuando el bloqueo estricto de la cuenta principal dirige la solicitud a un combo o perfil, solo la rechaza de antemano si se sabe que la política prohíbe todos los destinos declarados. En otro caso, la selección normal continúa sin filtrar candidatos, y el destino que realmente se seleccione respeta estos controles. Permitir el fallback entre proveedores no permite elegir otro modelo del mismo proveedor si el fallback de modelo está desactivado, aunque haya otro candidato permitido.
 
 <a id="turn-fallback-off"></a>
 
