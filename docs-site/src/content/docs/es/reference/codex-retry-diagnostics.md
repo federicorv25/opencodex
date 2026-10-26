@@ -27,6 +27,36 @@ Una credencial principal bloqueada cierra la solicitud de admisión; no reserva 
 
 Un rechazo de bloqueo duro se informa como `usage_limit_reached`, por lo que Codex termina el turno y marca un objetivo activo como limitado al uso en lugar de esperar días en un reintento. El tiempo de reintento sugerido es el restablecimiento de la cuenta principal o, para una solicitud de que el grupo de cuentas enrutado a la cuenta principal, el primer momento conocido en que se recupera otra cuenta del grupo, lo que ocurra primero (nunca antes de un minuto). Reanudar el objetivo después de ese tiempo; enrutamiento a continuación, recoge una cuenta de estado fresco.
 
+<a id="triage-idle-timeout-waiting-for-sse"></a>
+
+## Diagnóstico: `idle timeout waiting for SSE`
+
+Codex termina un stream que no ha enviado eventos durante `stream_idle_timeout_ms` —300 segundos
+por defecto— y reintenta el turno. El mensaje por sí solo no explica el silencio. En el WebSocket
+nativo de ChatGPT, una posible causa es una ruta que falló silenciosamente después de empezar
+la respuesta: reiniciar una VPN o túnel, reconectar Wi-Fi o caducar una asignación NAT puede
+interrumpirla sin que el proxy reciba FIN o RST.
+
+En el endpoint canónico de ChatGPT Codex (`https://chatgpt.com/backend-api/codex/responses`, con
+canal de metadatos), el proxy envía pings durante todo el intercambio. Después de empezar la
+respuesta, si el otro extremo respondió al menos a un ping y luego no entrega ningún frame ni
+pong durante dos intervalos de ping, el stream termina con un fallo reintentable. Codex se
+reconecta entre 30 y 45 segundos después del último frame o pong, en vez de esperar 300 segundos.
+La fila de reconexión identifica la causa:
+
+```text
+Reconnecting... 1/5 (stream disconnected before completion: Upstream stream terminated unexpectedly: codex websocket stopped answering after the response started [cause=after-response-started ...])
+```
+
+Si un ping alcanza una ruta que un túnel reiniciado restablece, la fila informa
+`codex websocket closed before a Responses terminal event (close 1006)` en aproximadamente
+un intervalo de ping. Un `idle timeout waiting for SSE` que sigue llegando después del plazo
+completo corresponde a un extremo que respondió a los pings sin enviar eventos, uno que nunca
+respondió a un ping o un intercambio sin canal de metadatos, como el WebSocket Responses de OpenAI
+API, que no envía pings. En esos tres casos se conserva deliberadamente el plazo del cliente.
+`ocx logs get <request-id> --json` muestra `codexWsStage` y los recuentos `pings` y `pongs` del
+intento para distinguirlos. Aumentar `stream_idle_timeout_ms` solo prolonga la espera.
+
 <a id="why-the-first-reconnect-row-can-be-absent"></a>
 
 ## Por qué la primera fila de reconexión puede estar ausente

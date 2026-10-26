@@ -263,3 +263,117 @@ resolve the eleven corrected inline threads, and request one full review.
 Do not wait for CodeRabbit's result. The full-root resource exception,
 authorized current-head CI, requested manual `lane=all`, and maintainer
 acceptance remain explicit gates; the PR stays Draft.
+
+## Consolidated review correction, October 26
+
+The contributor authorized correcting the eight new inline findings from the
+completed CodeRabbit review of `8400645a26c36520f5df33ece80c8f49ed0c47b5`.
+Merged 33 newer `dev` commits through
+`81ce59591c06b2f1bde71748588fda69078662a2` (2.93.0), preserving history in
+`f462c6907a898dc5a324a1032043daf923d48828`. The only conflict appended both
+the upstream combo shard and this contribution's docs shard. The resulting
+roster, all upstream shard contents, and the expected fixture roster were
+compared with upstream; no upstream entry was dropped.
+
+The eight corrections cover prompt-base replacement, separate foreground Hub
+and dashboard terminals, Stop ownership/refusals, cost coverage, proxy precedence,
+sidecar save/apply receipts, Advisor failure/retry behavior, and manual Desktop
+update instructions. English is clarified where it also obscured existing
+behavior; the two-terminal correction is applied across all nine physical
+documentation locales. No runtime or CI policy is changed by this contribution.
+
+The cost explanation was verified against `src/usage/summary.ts` and its cost
+regressions. A known-zero-spend refusal is not unknown potentially billed work;
+it does not make a subsequently measured attempt unpriced. A row consisting
+only of known-zero refusals contributes no measured request fact, and a summary
+containing only those rows is unmetered. A cancellation or unmeasured upstream
+attempt can still be potentially billable. The updated prose preserves these
+distinct cases rather than treating every failed request alike.
+
+Reviewed the complete prompt-layer and Advisor guides against current English
+and the relevant runtime. Corrected additive layers versus replacing variants,
+account attribution, repair/ownership, cached skill catalogs, unquoted JSON keys,
+consultation deduplication, and task continuation after an unavailable preflight.
+Actual-browser inspection also exposed mistranslated Remote Workspace grant,
+prompt-acceptance, hard-link, ordered-message and containment language. Rechecked
+that complete guide against English, retaining all commands and identifiers.
+Escaped the English and Spanish `<default>` labels so their text renders instead
+of being interpreted as HTML.
+
+Synchronized the 18 canonical pages changed by the new upstream commits. Spanish
+now includes Flex selection, opt-in combo cooldown reprobes, JEV Decisions
+validation, Qoder/WorkBuddy homes and admission, provider seed repairs, MiniMax
+retirement, Antigravity Chat limits, literal SSH Include paths, retired OpenCode
+sidecars, restart handover, native compaction/tool rules, WebSocket liveness,
+effort floors, Cursor globs and Windows launcher/update process-tree behavior.
+
+The existing docs guard now exercises separate foreground/GUI blocks in all
+nine locales. Its code-span scanner correctly treats backslashes inside code
+spans as literal, including a trailing-backslash path followed by identifiers.
+The regression rejects an altered later identifier while preserving escaped
+prose openers. This follows CommonMark 0.31.2 section 6.1; the helper remains a
+technical-parity scanner, not a general Markdown parser. All 74 paths retain
+command-block and inline-identifier parity.
+
+Frozen root, GUI and docs installs passed without lockfile changes. Bun 1.4.4
+matches the test/runtime pin. Typecheck, structure and the direct file-size
+ratchet command passed without changing a cap. The isolated wrapper was used
+for all tests:
+
+- Docs/layout/structure/hygiene/CLI group: 536 passed, 0 failed, 4,803 assertions,
+  21 files. This includes all `docs-*.test.ts` guards, both layout tests,
+  structure-ssot, ci-structure-gate, repo-hygiene, cli-export-command,
+  cli-combo-set-targets and cli-combo-parity.
+- Advisor/agent/cost/service/update group: 580 passed and one Windows fixture
+  failure, 4,185 assertions, 25 files. The failure is `advisor-budget.test.ts`
+  "a symlink is refused before SQLite can mutate its target": Windows returned
+  EPERM while `symlinkSync` created the fixture, before the behavior under test.
+  The test and implementation match upstream; neither was changed or skipped.
+- Current-dev runtime group: 533 passed, 8 skipped, 0 failed, 5,145 assertions,
+  20 files. It covers Flex, cooldown reprobes, JEV, client homes, provider seeds,
+  Cursor globs, required tools, compaction, WebSocket liveness, the CLI launcher,
+  sidecar usage and Antigravity Chat. The eight existing Windows skips cover
+  Cursor symlinks, POSIX SSH Include escaping and six PATH-based Bun cases;
+  those platform branches remain for authorized Linux/macOS CI.
+- Re-ran the unchanged Advisor budget file on Linux using official Bun 1.4.4
+  image `oven/bun@sha256:1d22548f177f4ff38e0c15baa3c2c46c6c2060ba2d1bc573bb4720b407548f1d`:
+  4 passed, 0 failed, 13 assertions, including the symlink refusal. The disposable
+  container had no network, a read-only checkout and a private temporary
+  filesystem; no Windows permissions or personal configuration were changed.
+  Three cases overlap the Windows group, so these are not four new unique cases.
+- The final docs/layout group above was rerun after the last prose and scanner
+  regression edits; it includes the Spanish and Bun guards. An earlier isolated
+  recheck passed 20 tests with 2,188 assertions, overlapping that group.
+
+The exact reproduction commands and final build, browser and staged privacy
+receipts are included in the PR description. The full-root-suite resource
+exception remains: this turn does not claim a passing full root run, and the
+preceding combined-PR 900-second run included failures not all classified as
+environmental. The unexecuted remainder and cross-platform coverage still need
+authorized exact-head CI and the maintainer's requested manual `lane=all`.
+
+CodeRabbit reported 100% docstring coverage on the preceding head, but its
+LanguageTool check did not cover everything because the organization's local
+character budget was exhausted. The manual language/contract pass and parity
+tests do not turn that into an exhaustive grammar-tool success. Keep that
+limitation and fresh review separate from contributor language acceptance.
+
+The final offline build completed with 667 pages and 97,816 checked internal
+links, including Pagefind and sitemap. The built nine-locale signing-policy and
+attribution check passed. Actual-browser inspection at 1280px verified the
+prompt-variant replacement warning and visible `<default>` label; at 390px it
+verified the two-terminal Hub setup and Advisor failure guidance. These pages
+had Spanish language metadata and no horizontal page overflow. The Spanish
+Pagefind query `asesor` returned 12 results and its Advisor result opened the
+Spanish guide. The viewport was restored afterward; the preview remains at
+`http://127.0.0.1:4323/es/`. Native Desktop was not exercised, and personal
+Desktop port 10100, credentials and configuration were not used.
+
+Four fresh screenshots are on the fork's separate `pr-assets` branch at
+`0a6e2aae19a79947362eb1530eb84b120addbcc1`, under
+`spanish-docs-20261026/`. None is added to this source branch. Rechecked upstream
+before publication: the branch contains the fetched current `dev` tip.
+Publish the consolidated source update, resolve only the eight corrected
+threads, and request one full review without waiting for it. Keep Draft until
+fresh review, authorized exact-head CI and maintainer acceptance are recorded;
+historical contributor language acceptance is not a new human or native test.

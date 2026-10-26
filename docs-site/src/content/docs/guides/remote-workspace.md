@@ -42,9 +42,16 @@ accepts inclusive values from 1 through 120,000 milliseconds.
 Computer 1 owns every coding-agent login and model session. Install and log in to whichever agents
 you want to use there, then run OpenCodex as a Hub:
 
+Keep the Hub running in the foreground in this terminal:
+
 ```bash
 ocx config set runtimeRole hub
 OCX_REMOTE_WORKSPACE_ENABLED=1 ocx start
+```
+
+While the Hub is running, open a second terminal and launch the dashboard:
+
+```bash
 ocx gui
 ```
 

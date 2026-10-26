@@ -37,7 +37,9 @@ ocx agent sidecar web --model gpt-5.6-luna
 ocx agent sidecar web --enabled off
 ```
 
-`--enabled off` es el mismo switch que la fila Off del Dashboard: OpenCodex deja de ejecutar el sidecar y la integración Codex escribe `web_search = "disabled"` en `~/.codex/config.toml`, que es lo que permite que un servidor de búsqueda MCP sea la única ruta de búsqueda. `--enabled on` elimina esa línea de propiedad del marcador de nuevo. Cuando el guardar mueve realmente el interruptor, el comando informa que el Codex -side escribe que se activó (`codexWebSearch` en `--json`, una línea `Codex config:` posterior de lo contrario) y apunta a `ocx sync` cuando no podía suceder; un guardar que deja el interruptor donde estaba no tiene nada que informar e imprime ninguna línea `Codex config:`. La bandera funciona para `vision` también.
+Para el sidecar de búsqueda web, `--enabled off` equivale a la fila Off del dashboard: OpenCodex deja de ejecutar el sidecar y la integración con Codex escribe `web_search = "disabled"` en `~/.codex/config.toml`, permitiendo que un servidor MCP sea la única ruta de búsqueda. `--enabled on` elimina esa línea administrada.
+
+Cuando el guardado cambia realmente el interruptor, el comando informa del intento de aplicar el cambio a Codex nativo: mediante `codexWebSearch` con `--json`, o una línea final `Codex config:` en la salida legible. Un resultado satisfactorio confirma la reescritura. Si el ajuste se guardó, pero su aplicación nativa se aplazó o rechazó, el recibo indica el motivo y el siguiente paso que corresponde, como `ocx sync`; revisa ese motivo antes de reintentar. Si el interruptor no cambió, no hay escritura nativa que informar y no se muestra ninguna línea `Codex config:`. La opción de habilitación también funciona para `vision`.
 
 <a id="injection-defaults-and-sidecar-runtime-settings"></a>
 

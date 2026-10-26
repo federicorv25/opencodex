@@ -337,8 +337,9 @@ Un JEV Combo puede solicitar un servidor alojado o autoalojado que implemente el
 - Un punto final de loopback o LAN necesita `allowPrivateNetwork: true` explícito en esa fila. Para `http:` sin cifrar, usa una dirección literal de loopback, RFC 1918 o IPv6 ULA; todas las direcciones resueltas deben pertenecer al conjunto permitido y no debe aplicarse ningún proxy saliente (añadel host a `NO_PROXY`). Los demás destinos deben usar HTTPS. Una redirección activa la alternativa fail-open al primer destino elegible.
 - Solo se envía el propio `apiKey` de la fila, y solo cuando está establecido; una fila sin llave no envía la cabecera `Authorization`. Una fila cuyas referencias `apiKey` `${TYPESAFE_API_KEY}` / `${JEV_API_KEY}` u otra entrada de llavero del proveedor se rechazan como inutilizables, por lo que `TYPESAFE_API_KEY`, `JEV_API_KEY` y la clave de la fila `jev` nunca se envían a un punto final autoalojado. El identificador `jev` en sí (explícito u omitido) siempre significa el punto final TypeSafe con el modelo `jev-latest`.
 - Los servicios autoalojados reciben cada opción de destino/esfuerzo como una cadena de descripción simple (por ejemplo, `Target openai/gpt-5.6-sol (provider openai, model gpt-5.6-sol) with low reasoning
-  effort.`), porque Ollama solo acepta descripciones de cadena o de opciones `null`. TypeSafe sigue recibiendo los objetos de opción estructurados.
-- OpenCodex ofrece 2-26 opciones para una fila compatible con System One. Cada destino aporta una opción por nivel de esfuerzo de razonamiento ofrecido; usa `reasoningEfforts` en cada destino para limitar esas opciones. Si hay menos de 2 o más de 26 opciones, se aplica la alternativa fail-open al primer destino elegible sin enviar una solicitud de decisión.
+  effort.`), porque Ollama solo acepta descripciones de cadena o de opciones `null`. TypeSafe sigue recibiendo objetos de opción estructurados. Para Vercel AI Gateway (`ai-gateway.vercel.sh`), las opciones de ruta incluyen `value` y una `description` detallada. Los demás endpoints autoalojados, incluidas las rutas personalizadas `/decisions`, conservan el formato de solicitud de System One.
+- OpenCodex ofrece entre 2 y 26 opciones a una fila compatible con System One (`SELF_HOSTED_MIN_OPTIONS = 2`, `SELF_HOSTED_MAX_OPTIONS = 26`). Cada destino aporta una opción por nivel de esfuerzo; usa `reasoningEfforts` para limitar la lista. Fuera de esos límites, se usa el primer destino elegible sin enviar una decisión. Para Vercel AI Gateway, cuya [referencia Decisions compatible con OpenAI](https://vercel.com/docs/ai-gateway/sdks-and-apis/openai-decisions) admite de 1 a 255 opciones, el máximo aumenta a 255 (`DECISIONS_MAX_OPTIONS = 255`); OpenCodex conserva el mínimo local de dos opciones para elegir entre destinos.
+- Los endpoints de Vercel AI Gateway (`https://ai-gateway.vercel.sh/v1`) se normalizan automáticamente a `/decisions`. OpenCodex convierte el contexto estructurado en una cadena `input` con las secciones `Task:`, `Signals:`, `Recent Assistant:`, `Recent Tool Call:` y `Tool Output:`. Acepta respuestas de ruta como objeto (`answers.route`) o lista de opciones, resolviendo `choice` o `value`. Las distribuciones de probabilidades pueden ser mapas clave-valor o registros de probabilidad. Las claves duplicadas y las distribuciones inválidas activan la alternativa al primer destino elegible.
 - Cargar un modelo en frío puede tardar decenas de segundos, y cancelar una solicitud de decisión hace que Ollama abandone la carga. Precarga el modelo, mantenlo residente (`OLLAMA_KEEP_ALIVE=-1` o `keep_alive`) y aumenta `decisionTimeoutMs` (1000-120000 ms, por defecto 4000) si el servicio tarda más de cuatro segundos. Cualquier error o tiempo de espera agotado sigue activando la alternativa al primer destino elegible.
 
 El **Conexión de prueba** del proveedor envía una decisión de sondeo limitada a su punto final. **Crear JEV Auto** en un proveedor de System One (incluidas las filas sin llave) rellena previamente esa fila como proveedor de decisiones. Las filas deshabilitadas, las URL de decisión no válidas y las filas sin modelo se muestran con una razón y no se pueden seleccionar.
@@ -705,3 +706,33 @@ Compruebe primero la gramática del alias y los nombres reservados. Un alias dup
 ### ¿Por qué se detuvo la conmutación por error después del primer error?
 
 El error fue terminal en lugar de específico del objetivo. Corrige entradas no válidas, reduce un contexto de gran tamaño, maneja un rechazo de directiva o corrige el origen de la solicitud rechazada. Los combos no saltan para esos casos.
+
+<a id="retry-all-cooled-targets-opt-in"></a>
+
+## Reintentar cuando todos los destinos están en enfriamiento
+
+La recuperación de enfriamientos del combo es opcional y está deshabilitada por defecto.
+Para permitir una nueva pasada de failover cuando todos los destinos que serían elegibles
+tienen un enfriamiento guardado del combo:
+
+```sh
+ocx combo set review --cooldown-reprobe on --cooldown-reprobe-interval 300000
+ocx combo set review --cooldown-reprobe off
+```
+
+La configuración correspondiente de cada combo es:
+
+```json
+{ "cooldownReprobe": { "enabled": true, "intervalMs": 300000 } }
+```
+
+El intervalo predeterminado es de cinco minutos. Acepta milisegundos enteros de 1000 a 86400000.
+Configurar solo el intervalo no habilita la recuperación. Se activa por demanda: la primera
+solicitud elegible puede reservar una pasada de inmediato; las posteriores respetan el intervalo.
+No hay temporizadores ni tráfico en segundo plano. Cada destino se intenta como máximo una vez
+dentro del presupuesto de failover existente, y los fallos registran nuevos enfriamientos.
+Se conservan las comprobaciones de cuota, proveedores deshabilitados, compatibilidad, permisos
+de gasto medido y cancelación. Un Retry-After explícito del proveedor puede reintentarse antes
+de su plazo únicamente si el operador habilita esta opción. Las vistas previas y las listas
+no borran enfriamientos. El intervalo se registra por combo en memoria y se reinicia al reiniciar
+el proxy o el estado de selección del combo. Si está deshabilitada, se conserva la espera habitual.

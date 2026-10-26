@@ -23,9 +23,16 @@ Executor에는 opencodex만 필요합니다. Codex, Claude Code, Pi, ChatGPT 로
 
 컴퓨터 1이 모든 코딩 에이전트 로그인과 모델 세션을 소유합니다. 사용할 에이전트를 이 컴퓨터에 설치하고 로그인한 뒤 opencodex를 Hub로 실행하세요.
 
+이 터미널에서 Hub를 포그라운드로 계속 실행합니다.
+
 ```bash
 ocx config set runtimeRole hub
 OCX_REMOTE_WORKSPACE_ENABLED=1 ocx start
+```
+
+Hub를 실행한 상태에서 다른 터미널을 열고 대시보드를 시작합니다.
+
+```bash
 ocx gui
 ```
 

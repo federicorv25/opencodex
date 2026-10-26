@@ -23,9 +23,16 @@ Remote Workspace 是須自行啟用的實驗基礎功能，尚未用於正式環
 
 電腦 1 擁有所有程式碼代理的登入與模型工作階段。在該電腦安裝並登入要使用的代理，然後以 Hub 角色執行 OpenCodex：
 
+在此終端機中讓 Hub 持續於前景執行：
+
 ```bash
 ocx config set runtimeRole hub
 OCX_REMOTE_WORKSPACE_ENABLED=1 ocx start
+```
+
+保持 Hub 執行，開啟另一個終端機並啟動儀表板：
+
+```bash
 ocx gui
 ```
 

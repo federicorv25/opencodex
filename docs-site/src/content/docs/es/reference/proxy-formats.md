@@ -14,6 +14,39 @@ provider events → internal adapter events → client dialect
 
 La representación Responses es el centro del puente. Las rutas nativas compatibles pueden omitir partes de la traducción y pasar una solicitud, pero la autenticación, el enrutamiento, el control de admisión y la seguridad de la respuesta aún ocurren en el límite del proxy. Configure el oyente y las claves de admisión en [Configuración](/es/reference/configuration/); use [Combos](/es/guides/combos/) cuando un identificador de modelo público seleccione entre varios objetivos.
 
+<a id="required-tools-on-buffered-native-combo-routes"></a>
+
+## Herramientas obligatorias en rutas nativas de combo sin streaming
+
+Un combo comprueba los resultados JSON nativos `openai-responses` almacenados antes de entregarlos
+cuando `tool_choice` es `required` o selecciona una función o herramienta personalizada por nombre.
+Un resultado completo sin la llamada requerida se convierte en HTTP 502 con
+`error.code: "required_tool_contract_unsatisfied"`. El combo puede probar otro destino elegible
+antes de entregar la respuesta, respetando la política de fallback y el presupuesto de envíos.
+Si ninguno termina correctamente, el cliente recibe el error tipado en vez de una finalización falsa.
+Una llamada alojada a una capacidad declarada puede cumplir `required`. Una llamada alojada que
+no coincide devuelve HTTP 400 con el mismo código y `x-should-retry: false`, porque la acción
+podría haberse ejecutado. En ese caso no hay fallback y el consumo sigue registrado.
+Las elecciones auto/none, los resultados incompletos y los contratos desconocidos conservan su
+comportamiento. Esta comprobación cubre los destinos nativos del combo con respuesta almacenada;
+las rutas nativas directas y la comprobación en streaming son ámbitos separados. La salida visible
+nunca se reproduce de nuevo. Las rutas Chat traducidas tienen su propia comprobación.
+
+<a id="required-tools-on-translated-chat-routes"></a>
+
+## Herramientas obligatorias en rutas Chat traducidas
+
+Una respuesta OpenAI Chat traducida debe contener una llamada completa a la herramienta de cliente
+seleccionada cuando `tool_choice` es obligatorio, nombra una herramienta o usa una selección
+obligatoria de herramientas permitidas. Si el proveedor termina normalmente sin esa llamada,
+el turno falla con `required_tool_not_called` y conserva el consumo. El texto ya enviado sigue
+visible; el proxy no repite la solicitud ni cambia de destino después de esa salida. En Responses
+con streaming, termina con `response.failed`. Un sobre Responses admitido y almacenado puede tener
+`status: "failed"` aunque HTTP sea 200: comprueba el estado del sobre.
+Las elecciones auto/none y los resultados truncados mantienen su comportamiento. Este control
+cubre catálogos de herramientas del cliente en rutas Chat traducidas. Los catálogos con sidecars
+ejecutados por el proxy, el passthrough nativo y otros adaptadores conservan sus reglas de finalización.
+
 <a id="mimo-bare-tool-call-recovery"></a>
 
 ## Recuperar llamadas sin estructura de MiMo
@@ -72,6 +105,11 @@ El primer desbordamiento de contexto desnudo de Cursor se muestra al cliente. La
 ## Fallos de conexión de banda lateral en vivo
 
 El proxy completa el protocolo de enlace de banda lateral en directo ascendente antes de aceptar el cliente WebSocket. Un rechazo ascendente falla la actualización con 502; un tiempo de espera de enlace de diez segundos devuelve 504, y la cancelación del cliente devuelve 499. Bun no expone el estado de enlace ascendente exacto, por lo que un 404/410 ascendente no puede reenviarse actualmente con precisión. Una conexión exitosa conserva los marcos de sesión iniciales en orden. Esta política de apretón de manos está separada del transporte Responses WebSocket.
+
+Al terminar una conexión de banda lateral, el proxy concede un segundo para cerrar ordenadamente
+el transporte del proveedor y después termina el que no responda. Solo libera la capacidad de
+llamadas activas de la cuenta cuando ese transporte ya está cerrado, incluso si falla la
+actualización de protocolo del cliente.
 
 <a id="undeclared-tool-calls"></a>
 

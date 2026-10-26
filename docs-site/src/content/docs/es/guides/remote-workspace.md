@@ -1,11 +1,11 @@
 ---
 title: "Espacio de trabajo remoto"
-description: "Mantenga Codex, Claude Code, Pi y sus inicios de sesión en un concentrador OCX mientras que los equipos solo OCX proporcionan el espacio de trabajo y el entorno de compilación."
+description: "Mantén Codex, Claude Code, Pi y sus sesiones de acceso en un Hub OCX, mientras otros equipos con solo OCX aportan el espacio de trabajo y el entorno de compilación."
 ---
 
-Para enlaces de máquinas SSH, véase [Enlace remoto](/es/guides/remote-link/).
+Para conectar equipos mediante SSH, consulta [Enlace remoto](/es/guides/remote-link/).
 
-Remote Workspace permite que un OpenCodex Hub ejecute sus agentes de codificación, mientras que otro equipo suministra los archivos del proyecto, comandos, pruebas y compilación. Un teléfono o un tercer ordenador pueden controlar la sesión a través del panel de control de Hub.
+Remote Workspace permite ejecutar los agentes de programación en un Hub de OpenCodex, mientras otro equipo aporta los archivos del proyecto y los recursos para ejecutar comandos, pruebas y compilaciones. Puedes controlar la sesión desde un teléfono o un tercer equipo mediante el dashboard del Hub.
 
 ```text
 Phone browser -> Computer 1 OCX Hub -> encrypted channel -> Computer 2 OCX Executor
@@ -13,41 +13,48 @@ Phone browser -> Computer 1 OCX Hub -> encrypted channel -> Computer 2 OCX Execu
                  logins and sessions                      no coding CLI login
 ```
 
-El ejecutor solo necesita OpenCodex. No necesita Codex, Claude Code, Pi, un inicio de sesión ChatGPT o una clave API del proveedor. Abre un WebSocket saliente al concentrador, por lo que el ejecutor no necesita ningún puerto público o router.
+El Ejecutor solo necesita OpenCodex. No necesita Codex, Claude Code, Pi, una sesión de ChatGPT ni una clave API de un proveedor. Abre una conexión WebSocket saliente hacia el Hub, por lo que no necesita un puerto público ni una redirección de puertos en el router.
 
 :::caution[Base experimental]
-Remote Workspace requiere activación explícita y todavía no es un despliegue de producción. Linux ofrece herramientas de archivos y ejecución condicional de comandos mediante bubblewrap. Windows y macOS solo ofrecen herramientas de archivos: sus auxiliares nativos oficiales rechazan tanto las pruebas como las solicitudes de comandos. Los comandos de Windows seguirán sin admitirse hasta contar con un responsable verificado del ciclo de vida que conserve la autoridad de limpieza incluso durante la cancelación. Los comandos no admitidos se rechazan y nunca se ejecutan como alternativa en el Hub.
+Remote Workspace requiere activación explícita y todavía no está listo para producción. Linux ofrece herramientas de archivos y permite ejecutar comandos mediante bubblewrap cuando se cumplen las condiciones de aislamiento. Windows y macOS solo ofrecen herramientas de archivos: sus auxiliares nativos oficiales rechazan tanto las comprobaciones de aislamiento como las solicitudes de comandos. La ejecución de comandos en Windows seguirá sin admitirse hasta verificar que el componente responsable de su ciclo de vida conserva el control de la limpieza durante una cancelación. Si el Ejecutor no admite comandos, estos nunca se ejecutan en el Hub como alternativa.
 :::
 
 <a id="rpc-compatibility-and-timeouts"></a>
 
 ## Compatibilidad con RPC y tiempos de espera
 
-El espacio de trabajo remoto utiliza RPC v2 encriptado. El Hub y cada Ejecutor deben soportar v2; Los pares de RPC v1 fallan en lugar de volver a la ejecución inmediata, así que actualice el concentrador y los ejecutores juntos.
+Remote Workspace utiliza RPC v2 cifrado. Tanto el Hub como cada Ejecutor deben admitir v2. Las conexiones con componentes RPC v1 se rechazan de forma segura, sin recurrir a la ejecución inmediata; actualiza el Hub y los Ejecutores juntos.
 
-Un tiempo de espera solicita la cancelación del ejecutor, pero no lo confirma. Una subvención puede estar ya en tránsito, o su funcionamiento puede estar ya en ejecución. El tiempo de espera predeterminado de RPC es de 65 segundos, y `timeoutMs` acepta valores inclusivos de 1 a 120,000 milisegundos.
+Al agotarse el tiempo de espera, se solicita la cancelación al Ejecutor, pero eso no confirma que se haya cancelado. Una autorización puede estar ya en tránsito o la operación autorizada puede estar ejecutándose. El tiempo de espera predeterminado de RPC es de 65 segundos; `timeoutMs` acepta valores de 1 a 120.000 milisegundos, ambos incluidos.
 
 <a id="set-up-the-hub"></a>
 
 ## Configurar el Hub
 
-El ordenador 1 posee cada inicio de sesión de agente de codificación y cada sesión de modelo. Instale e inicie sesión en los agentes que desee usar allí, luego ejecute OpenCodex como un Hub:
+El equipo 1 conserva las sesiones de acceso de los agentes de programación y las sesiones de los modelos. Instala allí los agentes que quieras usar, inicia sesión en ellos y ejecuta OpenCodex como Hub:
+
+Mantén el Hub en ejecución en primer plano en esta terminal:
 
 ```bash
 ocx config set runtimeRole hub
 OCX_REMOTE_WORKSPACE_ENABLED=1 ocx start
+```
+
+Mientras el Hub sigue en ejecución, abre otra terminal e inicia el dashboard:
+
+```bash
 ocx gui
 ```
 
-Configure `OCX_REMOTE_WORKSPACE_ENABLED=1` en el proceso Hub en sí; configurarlo solo para un comando de panel de control no habilita un servicio ya en ejecución. Un Hub sin opt-in explícito devuelve el estado deshabilitado sin crear claves de espacio de trabajo ni sondear los tiempos de ejecución del agente de codificación.
+Establece `OCX_REMOTE_WORKSPACE_ENABLED=1` en el propio proceso del Hub. Configurarlo solo al ejecutar un comando del dashboard no habilita un servicio que ya está en ejecución. Sin activación explícita, el Hub devuelve el estado deshabilitado sin crear claves del espacio de trabajo ni comprobar los entornos de ejecución de los agentes.
 
-Utilice una implementación HTTPS autenticada cuando abra el panel de control desde un teléfono u otro equipo. Véase [Implementación remota de Hub](/es/guides/remote-hub/) para el patrón de integración de gestión y Tailscale admitidos. No publique un puerto de panel local no autenticado.
+Usa un despliegue HTTPS con autenticación para abrir el dashboard desde un teléfono u otro equipo. Consulta [Despliegue de Remote Hub](/es/guides/remote-hub/) para conocer el patrón admitido de acceso a la interfaz de administración mediante Tailscale. No expongas un puerto local del dashboard sin autenticación.
 
-Codex Remote Workspace utiliza los perfiles de permisos actuales de App Server. Si la configuración seleccionada del Hub Codex todavía establece el legado `sandbox_mode` o `sandbox_workspace_write`, el panel de control informa que Codex no está disponible en lugar de comenzar con un límite más débil. Migre ese perfil Codex antes de usar la función; no configure tanto el sandbox heredado como un perfil de permisos.
+Codex Remote Workspace utiliza los perfiles de permisos actuales de App Server. Si la configuración de Codex seleccionada en el Hub todavía establece las claves heredadas `sandbox_mode` o `sandbox_workspace_write`, el dashboard muestra Codex como no disponible en lugar de iniciarlo con un aislamiento más débil. Migra ese perfil de Codex antes de usar la función; no configures a la vez el sandbox heredado y un perfil de permisos.
 
 <a id="inspect-the-hub-without-starting-a-session"></a>
 
-## Inspeccione el Hub sin iniciar una sesión
+## Inspeccionar el Hub sin iniciar una sesión
 
 ```bash
 ocx remote-workspace hub --help
@@ -56,21 +63,21 @@ ocx remote-workspace hub runtimes --json
 ocx remote-workspace hub sessions --json
 ```
 
-Estos utilizan el concentrador de gestión en ejecución seleccionado. El `remote-workspace status` existente sigue leyendo el estado del Ejecutor local. Devuelve el estado `{available:true,devices,runtimes,sessions}`; devuelve el entorno de ejecución `{runtimes:{codex:{available,...},claude:{available,...},pi:{available,...}}}`; devuelve las sesiones `{sessions:[...]}`. La disponibilidad en entorno de ejecución es un objeto, no una matriz, y su comprobación puede probar la disponibilidad ejecutable. Las raíces del dispositivo exponen los ID y las etiquetas, no las rutas del sistema de archivos del Ejecutor. Las sesiones incluyen eventos públicos recientes; la salida del terminal humano escapa a los caracteres de control.
+Estos comandos consultan la interfaz de administración del Hub seleccionado que está en ejecución. El comando existente `remote-workspace status` sigue leyendo el estado local del Ejecutor. La consulta de estado devuelve `{available:true,devices,runtimes,sessions}`; la de entornos de ejecución devuelve `{runtimes:{codex:{available,...},claude:{available,...},pi:{available,...}}}`; y la de sesiones devuelve `{sessions:[...]}`. La disponibilidad de los entornos de ejecución se representa como un objeto, no como un arreglo; consultarla puede comprobar si sus ejecutables están disponibles. Las raíces del dispositivo muestran identificadores y etiquetas, no las rutas del sistema de archivos del Ejecutor. Las sesiones incluyen eventos públicos recientes; la salida de terminal destinada a personas escapa los caracteres de control.
 
-Un concentrador disponible con el dispositivo/sesión vacío muestra las salidas 0. Cuando la activación de Hub está desactivada, el despachador externo puede devolver HTTP 200 con `available:false`, dispositivos y sesiones vacíos y `runtimes:{}`. El CLI emite esa estrecha observación no disponible con una instrucción de activación / concentrador fija y sale 1. No presenta indisponible como éxito vacío. Un no Hub interno HTTP 409 devuelve la salida 5 con guía stderr; el rol de cliente, el transporte y las respuestas mal formadas también siguen fallando.
+Un Hub disponible, aunque tenga listas vacías de dispositivos y sesiones, produce el código de salida 0. Si la función está desactivada en el Hub, el despachador externo puede devolver HTTP 200 con `available:false`, listas vacías de dispositivos y sesiones y `runtimes:{}`. En ese caso concreto, la CLI informa de que no está disponible, muestra una instrucción fija sobre el Hub y su activación, y termina con el código 1. No presenta la indisponibilidad como una consulta exitosa sin resultados. Una respuesta HTTP 409 interna que indica que el proceso no es un Hub produce el código de salida 5 y una indicación en stderr. El rol de cliente, los errores de transporte y las respuestas mal formadas también se consideran fallos.
 
-Compruebe el Hub previsto y su activación `OCX_REMOTE_WORKSPACE_ENABLED=1` cuando no esté disponible; no cambie silenciosamente la configuración como recuperación. Estas observaciones no autorizan ni realizan emparejamientos, creación de sesiones, solicitudes, revocación o cambios de confianza. Esos siguen siendo los flujos de trabajo separados del panel de control / sesión a continuación.
+Si no está disponible, comprueba que consultas el Hub previsto y que tiene activada la opción `OCX_REMOTE_WORKSPACE_ENABLED=1`; no cambies la configuración de forma automática para recuperarlo. Estas consultas no autorizan ni realizan emparejamientos, creación de sesiones, envío de mensajes, revocaciones ni cambios de confianza. Esas acciones pertenecen a los flujos del dashboard y de las sesiones que se describen a continuación.
 
 <a id="pair-an-executor"></a>
 
-## Emparejar a un ejecutor
+## Emparejar un Ejecutor
 
-1. Empareje el navegador con el Hub a través del panel de control. Ejecute el comando `ocx gui pair --origin` mostrado en el concentrador e introduzca su código de una sola vez; una sesión local o de Tailscale automáticamente iniciada puede ver el estado pero no puede controlar el espacio de trabajo remoto.
-2. Abra **Espacio de trabajo remoto** en ese panel de Hub emparejado.
-3. Seleccione **Crear código de emparejamiento**.
-4. En el equipo 2, cambie al directorio del proyecto que desea exponer.
-5. Copie el comando **Terminal Linux / macOS** o **Windows PowerShell** generado para ese equipo. Empareja el directorio actual y mantiene conectado `ocx remote-workspace agent` en ese terminal.
+1. Empareja el navegador con el Hub mediante el panel de emparejamiento del dashboard. Ejecuta en el Hub el comando `ocx gui pair --origin` que se muestra e introduce el código de un solo uso. Una sesión local o de Tailscale iniciada automáticamente puede consultar el estado, pero no controlar Remote Workspace.
+2. Abre **Espacio de trabajo remoto** en el dashboard del Hub ya emparejado.
+3. Selecciona **Crear código de emparejamiento**.
+4. En el equipo 2, entra en el directorio del proyecto que quieras compartir.
+5. Copia el comando generado para **Terminal Linux / macOS** o **Windows PowerShell**, según el equipo. Empareja el directorio actual y mantiene conectado `ocx remote-workspace agent` en esa terminal.
 
 El flujo manual equivalente es:
 
@@ -81,7 +88,7 @@ printf '%s\n' 'ONE-TIME-CODE' | ocx remote-workspace pair 'https://your-hub.exam
 ocx remote-workspace agent
 ```
 
-En Windows PowerShell, utilice el comando que se muestra en el panel de control. La forma manual equivalente es:
+En Windows PowerShell, usa el comando que muestra el dashboard. Su equivalente manual es:
 
 ```powershell
 $pairingCode = 'ONE-TIME-CODE'
@@ -90,7 +97,7 @@ $pairingCode | ocx remote-workspace pair 'https://your-hub.example' `
 if ($LASTEXITCODE -eq 0) { ocx remote-workspace agent }
 ```
 
-El ejecutable OCX Bun actual se agrega automáticamente como un archivo de solo lectura al sandbox Linux. Si el proyecto necesita una cadena de herramientas instalada por el usuario fuera de las rutas del sistema, empareje explícitamente sin exponer el resto del directorio principal:
+El ejecutable actual de Bun que usa OCX se añade automáticamente al sandbox de Linux como un único archivo de solo lectura. Si el proyecto necesita herramientas instaladas por el usuario fuera de las rutas del sistema, incluye explícitamente esa cadena de herramientas en el emparejamiento, sin exponer el resto del directorio personal:
 
 ```bash
 printf '%s\n' 'ONE-TIME-CODE' | ocx remote-workspace pair 'https://your-hub.example' \
@@ -98,11 +105,11 @@ printf '%s\n' 'ONE-TIME-CODE' | ocx remote-workspace pair 'https://your-hub.exam
   --toolchain-root "$HOME/.nvm/versions/node/v24/bin"
 ```
 
-La fuente de ayuda nativa está empaquetada para su revisión. Construirlo no habilita los comandos Windows o macOS en este transporte. `--executor-helper` sigue siendo un selector de ayuda revisada; la existencia binaria o una ruta configurada no prueban el soporte de comandos.
+El código fuente del auxiliar nativo se incluye en el paquete para su revisión. Compilarlo no habilita la ejecución de comandos en Windows ni macOS en esta implementación. `--executor-helper` sigue siendo un selector de auxiliares revisados; que exista un binario o una ruta configurada no demuestra que se admita ejecutar comandos.
 
-El código de una sola vez se lee de la entrada estándar, no de los argumentos de la línea de comandos. El emparejamiento crea una clave de firma de dispositivo local y un portador con alcance de dispositivo. El Hub almacena solo su hash y nunca recibe la ruta real del Ejecutor. Detener el agente en primer plano con Ctrl+C; ejecutarlo nuevamente vuelve a conectar el mismo dispositivo.
+El código de un solo uso se lee de la entrada estándar, no de los argumentos de la línea de comandos. El emparejamiento crea una clave de firma local y un token de portador limitado a ese dispositivo. El Hub solo almacena el hash del token y nunca recibe la ruta real del Ejecutor. Detén el agente en primer plano con Ctrl+C; al ejecutarlo de nuevo se reconecta el mismo dispositivo.
 
-Compruebe la inscripción local sin imprimir secretos:
+Comprueba el registro local sin mostrar secretos:
 
 ```bash
 ocx remote-workspace status
@@ -112,75 +119,75 @@ ocx remote-workspace status
 
 ## Iniciar una sesión de codificación remota
 
-En el panel de control, elija:
+En el dashboard, elige:
 
-1. el ordenador en línea;
+1. el equipo conectado;
 2. una carpeta de espacio de trabajo aprobada localmente;
-3. Codex, Claude Code, o Pi desde el Hub; y
+3. Codex, Claude Code o Pi en el Hub; y
 4. un modo de acceso.
 
-**Solo lectura** es el valor predeterminado y expone la lista de directorios y la lectura de archivos. La opción de escritura se muestra como **Editar archivos y ejecutar comandos** solo cuando el Ejecutor pasó una sonda de caja de arena de comandos; de lo contrario, se muestra como **Editar solo archivos**. El panel de control muestra dos ubicaciones separadas, por lo que está claro que el modelo y el inicio de sesión permanecen en el concentrador mientras se ejecutan las operaciones del espacio de trabajo en el equipo seleccionado.
+**Solo lectura** es el modo predeterminado y permite listar directorios y leer archivos. La opción de escritura aparece como **Editar archivos y ejecutar comandos** solo si el Ejecutor ha superado una comprobación del sandbox de comandos; en caso contrario, aparece como **Editar solo archivos**. El dashboard muestra dos ubicaciones distintas: el modelo y la sesión de acceso permanecen en el Hub, mientras las operaciones sobre el espacio de trabajo se ejecutan en el equipo seleccionado.
 
-Envía mensajes desde el panel de Hub en el ordenador 1, el ordenador 3 o un teléfono. La sesión no puede cambiar a otro equipo o carpeta en silencio. Si el Ejecutor se desconecta, la sesión entra en **Ejecutor offline** y nunca vuelve al sistema de archivos del Hub.
+Envía mensajes desde el dashboard del Hub en el equipo 1, el equipo 3 o un teléfono. La sesión no puede cambiar de equipo o carpeta sin avisar. Si el Ejecutor se desconecta, la sesión pasa al estado **Ejecutor sin conexión** y nunca recurre al sistema de archivos del Hub como alternativa.
 
-La presentación inmediata reconoce la aceptación de inmediato; el panel de control sondea la sesión para el progreso y la finalización. Si se pierde el acuse de recibo, el borrador permanece visible con un aviso de envío desconocido. Compruebe el progreso de la sesión antes de volver a enviarla; el panel de control nunca vuelve a intentar un mensaje automáticamente.
+Al enviar un mensaje, se confirma de inmediato que ha sido aceptado; el dashboard consulta periódicamente la sesión para conocer el progreso y la finalización. Si se pierde esa confirmación, el borrador permanece visible con un aviso de estado de envío desconocido. Comprueba el progreso de la sesión antes de volver a enviarlo; el dashboard nunca reenvía un mensaje automáticamente.
 
 Si el proceso Pi termina o falla su extensión mientras empieza un turno, la sesión informa del fallo aunque Pi todavía no haya confirmado ese turno.
 
-**Detener** permanece disponible mientras se ejecuta un mensaje. Interrumpe el giro del agente de codificación Hub, cancela un comando activo del Ejecutor y evita que una respuesta tardía vuelva a abrir la sesión detenida.
+**Detener** sigue disponible mientras se procesa un mensaje. Interrumpe el turno del agente de programación del Hub, cancela el comando activo del Ejecutor y evita que una respuesta tardía vuelva a abrir la sesión detenida.
 
 <a id="work-with-sessions-side-by-side"></a>
 
 ## Trabajar con sesiones lado a lado
 
-La lista de sesiones de la izquierda abre una sesión en el panel enfocado. Arrastre una sesión hacia la izquierda, derecha, arriba o abajo de otro panel para dividir el área de conversación. Puedes mostrar hasta cuatro sesiones diferentes a la vez. Una sesión ya visible se mueve entre paneles en lugar de abrir un compositor duplicado.
+La lista de sesiones de la izquierda abre la sesión seleccionada en el panel activo. Arrastra una sesión al borde izquierdo, derecho, superior o inferior de otro panel para dividir el área de conversación. Puedes mostrar hasta cuatro sesiones diferentes a la vez. Si una sesión ya está visible, se mueve entre paneles en lugar de abrir otro editor de mensajes para la misma sesión.
 
-Utilice **Dividir a la derecha** o **Dividir a continuación** junto a una sesión para la alternativa accesible por teclado. Arrastre un divisor para cambiar el tamaño de los paneles, o enfoque el divisor y use sus teclas de flecha. **Home** y **Fin** establecen el divisor en su tamaño mínimo y máximo. Cada sesión mantiene su propio borrador, estado de envío y acción Detener, por lo que un turno pendiente en un panel no bloquea una sesión diferente. **Cerrar panel** cambia el diseño solamente; no detiene la sesión.
+Como alternativa accesible por teclado, usa **Dividir a la derecha** o **Dividir debajo**, junto a la sesión. Arrastra un separador para cambiar el tamaño de los paneles, o dale el foco y usa las teclas de flecha. **Inicio (Home)** y **Fin (End)** lo llevan al tamaño mínimo y máximo, respectivamente. Cada sesión conserva su propio borrador, estado de envío y acción Detener; un turno pendiente en un panel no bloquea otra sesión. **Cerrar panel** solo cambia la distribución; no detiene la sesión.
 
-El diseño del panel se restaura para este Hub en el mismo navegador. Solo se guardan los identificadores de sesión y las posiciones del panel y los tamaños de los divisores; el texto borrador y la salida del modelo no se escriben en el almacenamiento del navegador. Recargar la página borra los borradores no enviados. En pantallas de hasta 760px de ancho, los paneles se apilan verticalmente sin redimensionar los divisores; las posiciones divididas y los tamaños guardados regresan cuando la pantalla es más ancha.
+La distribución se restaura para este Hub en el mismo navegador. Solo se guardan los identificadores de sesión, las posiciones de los paneles y los tamaños de los separadores; los borradores y las respuestas del modelo no se escriben en el almacenamiento del navegador. Recargar la página borra los borradores sin enviar. En pantallas de hasta 760px de ancho, los paneles se apilan verticalmente y no muestran separadores para ajustar su tamaño; las posiciones y los tamaños guardados vuelven a aplicarse en pantallas más anchas.
 
-Esta vista es compartida por el panel del navegador y el panel de escritorio OpenCodex. Los usuarios de CLI pueden abrir el panel de control con `ocx gui` y seleccionar **Espacio de trabajo remoto** después de su configuración normal de Hub. No cambia la interfaz del terminal de `codex` o el diseño de la conversación dentro de la aplicación de escritorio oficial separada ChatGPT / Codex.
+Esta vista se comparte entre el dashboard del navegador y el de OpenCodex Desktop. Si usas la CLI, puedes abrirla con `ocx gui` y seleccionar **Espacio de trabajo remoto** después de configurar el Hub de la forma habitual. No modifica la interfaz de terminal de `codex` ni la distribución de las conversaciones en la aplicación oficial de escritorio ChatGPT/Codex, que es independiente.
 
 <a id="restart-and-reconnect-behavior"></a>
 
-## Reiniciar y reconectar el comportamiento
+## Comportamiento al reiniciar y reconectar
 
-El concentrador mantiene los metadatos de sesión limitados y una pequeña instantánea de evento reciente. Después de un reinicio de Hub, una sesión inacabada espera a su Ejecutor original. Una vez que el dispositivo se vuelve a conectar, el siguiente mensaje reanuda el hilo original Codex, la sesión Claude Code o el identificador de sesión Pi.
+El Hub conserva metadatos de sesión de tamaño limitado y una pequeña instantánea de los eventos recientes. Tras reiniciar el Hub, una sesión sin terminar espera a su Ejecutor original. Cuando el dispositivo se reconecta, el siguiente mensaje reanuda el hilo original de Codex, la sesión de Claude Code o el identificador de sesión de Pi.
 
-Claude Code crea su historia duradera en el primer aviso completado. Si el Hub se detiene antes de que una nueva sesión Claude haya completado algún mensaje, no hay conversación que reanudar; inicie una nueva sesión en su lugar.
+Claude Code crea su historial persistente al completar el primer mensaje. Si el Hub se detiene antes de que una nueva sesión de Claude complete algún mensaje, no habrá una conversación que reanudar; inicia una sesión nueva.
 
-Un manifiesto de capacidad cambiado no debilita silenciosamente una sesión existente. Inicie una nueva sesión si el Ejecutor pierde la contención de comandos o si sus herramientas disponibles cambian. Revocar una computadora cierra su socket y detiene las sesiones vinculadas a él.
+Un cambio en el manifiesto de capacidades no debilita una sesión existente sin avisar. Inicia una sesión nueva si el Ejecutor pierde el aislamiento de comandos o cambian sus herramientas disponibles. Revocar un equipo cierra su socket y detiene las sesiones vinculadas a él.
 
 <a id="security-boundaries"></a>
 
 ## Límites de seguridad
 
-- Las credenciales del proveedor y el historial de agentes de codificación permanecen en el concentrador.
-- Las claves privadas del ejecutor, el portador del dispositivo y las rutas raíz reales permanecen en su estado OCX solo de propietario.
-- Los errores de código de emparejamiento están limitados por par observado por kernel en cada oyente. Diez códigos fallidos en diez minutos devuelven un `429` genérico con `Retry-After`; el Hub conserva solo hashes limitados y expirados de esas identidades de origen. Los usuarios de Tailscale Serve comparten el bucket de loopback del oyente de administración porque un llamador local directo podría falsificar su encabezado de identidad.
-- Cada sesión de trabajo utiliza un protocolo de enlace efímero P-256 ECDH firmado por Ed25519, y pide mensajes AES-256-GCM.
-- Un socket no se muestra como en línea hasta que ambas partes estén de acuerdo en su manifiesto de capacidad actual.
-- La reconexión puede eliminar una capacidad cuando su sandbox local no está disponible, pero nunca agrega una capacidad fuera de la concesión registrada en el emparejamiento.
-- Cada solicitud está vinculada a un hilo de modelo, dispositivo, raíz, modo de acceso y conjunto de capacidades.
-- Las rutas son relativas, canónicas, limitadas y rechazadas en enlace simbólico, unión o escape de directorio padre. Windows nombres de dispositivos, flujos de datos alternativos y alias de espacio/punto final son denegados.
-- Las operaciones del ejecutor se serializan, las identidades de archivo abiertas se vuelven a verificar y los hashes de escritura se vuelven a verificar inmediatamente antes del reemplazo atómico. Reemplazar una raíz aprobada requiere emparejarla de nuevo, y las raíces de la cadena de herramientas se revalidan antes de cada comando.
-- Las lecturas/escrituras de archivos rechazan los archivos vinculados. Antes de la ejecución de comandos, OCX escanea un máximo de 250.000 entradas de espacio de trabajo y desactiva la ruta de acceso de los comandos si alguna entrada que no sea de directorio tiene varios enlaces; los sandboxes de ruta no pueden probar si el otro nombre de ese inodo está fuera de la raíz aprobada.
-- Los comandos Linux se ejecutan a través de bubblewrap con un espacio de trabajo grabable, un entorno despejado, espacios de nombres de procesos privados, el ejecutable actual de OCX Bun como un solo archivo de solo lectura, salida y tiempo de espera limitados y red desactivada de forma predeterminada. Las pruebas de confinamiento dedicadas requieren un entorno alojado configurado explícitamente; un conjunto genérico verde no prueba que se ejecutaron.
-- macOS solo anuncia herramientas de archivo. Un grupo de procesos no puede contener un descendiente después de que llame al `setsid()`, e importar un amplio perfil del sistema de cinturón de seguridad de Apple simplemente para iniciar un comando expondría una autoridad de servicio de host no relacionada. Por lo tanto, el ayudante nativo rechaza tanto sus solicitudes de sonda como de comando directo hasta que OCX tenga un propietario de contención descendiente estrecho y revocable.
+- Las credenciales de los proveedores y el historial de los agentes de programación permanecen en el Hub.
+- Las claves privadas, el token de portador del dispositivo y las rutas raíz reales del Ejecutor permanecen en su estado local de OCX, accesible solo por su propietario.
+- Cada listener limita los intentos fallidos de emparejamiento por la identidad del extremo remoto que observa el kernel. Diez códigos fallidos en diez minutos producen un `429` genérico con `Retry-After`; el Hub conserva una cantidad limitada de hashes de esas identidades, con caducidad. Los usuarios de Tailscale Serve comparten el contador de loopback del listener de administración porque una solicitud local directa podría falsificar su encabezado de identidad.
+- Cada sesión de trabajo utiliza una negociación efímera P-256 ECDH firmada con Ed25519 y mensajes AES-256-GCM ordenados.
+- Un socket no se muestra como conectado hasta que ambos extremos coinciden en el manifiesto de capacidades actual.
+- La reconexión puede retirar una capacidad si su sandbox local deja de estar disponible, pero nunca añade una capacidad fuera de la autorización registrada durante el emparejamiento.
+- Cada solicitud queda vinculada a un único hilo del modelo, dispositivo, raíz, modo de acceso y conjunto de capacidades.
+- Las rutas son relativas, se normalizan a su forma canónica y se mantienen dentro de los límites permitidos. Se rechazan los intentos de salir de la raíz mediante enlaces simbólicos, uniones de directorio o referencias al directorio padre. También se rechazan los nombres de dispositivo de Windows, los flujos de datos alternativos y los alias con puntos o espacios finales.
+- Las operaciones del Ejecutor se procesan en serie. Se vuelve a comprobar la identidad de los archivos abiertos y se verifican otra vez los hashes de escritura justo antes del reemplazo atómico. Sustituir una raíz aprobada exige emparejarla de nuevo; las raíces de las herramientas se revalidan antes de cada comando.
+- La lectura y escritura rechazan archivos con enlaces duros. Antes de ejecutar comandos, OCX examina como máximo 250.000 entradas del espacio de trabajo y deshabilita la ejecución si alguna entrada que no sea un directorio tiene varios enlaces. Un sandbox basado en rutas no puede demostrar si otro nombre de ese inodo está fuera de la raíz aprobada.
+- Los comandos de Linux se ejecutan mediante bubblewrap con un espacio de trabajo escribible, un entorno sin las variables heredadas, espacios de nombres de procesos privados, el ejecutable actual de Bun de OCX como un único archivo de solo lectura, límites de salida y tiempo de espera, y la red desactivada de forma predeterminada. Las pruebas específicas de confinamiento requieren un entorno alojado configurado expresamente; que la suite general pase no demuestra que se hayan ejecutado.
+- macOS solo anuncia herramientas de archivos. Un grupo de procesos no puede contener a un descendiente después de que este llame a `setsid()`. Además, importar un perfil amplio del sistema Apple Seatbelt solo para iniciar un comando expondría permisos sobre servicios del sistema ajenos a esa tarea. Por eso, el auxiliar nativo rechaza tanto las comprobaciones de aislamiento como las solicitudes directas de comandos hasta que OCX disponga de un componente con autoridad limitada y revocable para confinar los procesos descendientes.
 - Las solicitudes nativas de comandos en Windows y macOS se rechazan. Las pruebas de rechazo del auxiliar directo deben distinguirse de la evidencia de confinamiento funcional de comandos; la aceptación de comandos en Windows sigue pendiente.
-- El ayudante nativo anclado debe estar fuera de cada espacio de trabajo escribible aprobado. OCX comprueba esto tanto antes de la compatibilidad con comandos publicitarios como inmediatamente antes de cada comando, por lo que el código del espacio de trabajo no puede reemplazar al binario que hace cumplir su siguiente sandbox.
-- Detener una sesión cancela un comando activo de Ejecutor y limpia el proceso del modelo Hub y el puente de herramientas de bucle invertido. Windows detiene el árbol de proceso de npm en lugar de dejar atrás a su hijo Node; Linux y macOS fuerza de parada un CLI sólo si se ignora la ventana de parada elegante.
+- El auxiliar nativo fijado debe estar fuera de todos los espacios de trabajo aprobados que permitan escritura. OCX lo comprueba antes de anunciar que admite comandos y justo antes de cada ejecución, para impedir que el código del espacio de trabajo sustituya el binario que aplica el siguiente sandbox.
+- Detener una sesión cancela el comando activo del Ejecutor y limpia el proceso del modelo en el Hub y el puente local de herramientas de loopback. En Windows se detiene todo el árbol de procesos del contenedor de npm bajo su control, sin dejar activo el proceso hijo de Node; Linux y macOS solo fuerzan la terminación de una CLI si esta ignora el plazo de cierre ordenado.
 
-El Hub ve intencionadamente mensajes y salidas del modelo porque ejecuta el agente de codificación. El cifrado de extremo a extremo protege las cargas útiles de Executor RPC. Se confía en el concentrador emparejado para seleccionar raíces aprobadas sobre WSS autenticado; no es ciego a su propia conversación de modelo.
+El Hub ve deliberadamente los mensajes y las respuestas del modelo porque ejecuta el agente de programación. El cifrado de extremo a extremo protege los datos de RPC del Ejecutor. El Hub emparejado es un componente de confianza que selecciona raíces aprobadas mediante WSS autenticado; puede ver su propia conversación con el modelo.
 
 <a id="current-scope"></a>
 
 ## Alcance actual
 
-Remote Workspace no copia ni sincroniza credenciales con otros equipos. Está separado del enrutamiento del proveedor de Remote Hub y de cualquier futuro cómputo alojado o producto Super Sync. Una versión de producción aún requiere un paquete de ayuda firmado Windows, una prueba nativa de CI en los binarios exactos, una revisión independiente del mantenedor y una verdadera ejecución de aceptación de tres computadoras.
+Remote Workspace no copia ni sincroniza credenciales con otros equipos. Es independiente del enrutamiento de proveedores de Remote Hub y de cualquier futuro producto de cómputo alojado o Super Sync. Para una versión de producción todavía hacen falta un paquete firmado del auxiliar de Windows, pruebas de CI nativas sobre los binarios exactos, una revisión independiente del mantenedor y una prueba real de aceptación con tres equipos.
 
 <a id="prompt-acceptance-api"></a>
 
-## Rápida aceptación API
+## API de aceptación de mensajes
 
-`POST /api/remote-workspace/sessions/:id/prompt` devuelve HTTP 202 con la instantánea de sesión aceptada. Su ID de sesión y la secuencia de eventos monotónicos identifican la instantánea de aceptación; 202 no significa que el modelo se haya completado. Encuesta `GET /api/remote-workspace/sessions` para eventos posteriores y estado de la terminal. Reconectar y reanudar el entorno de ejecución permanecen ocupados mientras ese turno está activo. Un acuse de recibo perdido deja la aceptación desconocida, por lo que los clientes deben encuestar antes de elegir si enviar nuevamente.
+`POST /api/remote-workspace/sessions/:id/prompt` devuelve HTTP 202 con la instantánea de la sesión que aceptó el mensaje. Su identificador de sesión y la secuencia monotónica de eventos identifican esa instantánea; 202 no significa que el turno del modelo haya terminado. Consulta periódicamente `GET /api/remote-workspace/sessions` para obtener los eventos posteriores y saber si la sesión llegó a un estado final. La reconexión y la reanudación del entorno de ejecución siguen ocupadas mientras ese turno está activo. Si se pierde la confirmación, no se sabe si el mensaje fue aceptado; los clientes deben consultar el estado antes de decidir si lo reenvían.

@@ -23,9 +23,16 @@ Remote Workspace は明示的に有効化する機能で、実運用向けの公
 
 コンピューター 1 がすべてのコーディングエージェントのログインとモデルセッションを所有します。使いたいエージェントをそこにインストールしてログインし、OpenCodex を Hub として実行します。
 
+このターミナルで Hub をフォアグラウンド実行したままにします。
+
 ```bash
 ocx config set runtimeRole hub
 OCX_REMOTE_WORKSPACE_ENABLED=1 ocx start
+```
+
+Hub を実行したまま別のターミナルを開き、ダッシュボードを起動します。
+
+```bash
 ocx gui
 ```
 

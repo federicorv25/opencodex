@@ -59,14 +59,15 @@ ocx agent sidecar web --model gpt-5.6-luna
 ocx agent sidecar web --enabled off
 ```
 
-`--enabled off` is the same switch as the Dashboard's Off row: OpenCodex stops running the
-sidecar and the Codex integration writes `web_search = "disabled"` into `~/.codex/config.toml`,
-which is what lets an MCP search server be the only search path. `--enabled on` removes that
-marker-owned line again. When the save actually moves the switch, the command reports the
-Codex-side write it triggered (`codexWebSearch` in `--json`, a trailing `Codex config:` line
-otherwise) and points at `ocx sync` when it could not happen; a save that leaves the switch
-where it was has nothing to report and prints no `Codex config:` line. The flag works for
-`vision` too.
+For the web-search sidecar, `--enabled off` is the same switch as the dashboard's Off row:
+OpenCodex stops running the sidecar and the Codex integration writes `web_search = "disabled"`
+into `~/.codex/config.toml`, allowing an MCP search server to be the only search path.
+`--enabled on` removes that marker-owned line. A save that actually changes the switch reports
+the attempted native Codex application in `codexWebSearch` with `--json`, or a trailing
+`Codex config:` line otherwise. A successful receipt confirms the rewrite. A saved setting
+whose native application was deferred or refused reports the reason and the applicable next
+step, such as `ocx sync`; inspect that reason before retrying. An unchanged save has no native
+write to report and prints no `Codex config:` line. The enablement flag also works for `vision`.
 
 ### Injection defaults and sidecar runtime settings
 

@@ -31,6 +31,30 @@ El trabajo del panel de control solo registra el estado de salida, ya que la pro
 
 ## Finalizar la actualización
 
+<a id="if-npm-staging-times-out"></a>
+
+### Si la instalación npm de preparación agota el plazo
+
+En Windows, la instalación npm de preparación de `ocx update` tiene un plazo de tres minutos.
+Si lo supera, informa `ETIMEDOUT` con ese presupuesto. El actualizador termina todo el árbol de
+procesos del instalador y confirma su salida antes de retirar el directorio de preparación y
+recuperar el servicio anterior. No sigue extrayendo archivos a un directorio eliminado después
+de que comience la recuperación.
+
+Si no puede confirmar la salida del instalador, la actualización falla y conserva ese directorio
+y su marcador de propiedad. Antes de eliminarlo, confirma que ningún proceso del instalador ni
+de OpenCodex se esté ejecutando desde él. Un directorio conservado no impide volver a actualizar.
+
+Si la instalación supera repetidamente el plazo, comprueba la conexión con el registro y
+reintenta `ocx update`. No hace falta ampliar el plazo para limpiar con seguridad una instalación
+que lo agotó. La garantía de salida del árbol completo se aplica a las actualizaciones npm de
+Windows. POSIX conserva su tratamiento anterior de plazos; allí sigue pendiente la limpieza
+completa del árbol tras agotar el plazo.
+
+<a id="retry-or-reinstall"></a>
+
+### Reintentar o reinstalar
+
 1. Cierre cualquier cosa que aún pueda ejecutar archivos OpenCodex: la aplicación Codex, los terminales que iniciaron `ocx` o `bunx` y la bandeja OpenCodex. Un `bun.exe` o `bunx.exe` en ejecución mantiene sus archivos bloqueados en Windows.
 2. Vuelva a ejecutar `ocx update` desde una terminal.
 3. Si falla de la misma manera, ejecute `ocx status` y deje que termine cualquier recuperación en progreso. Si el actualizador reinició el proxy, deténgalo a través de su propietario (`ocx stop`, su servicio o la aplicación de escritorio) y confirme que se ha detenido. Vuelva a instalar con el mismo administrador de paquetes que posee la instalación; para una instalación npm administrada por el servicio OpenCodex:
@@ -90,11 +114,11 @@ Luego ejecuta `ocx update` de nuevo. Si `ENOTDIR` persiste después de que pase 
 
 <a id="desktop-app-update-stalls-or-fails-on-installing-update"></a>
 
-## La actualización de la aplicación de escritorio se estanca o falla en "Instalar actualización"…"
+## La actualización de Desktop se detiene o falla en «Instalar actualización…»
 
 En la aplicación de escritorio OpenCodex, **Instalar actualización** descarga el instalador desde GitHub Releases antes de reemplazar la aplicación y reiniciarla. Una descarga o instalación fallida con una versión conocida muestra una sugerencia de descarga manual y un enlace a la página de lanzamiento de esa versión.
 
-Si `Installing update…` se detiene o se agota el tiempo, GitHub descargas de la versión pueden ser lentos o bloqueados por su red. Utilice el enlace de liberación en el error, o encuentre la misma versión en el [Página de lanzamientos OpenCodex](https://github.com/lidge-jun/opencodex/releases), y descargue el instalador para su sistema operativo y arquitectura. Las versiones de vista previa tienen sus propias páginas de lanzamiento; elija la versión que ofrece la aplicación.
+Si `Installing update…` no avanza o agota el plazo, es posible que la red esté ralentizando o bloqueando las descargas de GitHub Releases. Abre el enlace a la versión exacta que muestra el error, o busca esa misma versión en la [página de versiones de OpenCodex](https://github.com/lidge-jun/opencodex/releases). Descarga manualmente el instalador correspondiente a tu sistema operativo y arquitectura. Las versiones preview tienen sus propias páginas; elige la versión que ofrece la aplicación.
 
 Antes de ejecutar el instalador, detenga el proxy a través de su propietario y confirme que se ha detenido:
 

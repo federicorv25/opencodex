@@ -11,6 +11,12 @@ La configuración explícita de `backend` tiene prioridad. Cuando no se configur
 **Visión** usa `anthropic` cuando un proveedor Anthropic OAuth habilitado tiene una cuenta activa que no está marcada como `needsReauth`; de lo contrario, usa `openai`. Seleccionar `anthropic` explícitamente sin esa credencial rechaza la operación. Visión solo admite `openai`, `anthropic` y `routed`; los modelos de visión xAI elegibles usan `routed`. Para ambos sidecars, `openai` requiere autenticación de inicio de sesión ChatGPT y un proveedor `forward` habilitado.
 :::
 
+Al cargar el archivo, se retiran los destinos de modelos retirados de OpenCode Free de las
+configuraciones globales o de `claudeCode` de `visionSidecar` y `webSearchSidecar`. El sidecar afectado
+queda deshabilitado explícitamente y conserva sus demás ajustes. Elige un destino compatible antes
+de volver a habilitarlo. Los destinos válidos y los valores predeterminados de las secciones ausentes
+no cambian.
+
 <a id="additional-web-search-backends-explicit-only"></a>
 
 ### Backends de búsqueda web adicionales (solo explícitos)

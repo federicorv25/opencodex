@@ -23,9 +23,16 @@ Remote Workspace 需要主动启用，尚未面向生产环境发布。Linux 提
 
 计算机 1 保存所有编程代理的登录和模型会话。先在其上安装并登录所需代理，然后以 Hub 身份运行 OpenCodex：
 
+在此终端中让 Hub 持续在前台运行：
+
 ```bash
 ocx config set runtimeRole hub
 OCX_REMOTE_WORKSPACE_ENABLED=1 ocx start
+```
+
+保持 Hub 运行，打开另一个终端并启动仪表板：
+
+```bash
 ocx gui
 ```
 

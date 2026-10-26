@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { repoPath } from "../helpers/repo-root";
 import { FRONTIER_STRINGS } from "../../docs-site/src/data/frontier-i18n";
@@ -55,7 +55,7 @@ function withoutFencedCode(markdown: string): string {
   }
   return prose + markdown.slice(previous);
 }
-/** Read prose code spans, respecting escaped delimiters, matching backtick runs and wrapped lines. */
+/** Read prose code spans, respecting escaped openers, matching backtick runs and wrapped lines. */
 function inlineCode(markdown: string): Set<string> {
   const prose = withoutFencedCode(markdown);
   const values = new Set<string>();
@@ -70,8 +70,8 @@ function inlineCode(markdown: string): Set<string> {
     while (prose[at + length] === "`") length++;
     const closing = new RegExp("(?<!`)`{" + length + "}(?!`)", "g");
     closing.lastIndex = at + length;
-    let match: RegExpExecArray | null;
-    do { match = closing.exec(prose); } while (match && escaped(match.index));
+    // Backslashes are literal inside code spans, including immediately before the closing run.
+    const match = closing.exec(prose);
     if (!match || /\n[ \t]*\n/.test(prose.slice(at + length, match.index))) { at += length - 1; continue; }
     // Markdown code spans can cross lines; their rendered whitespace is normalized.
     values.add(prose.slice(at + length, match.index).replace(/\s*\n\s*/g, " ").trim());
@@ -86,6 +86,16 @@ function missingInlineIdentifiers(english: string, spanish: string): string[] {
 }
 
 describe("Spanish documentation localization", () => {
+  test("code spans keep a trailing backslash literal without swallowing later identifiers", () => {
+    const english = "Paths `~\\` and `~/` keep `models` unchanged.";
+    const spanish = "Las rutas `~\\` y `~/` conservan `models`.";
+    expect([...inlineCode(english)]).toEqual(["~\\", "~/", "models"]);
+    expect(missingInlineIdentifiers(english, spanish)).toEqual([]);
+    expect(missingInlineIdentifiers(english, spanish.replace("`~\\`", "`wrong-path`"))).toEqual(["~\\"]);
+    expect(missingInlineIdentifiers(english, spanish.replace("`models`", "`other-models`"))).toEqual(["models"]);
+    expect([...inlineCode("\\`ordinary prose\\` then `models`.")]).toEqual(["models"]);
+  });
+
   test("code-block controls use the content locale on Windows and POSIX", () => {
     expect(codeBlockLocale({ path: "C:\\Work\\Docs Site\\src\\content\\docs\\es\\guides\\pi.md" })).toBe("es");
     expect(codeBlockLocale({ url: new URL("file:///C:/Work/Docs%20Site/src/content/docs/es/guides/pi.md") })).toBe("es");
@@ -146,6 +156,21 @@ describe("Spanish documentation localization", () => {
     const english = pages(root, true);
     expect(english.length).toBeGreaterThan(50);
     expect(pages(join(root, "es"))).toEqual(english);
+  });
+
+  test("Remote Workspace separates the foreground Hub and dashboard terminal commands in every locale", () => {
+    let checked = 0;
+    for (const locale of ["", ...localeFolders]) {
+      const path = join(root, locale, "guides/remote-workspace.md");
+      if (!existsSync(path)) continue;
+      const blocks = codeBlocks(source(path));
+      const foreground = blocks.find(block => block.includes("OCX_REMOTE_WORKSPACE_ENABLED=1 ocx start"));
+      expect(foreground, path).toBeDefined();
+      expect(foreground, `${path} foreground start blocks later shell commands`).not.toContain("ocx gui");
+      expect(blocks, `${path} dashboard runs in a separate terminal block`).toContain("ocx gui\n");
+      checked++;
+    }
+    expect(checked).toBeGreaterThan(1);
   });
 
   test("keeps executable examples and frontmatter in the current English shape", () => {

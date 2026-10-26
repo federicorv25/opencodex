@@ -3,15 +3,15 @@ title: "Advisor"
 description: "Consulta independiente a un modelo experto, con políticas manuales, previas a la tarea o adaptativas basadas en evidencia."
 ---
 
-El asesor es un modelo de experto independiente que revisa la tarea del trabajador y devuelve el asesoramiento. OpenCodex posee la consulta de extremo a extremo: el proxy inyecta una herramienta sintética `advisor` en el turno del trabajador, ejecuta la consulta a través de la autoridad de enrutamiento normal y vuelve a inyectar el consejo para que el trabajador original continúe. El trabajador nunca delega, genera nada o lleva credenciales de proveedor.
+El asesor es un modelo experto independiente que revisa la tarea del modelo principal y devuelve recomendaciones. OpenCodex controla toda la consulta: el proxy incorpora una herramienta sintética `advisor` al turno, la ejecuta mediante el enrutamiento habitual y entrega las recomendaciones al modelo principal para que continúe. Este no delega, no crea subagentes ni maneja credenciales del proveedor para consultar al asesor.
 
-Esto es distinto de la superficie del subagente (ver [Configuración del agente](/es/reference/configuration/agents/)): los subagentes son la delegación iniciada por el trabajador a través de las herramientas de colaboración de Codex. El asesor es un sidecar del lado del proxy que el cliente nunca ve, incluso un trabajador que nunca genera nada puede ser aconsejado.
+Es distinto de los [subagentes](/es/reference/configuration/agents/), que el modelo principal inicia mediante las herramientas de colaboración de Codex. El asesor es un sidecar del proxy que el cliente no ve como herramienta; también puede asesorar a un modelo que nunca cree subagentes.
 
 <a id="configuration"></a>
 
 ## Configuración
 
-En la página del panel de control **Consejero** (debajo de la fila de la barra lateral **Subagentes**), elija el modelo experto en el selector de catálogo. Guarda el identificador de catálogo exacto, incluidos los selectores nativos, proveedores, calificados para cuentas, personalizados y combinados. Los modelos deshabilitados y los modelos que esperan la selección inicial no se ofrecen como nuevas opciones. Un identificador guardado que falta en el catálogo seleccionable permanece visible con una advertencia y se conserva hasta que elija otro modelo o lo borre. Los fallos de carga del catálogo preservan la selección y proporcionan Reintento. Elija un modelo que pueda devolver consejos de texto: el catálogo no garantiza la compatibilidad de la consulta. Los modelos CLI y API continúan aceptando cadenas de modelos compatibles con el router.
+En **Advisor**, bajo **Subagentes** en la barra lateral del dashboard, elige el modelo experto desde el catálogo. Se guarda el identificador exacto: nativo, de proveedor, de cuenta concreta, personalizado o de combo. Los modelos deshabilitados o pendientes de su selección inicial no se ofrecen como nuevas opciones. Si una selección guardada desaparece del catálogo, permanece visible con una advertencia hasta que la cambies o la borres. Un error al cargar el catálogo conserva la selección y permite reintentar. Elige un modelo que pueda devolver recomendaciones de texto: aparecer en el catálogo no garantiza compatibilidad con esta consulta. La CLI y la API siguen aceptando las cadenas de modelo admitidas por el router.
 
 ```json
 {
@@ -25,95 +25,95 @@ En la página del panel de control **Consejero** (debajo de la fila de la barra 
 }
 ```
 
-| Campo | Tipo | Predeterminado | Descripción |
+| Campo | Tipo | Predeterminado | Significado |
 | --- | --- | --- | --- |
-| `enabled?` | `boolean` | `false` | Interruptor maestro. Deshabilitado significa cero comportamiento del asesor en la ruta de la solicitud. La habilitación no registra el consentimiento. |
-| `model?` | `string` | — | El modelo experto. Cualquier cadena de modelo que el router acepte: un modelo nativo desnudo (`gpt-6-astra`), un `provider/model` explícito (`anthropic/claude-sonnet-4-6`, `xai/grok-...`), o un modelo nativo calificado para la cuenta. El proveedor cruzado es totalmente compatible: el trabajador y el asesor no necesitan compartir un proveedor. |
-| `effort?` | `string` | `"max"` | Esfuerzo de razonamiento para la llamada del asesor (`low` a `ultra`). |
-| `policy?` | `"manual" \| "preflight" \| "adaptive"` | `"manual"` | Cuando se consulta al asesor. |
-| `maxConsultationsPerTask?` | `integer` | `3` | Asignación de tareas adaptable (1-3 intentos), incluyendo llamadas manuales. |
-| `timeoutMs?` | `number` | `120000` | Tiempo de espera de consulta de Loopback. |
-| `contextSharingConsent?` | `"v1"` | ausente | Consentimiento del operador para enviar el contexto de la tarea al proveedor de Asesor configurado. Sólo `"v1"` es actual. Ausente, rancio o cualquier otro valor significa que no se envía ningún contexto de tarea. |
+| `enabled?` | `boolean` | `false` | Interruptor principal. Deshabilitado no añade comportamiento del asesor a las solicitudes. Habilitarlo no registra consentimiento. |
+| `model?` | `string` | — | Modelo experto. Admite un modelo nativo sin prefijo (`gpt-6-astra`), un `provider/model` explícito (`anthropic/claude-sonnet-4-6`, `xai/grok-...`) o un modelo nativo de una cuenta concreta. El asesor y el modelo principal pueden usar proveedores distintos. |
+| `effort?` | `string` | `"max"` | Esfuerzo de razonamiento de la consulta (`low` a `ultra`). |
+| `policy?` | `"manual" \| "preflight" \| "adaptive"` | `"manual"` | Cuándo se consulta al asesor. |
+| `maxConsultationsPerTask?` | `integer` | `3` | Límite de intentos por tarea adaptativa, de 1 a 3, incluidas las consultas manuales. |
+| `timeoutMs?` | `number` | `120000` | Plazo de la consulta mediante loopback. |
+| `contextSharingConsent?` | `"v1"` | Ausente | Consentimiento del operador para enviar el contexto al proveedor del asesor. Solo `"v1"` es vigente. Un valor ausente, obsoleto o diferente impide enviar el contexto. |
 
-Gestione desde la página del panel de control **Consejero** (la casilla de verificación de intercambio de contexto comienza sin marcar) o con `ocx advisor status`, `ocx advisor on --ack-context-sharing`, `ocx advisor consent`, `ocx advisor consent --revoke`, `ocx advisor off` y `ocx advisor set --model <model> --effort <effort> --policy <manual|preflight|adaptive>`. `ocx advisor on` sin `--ack-context-sharing` no permite compartir entre proveedores cuando falta el consentimiento: imprime esta divulgación y se detiene. `ocx advisor set` no otorga consentimiento.
+Puedes administrarlo en **Advisor** —la casilla para compartir contexto empieza desmarcada— o con `ocx advisor status`, `ocx advisor on --ack-context-sharing`, `ocx advisor consent`, `ocx advisor consent --revoke`, `ocx advisor off` y `ocx advisor set --model <model> --effort <effort> --policy <manual|preflight|adaptive>`. Si falta consentimiento, `ocx advisor on` sin `--ack-context-sharing` muestra la explicación y se detiene sin habilitar el intercambio entre proveedores. `ocx advisor set` no concede consentimiento.
 
 <a id="policies"></a>
 
 ## Políticas
 
-- **`manual`** - solo una llamada explícita del trabajador a la herramienta sintética `advisor` consulta. La llamada es interceptada por el proxy, nunca se muestra al cliente y nunca se ejecuta como una herramienta local.
-- **`preflight`** - OpenCodex también intenta una consulta por tarea automáticamente. Cuando el trabajador ha presentado su primera evidencia de orientación (una llamada a la herramienta asistente O un resultado de la herramienta después del último mensaje del usuario), el proxy consulta al asesor e inyecta el consejo antes del próximo turno del trabajador, incluso si el trabajador nunca llama a la herramienta. El disparador es una aproximación determinista y documentada, no un detector semántico de "modelo atascado". Un intento de consulta que no se trata silenciosamente como un consejo: la tarea se reintenta después de que expire la entrada del libro mayor del fracaso, por lo que una interrupción temporal del asesor no silencia permanentemente la política.
-- **`adaptive`** - agrega consultas de reparación fallida al intento inicial de prevuelo. El proxy debe observar una validación de error completada, un resultado de herramienta de edición de archivos exitoso posterior y una nueva ejecución del error **mismo comando en el mismo directorio de trabajo** nuevamente. Una validación de aprobación borra su estado de fallo. Una comprobación iniciada antes de la edición no puede contar como un reintento después de la edición. Las etapas inicial y de reparación fallida tienen reclamaciones de dedup separadas. Solo los clientes con una identidad de conversación estable reciben consultas adaptativas automáticas.
+- **`manual`**: solo se consulta cuando el modelo principal llama explícitamente a la herramienta sintética `advisor`. El proxy intercepta la llamada; el cliente no la ve y no se ejecuta como herramienta local.
+- **`preflight`**: OpenCodex intenta además una consulta automática por tarea. Después de la primera señal de orientación —una llamada a herramienta del asistente o un resultado de herramienta posterior al último mensaje del usuario—, consulta al asesor antes del siguiente turno del modelo principal. No requiere que este llame a la herramienta. El disparador es una aproximación determinista, no una detección semántica de que el modelo esté atascado. Si la consulta falla, la tarea continúa y el fallo no se trata como una recomendación válida. Se puede volver a consultar cuando caduque la entrada de fallo en el registro de deduplicación; así, una interrupción temporal no desactiva permanentemente la política.
+- **`adaptive`**: añade consultas tras una reparación fallida al intento inicial de `preflight`. Debe observar una validación que termine con error, una edición de archivo posterior que tenga éxito y una nueva ejecución del **mismo comando en el mismo directorio de trabajo** que vuelva a fallar. Una validación exitosa borra el estado de fallo. Una comprobación iniciada antes de la edición no cuenta como reintento posterior. Los intentos iniciales y los de reparación tienen registros de deduplicación separados. Solo los clientes con identidad de conversación estable reciben consultas adaptativas automáticas.
 
 <a id="adaptive-budget-and-evidence"></a>
 
-### Presupuesto y pruebas adaptables
+### Presupuesto y evidencia adaptativa
 
 ```sh
 ocx advisor set --policy adaptive --max-consultations 2
 ocx advisor activity --json
 ```
 
-El presupuesto de tareas adaptable cuenta manual y automático **Intentos**, a través de solicitudes y cambios de modelo de trabajador. El servidor reserva un intento antes del envío en un archivo privado `advisor-budget.sqlite` en `OPENCODEX_HOME`; los reinicios proxy no lo restablecen. Una tarea se identifica por un resumen de la identidad de la conversación y el límite más reciente de la tarea del usuario. Las reservas expiran 24 horas después del primer intento, por lo que esta es una aproximación limitada de la tarea y la vida útil, no una sesión permanente o un presupuesto monetario diario. Solo se almacenan los resúmenes, los recuentos y los tiempos de caducidad. Hay espacio para 512 tareas en vivo; un presupuesto completo, no disponible o bloqueado omite la llamada de experto mientras el trabajador continúa. Las llamadas despachadas que fallan o están desconectadas retienen su reserva porque pueden haber incurrido en uso. El consentimiento revocado antes del envío no gasta ninguna asignación. Los clientes sin una identidad estable mantienen un acceso manual y limitado a solicitudes, pero no reciben consultas adaptativas automáticas. Las versiones `manual` y `preflight` heredadas conservan su comportamiento anterior de eliminación de tareas.
+El presupuesto cuenta **intentos** manuales y automáticos a través de distintas solicitudes y cambios del modelo principal. El servidor reserva cada intento antes de enviarlo, en el archivo privado `advisor-budget.sqlite` de `OPENCODEX_HOME`; reiniciar el proxy no restablece ese presupuesto. Un resumen criptográfico de la identidad de conversación y del último límite de tarea del usuario identifica la tarea. Las reservas caducan 24 horas después del primer intento: es una aproximación acotada de la duración de una tarea, no un presupuesto monetario diario ni una sesión permanente. Solo se guardan resúmenes, recuentos y vencimientos. Hay capacidad para 512 tareas activas; si el presupuesto está lleno, bloqueado o no disponible, se omite la consulta y el modelo principal continúa. Una consulta enviada que falla o pierde la conexión conserva su reserva porque pudo generar consumo. Revocar el consentimiento antes del envío no consume el presupuesto. Sin una identidad estable se conserva el acceso manual limitado a cada solicitud, pero no se realizan consultas adaptativas automáticas. Las políticas `manual` y `preflight` conservan su deduplicación anterior por tarea.
 
-El colector reconoce llamadas de shell emparejadas con estado de salida numérico explícito, incluyendo `exec_command`, `shell_command`, `shell`, `Bash` y sondeos de terminal `write_stdin`. Los comandos admitidos incluyen comandos comunes Bun / npm /pnpm/yarn test, typecheck, lint, check y build, `pytest`, `python -m pytest`, `tsc`, `eslint`, `cargo test/check/clippy/build` y `go test/vet`. Las ediciones de archivos usan resultados exitosos de `apply_patch`, `Write`, `Edit`, `write_file` o `edit_file`. Se reconocen los ayudantes de modo de código único con JSON argumentos literales (se aceptan claves vacías); JavaScript arbitrario, lotes, tuberías / sustituciones de shell, ediciones basadas en shell, salida ambigua y prosa de error por sí sola no proporcionan ningún desencadenante. A lo sumo se examinan los últimos 512 mensajes desde la última tarea de usuario. El contexto de reparación fallida incluye la validación, extractos de fallas primero y repetido limitado, y referencias de mensajes fuente antes de la transcripción general.
+El recolector reconoce llamadas de shell emparejadas con un código de salida numérico explícito: `exec_command`, `shell_command`, `shell`, `Bash` y sondeos finales de `write_stdin`. Admite comandos habituales de Bun/npm/pnpm/yarn para test, typecheck, lint, check y build, además de `pytest`, `python -m pytest`, `tsc`, `eslint`, `cargo test/check/clippy/build` y `go test/vet`. Reconoce ediciones exitosas mediante `apply_patch`, `Write`, `Edit`, `write_file` o `edit_file`. También reconoce llamadas individuales a helpers de Code Mode con argumentos JSON literales; las claves pueden ir sin comillas. No usa como disparadores JavaScript arbitrario, lotes, tuberías o sustituciones de shell, ediciones mediante shell, salidas ambiguas ni texto de error sin evidencia estructurada. Examina como máximo los últimos 512 mensajes desde la última tarea del usuario. Antes de la transcripción general, el contexto de reparación incluye la validación, extractos limitados del primer fallo y de su repetición, y referencias a los mensajes originales.
 
 <a id="consent"></a>
 
 ## Consentimiento
 
-El contexto de la tarea no se envía hasta que el operador registra el consentimiento de compartición de contexto `v1`. El consentimiento se versiona para que una divulgación posterior y más amplia pueda requerir `v2` en lugar de reutilizar esta subvención. El runtime lo impone. Un valor perdido o obsoleto deja al asesor inejecutable (`advisor_context_sharing_consent_required`) sin fallar la solicitud de codificación. Ninguno de los modelos, ni ninguna cadena en la tarea, puede otorgar el consentimiento.
+No se envía el contexto hasta que el operador registra el consentimiento `v1` para compartirlo. Una divulgación futura de mayor alcance podría exigir `v2` en vez de reutilizar el consentimiento anterior. El entorno de ejecución comprueba esta condición: un valor ausente u obsoleto impide ejecutar el asesor (`advisor_context_sharing_consent_required`) sin hacer fallar la solicitud de programación. Ningún modelo ni texto de la tarea puede otorgar ese consentimiento.
 
 <a id="what-the-advisor-sees"></a>
 
-## Lo que ve el asesor
+## Qué ve el asesor
 
 Una consulta puede enviar:
 
-- La última tarea del usuario
-- texto de usuario, asistente y desarrollador visible en la conversación analizada
-- Llamadas a herramientas y argumentos de herramientas
-- resultados de la herramienta
-- el catálogo y las descripciones de la herramienta de trabajo
-- la identidad del trabajador y el modelo de Asesor configurado
-- una pregunta de enfoque opcional cuando el trabajador llama al `advisor()`
+- La última tarea del usuario.
+- Texto del usuario, del asistente y del desarrollador visible en la conversación analizada.
+- Llamadas a herramientas y sus argumentos.
+- Resultados de herramientas.
+- El catálogo de herramientas del modelo principal y sus descripciones.
+- La identidad del modelo principal y el modelo del asesor configurado.
+- Una pregunta específica opcional cuando el modelo principal llama a `advisor()`.
 
-El proveedor de Asesor configurado puede diferir del proveedor de trabajador.
+El proveedor del asesor puede ser distinto del proveedor del modelo principal.
 
-OpenCodex no inserta claves de proveedor API, encabezados de autorización, tokens OAuth, secretos de configuración de backend, entorno de proceso o cadena de pensamiento oculta en ese indicador. No descifra ni reenvía el razonamiento cifrado proveedor-privado. **El contenido de la tarea no se edita en secreto.** Se puede enviar una clave pegada en la tarea, un secreto en un archivo que leen las herramientas o un token impreso por una herramienta o registro. OpenCodex no ejecuta DLP general.
+OpenCodex no añade a ese prompt claves API de proveedores, encabezados de autorización, tokens OAuth, secretos internos de configuración, variables del entorno del proceso ni razonamiento interno oculto. Tampoco descifra ni reenvía razonamiento cifrado privado del proveedor. **No se eliminan secretos del contenido de la tarea.** Una clave pegada en ella, un secreto en un archivo leído por una herramienta o un token impreso en su salida puede enviarse. OpenCodex no realiza prevención general de fuga de datos (DLP).
 
 <a id="authority"></a>
 
 ## Autoridad
 
-El asesoramiento manual es un resultado de herramienta para la llamada `advisor` realizada por el trabajador. El resultado es un objeto JSON. Su campo `advice` es el texto del modelo Advisor. Su `status` se establece por el entorno de ejecución.
+Una consulta manual devuelve un resultado para la llamada `advisor` realizada por el modelo principal. Es un objeto JSON: `advice` contiene el texto del asesor y `status` lo establece el entorno de ejecución.
 
-El prevuelo automático mantiene la instrucción de transporte en entorno de ejecución fija en un mensaje de desarrollador y coloca el aviso JSON citado en un **mensaje de aviso de usuario** separado. El texto generado por el asesor nunca ingresa contenido de desarrollador/sistema, incluso cuando se traduce OpenAI. Anthropic puede llevar ese aviso sin una llamada de herramienta inventada. JSON evita la ruptura estructural y los campos forjados; no puede garantizar el aislamiento de inyección rápida. Un protocolo de consulta-resultado dedicado podría distinguir más fuertemente el asesoramiento de la entrada ordinaria del usuario.
+La consulta automática mantiene la instrucción fija de transporte en un mensaje de desarrollador y coloca el consejo JSON citado en un **mensaje consultivo de rol usuario** separado. El texto generado por el asesor nunca entra en mensajes de desarrollador o sistema, incluso cuando OpenAI Chat traduce las instrucciones de desarrollador al rol sistema. Anthropic puede transportar ese mensaje consultivo sin inventar una llamada a herramienta. El escape JSON impide alterar la estructura o falsificar campos; no garantiza aislamiento frente a inyección de instrucciones. Un protocolo dedicado a resultados de consulta podría distinguir mejor las recomendaciones del texto normal del usuario.
 
-Cada solicitud permite como máximo tres consultas, incluidos intentos automáticos, y cuatro continuaciones de trabajadores propiedad de un asesor. Después del agotamiento de la consulta, se elimina la herramienta `advisor`. Una llamada repetida recibe un resultado de límite emparejado final; si el trabajador la llama de nuevo, el tecleo 502 `advisor_continuation_limit` finaliza la solicitud sin otra llamada oculta del trabajador. El enlace se comparte con los reintentos de finalización vacía.
+Cada solicitud admite como máximo tres consultas, incluidos los intentos automáticos, y cuatro continuaciones del modelo principal controladas por el asesor. Al agotar las consultas se retira la herramienta `advisor`. Una llamada repetida recibe un último resultado de límite emparejado; si se vuelve a llamar, un error 502 `advisor_continuation_limit` termina la solicitud sin otra llamada oculta al modelo principal. Este límite se comparte con los reintentos por finalización vacía.
 
-La supresión no lee cadenas de Advisor. El dedup automático es el libro mayor propiedad del servidor. Un mensaje de desarrollador, incluido uno que copia el texto de transporte, no suprime el prevuelo.
+La supresión de consultas no depende de textos del asesor: la deduplicación automática usa el registro del servidor. Un mensaje de desarrollador, aunque copie el texto de transporte, no suprime la consulta `preflight`.
 
 <a id="cost-and-accounting"></a>
 
-## Coste y contabilidad
+## Costos y registro de actividad
 
-Cada consulta es un modelo de llamada adicional real. Aparece en uso bajo el **modelo de asesor**, nunca se fusionó con los recuentos de tokens del trabajador, y cada consulta escribe una línea de registro `[advisor]` con desencadenante, duración, estado y uso, por lo que una llamada de asesor siempre se puede probar a partir de los registros.
+Cada consulta es una llamada real adicional al modelo. Se registra bajo el **modelo asesor**, separada de los tokens del modelo principal. Cada una genera una línea `[advisor]` con disparador, duración, estado y consumo, de modo que puede comprobarse en los registros.
 
-La sección **Actividad reciente del asesor** y `GET /api/advisor/activity` muestran los últimos 100 registros de metadatos de consulta de este proceso, retenidos hasta por 24 horas. El panel de control los actualiza cada cinco segundos mientras están visibles. Los registros incluyen modelos de activación, estado, trabajador y experto, duración, tokens de entrada / salida informados, esfuerzo solicitado y esfuerzo mapeado por adaptador. La denegación del presupuesto se muestra como bloqueada. Los registros no contienen texto de tarea, comandos, consejos, identificadores de subprocesos ni cuerpos de error del proveedor y se borran al reiniciar el proxy.
+**Actividad reciente del asesor** y `GET /api/advisor/activity` muestran los últimos 100 registros de metadatos de este proceso, conservados hasta 24 horas. El dashboard los actualiza cada cinco segundos mientras están visibles. Incluyen disparador, estado, modelos principal y experto, duración, tokens de entrada y salida informados, esfuerzo solicitado y esfuerzo convertido por el adaptador. Un rechazo por presupuesto aparece como bloqueado. No contienen texto de tareas, comandos, recomendaciones, identificadores de hilos ni cuerpos de error del proveedor. Se borran al reiniciar el proxy.
 
-El esfuerzo mapeado describe lo que el adaptador serializó, no una garantía sobre el razonamiento oculto del proveedor. El esfuerzo o uso no reportado permanece desconocido; nunca se presenta como uso cero o soporte de razonamiento confirmado. No se infiere una puntuación de adopción de consejos ni un costo monetario exacto.
+El esfuerzo convertido describe lo que serializó el adaptador; no garantiza el razonamiento interno del proveedor. Un esfuerzo o consumo no informado queda como desconocido, no como consumo cero ni compatibilidad confirmada. No se infiere una puntuación de adopción de recomendaciones ni un costo monetario exacto.
 
 <a id="failure-behavior"></a>
 
-## Comportamiento de fracaso
+## Comportamiento ante fallos
 
-Un fallo del asesor no bloquea la tarea. Si una consulta ya enviada (DISPATCHED) falla por un modelo no disponible, una configuración incorrecta del proveedor o un tiempo de espera agotado, el trabajador recibe un aviso breve de que el consejo no está disponible y continúa. En la consulta previa al trabajo se usa un mensaje `<opencodex_advisor_unavailable>`; en la consulta manual, un resultado de herramienta con error. Una consulta cancelada (CANCELLED) no inyecta nada porque quien la solicitó ya no está. Si el plan nunca llega a enviar una consulta —asesor deshabilitado, sin modelo o sin consentimiento vigente para compartir contexto— tampoco se inyecta un aviso previo. Una llamada manual a `advisor()` sin ese consentimiento devuelve un resultado que lo solicita y no envía datos. Los errores del asesor nunca hacen fallar la solicitud de programación ni cambian el modelo principal de la sesión.
+Un fallo del asesor permite que la tarea continúe. Si una consulta ya enviada falla por modelo no disponible, proveedor mal configurado o plazo agotado, el modelo principal recibe un aviso breve de indisponibilidad: `<opencodex_advisor_unavailable>` para `preflight` o un resultado de herramienta con error para una consulta manual. Solo una consulta cancelada no añade ningún mensaje, porque quien la solicitó ya se desconectó. Si nunca se envió una consulta —asesor deshabilitado, sin modelo o sin consentimiento vigente—, no se añade un aviso `preflight`. Una llamada manual a `advisor()` sin consentimiento devuelve un resultado que lo solicita y no envía contexto. Estos fallos no hacen fallar la solicitud de programación ni cambian el modelo principal de la sesión.
 
 <a id="limitations"></a>
 
 ## Limitaciones
 
-- Los giros de paso nativos OpenAI (ChatGPT -trabajadores del grupo) no obtienen la herramienta sintética; el soporte del asesor cubre los proveedores enrutados (traducidos). La consulta previa se aplica a los adaptadores de ejecución-giro; la herramienta no.
-- No hay detección semántica atascada, revisión de finalización, escalada de niveles, múltiples asesores o votación. La consulta adaptativa requiere la validación/edición/evidencia de reintento estructurada descrita anteriormente.
-- El libro mayor de desarrollo previo al vuelo es local de proceso; después de un reinicio proxy, una tarea en progreso puede recibir un intento más de prevuelo.
+- Los turnos nativos OpenAI passthrough —modelos del pool ChatGPT— no reciben la herramienta sintética. El asesor cubre proveedores enrutados mediante traducción. La consulta `preflight` se aplica a los adaptadores de ejecución de turnos; la herramienta no.
+- No hay detección semántica de bloqueo, revisión de finalización, escalada de niveles, varios asesores ni votación. La consulta adaptativa exige la evidencia estructurada de validación, edición y reintento descrita arriba.
+- El registro de deduplicación `preflight` pertenece al proceso. Tras reiniciar el proxy, una tarea en curso puede recibir un intento adicional.

@@ -958,6 +958,12 @@ Cursor herramientas locales dirigidas por servidor están deshabilitadas de form
 
 Establezca `nativeLocalExec` en `providers.cursor`, no en el nivel superior. En el panel de control use **Proveedores → Cursor → Editar JSON**, guarde y reinicie. `unsafeAllowNativeLocalExec: true` es igual a `nativeLocalExec: "on"` solo cuando `nativeLocalExec` no está activado. MCP, la grabación de pantalla y el uso del ordenador se controlan por separado por `mcpServers` y `desktopExecutor`.
 
+Con la ejecución nativa habilitada, `glob` filtra los nombres en búsquedas de directorio con `grep`:
+`*.ts` coincide a cualquier profundidad y `src/**/*.ts` se interpreta respecto al directorio elegido;
+`./` es opcional. Usa `/` como separador en todas las plataformas. Se admiten clases de caracteres
+y alternativas entre llaves; Bun 1.4.4 también admite extglobs como `**/!(*.test).ts` y rangos como
+`part-{1..3}.ts`. Los filtros no cambian el directorio elegido ni habilitan la ejecución nativa.
+
 Las solicitudes `shellArgs` y `shellStreamArgs` anteriores al primer plano son rechazadas antes de la creación del proceso en Windows, macOS y Linux, incluso con `nativeLocalExec: "on"`. Requieren un propietario descendiente respaldado por el kernel que esta implementación no proporciona; use la herramienta de shell del cliente en su lugar. El formulario de transmisión continua todavía devuelve el inicio, la salida abortada, un fallo escrito y el cierre de la transmisión para que el giro Cursor pueda terminar. No recoge ningún stdout/stderr y no tiene asignación activa de bytes de salida. Esta restricción no cambia la ejecución del shell de fondo ni las otras opciones de ejecución explícitas.
 
 Cada `mcpServers.<name>` acepta `command` (stdio) o `url` (Streamable HTTP). Stdio también acepta `args`, `env` y `cwd`. HTTP acepta `headers`. Ambos soportan `enabled` (valor predeterminado true) y `toolPrefix`. `desktopExecutor` acepta `computerUseCommand`, `recordScreenCommand`, `cwd`, `env` y `timeoutMs` (por defecto `30000`). Las órdenes pasan por `sh -c`, leen una solicitud JSON de stdin y deben escribir un resultado JSON en stdout.

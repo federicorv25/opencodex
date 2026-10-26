@@ -31,6 +31,12 @@ El panel de control no te pide que ingreses un token. Primero sondea el host y n
 
 La hoja Add Child explica que el Child utiliza este Home 's proveedores sobre SSH y enumera los requisitos previos anteriores. Los alias de host provienen de `~/.ssh/config` en el Home que ejecuta OpenCodex, no necesariamente el ordenador que muestra el navegador. Si el descubrimiento tiene éxito sin hosts, agregue una entrada `Host` como esta, luego elija **Rescan hosts**. También puede introducir un alias existente manualmente; seleccionar o introducir un alias habilita **Conexión de prueba**. La hoja enlaza con esta guía.
 
+El descubrimiento también sigue las directivas `Include` de nivel superior. Los paréntesis y las llaves
+de los nombres incluidos siguen siendo literales al combinarse con comodines. Por ejemplo,
+`Include conf.d/*(1).conf` encuentra `backup(1).conf`, y `Include conf.d/shard-{1..3}-*.conf` busca
+nombres que contengan `{1..3}`. Un `Include` dentro de `Host` o `Match` es condicional y no se usa
+para descubrir hosts.
+
 ```sshconfig
 Host devbox
   HostName devbox.example.com

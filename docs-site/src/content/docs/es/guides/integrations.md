@@ -3,7 +3,7 @@ title: "Integraciones"
 description: "Conectar opencodex a OpenCode, Pi, Gentle Shell, OMP, Hermes, OpenClaw, Kimi Code, gjc, DeepSeek Harness, MiniMax Code, ZCode, Prime Agent, Aside, Raycast, omo, Cline CLI, Kilo, Command Code y Factory Droid desde el panel — un interruptor por cliente, con una copia de seguridad tomada antes de cada escritura."
 ---
 
-La página **Conectar** escribe el bloque de proveedor de opencodex en el propio archivo de configuración de un cliente y lo elimina de nuevo. Veinte clientes trabajan de esta manera, cada uno con un interruptor:
+La página **Conectar** escribe el bloque de proveedor de opencodex en el archivo de configuración del cliente y permite retirarlo. Cada cliente de la tabla tiene su propio interruptor:
 
 | Cliente | Archivo de configuración | Formato | Cuando el cambio entra en vigor | Credenciales |
 |---|---|---|---|---|
@@ -23,6 +23,9 @@ La página **Conectar** escribe el bloque de proveedor de opencodex en el propio
 | Raycast | `~/.config/raycast/ai/providers.yaml` | YAML | inmediatamente en guardar - Raycast mira el archivo | ninguno - solo loopback |
 | omo (Pi / senpi) | `~/.omo/agent/models.json` | JSON | Nuevas sesiones | marcador de posición loopback |
 | Qoder | `settings.json` en `$QODER_CONFIG_DIR`, por defecto `~/.qoder` | JSON | Nuevas sesiones | marcador de posición loopback |
+| Qoder CN | `settings.json` en `$QODERCN_CONFIG_DIR`, por defecto `~/.qoder-cn` | JSON | Nuevas sesiones | marcador de posición loopback |
+| WorkBuddy (CN) | `~/.workbuddy/models.json` | JSON | Recarga automática o nuevas sesiones | marcador de posición loopback |
+| WorkBuddy AI | `~/.workbuddy-ai/models.json` | JSON | Recarga automática o nuevas sesiones | marcador de posición loopback |
 | Cline CLI | `~/.cline/data/settings/providers.json` y hermano `models.json` | JSON pareja | después de detener y reiniciar Cline | marcador de posición loopback |
 | Kilo | primero existente `kilo.jsonc`, `kilo.json`, `opencode.jsonc`, `opencode.json`, o `config.json` bajo `~/.config/kilo` | JSONC | Nuevas sesiones | `OPENCODEX_KILO_API_KEY` |
 | Command Code | `~/.commandcode/providers.json` (en Windows con el inicio predeterminado: usar `HOME ?? USERPROFILE` solo si no está en blanco y Windows-absoluto, de lo contrario `homedir()`; se conserva una vivienda suministrada por separado; adjuntar `.commandcode\providers.json`) | JSON | Lanzamiento del Command Code | Ninguno - Loopback sin llave ( `apiKey: false` ) |
@@ -47,6 +50,41 @@ El `home` guardado en `~/.gentle-shell/config.json` selecciona el destino. Gana 
 El modo de enlace o un aliasing de inicio Pi se niega con un remedio de integración Pi; use **Conectar → Pi** para ese archivo compartido en su lugar. OpenCodex no cambia las preferencias del lanzador. Se rechaza una configuración de lanzador ilegible/insegura; la configuración malformada JSON vuelve a ser aislada, coincidiendo con el lanzador. Si mueves una casa conectada, desactívala usando sus selectores originales antes de volver a conectar la nueva. Reinicie Gentle Shell después de una actualización de catálogo. Esta integración conserva la política de exportación de Pi solo loopback y no almacena ninguna clave API real.
 
 "omo" nombra tres productos que comparten la carpeta `~/.omo`. La pestaña **omo** administra el omo basado en Pi (el motor senpi) a través de `~/.omo/agent/models.json`, como en la tabla anterior. El omo basado en Codex (LazyCodex) tiene su propia sección en la misma pestaña, mostrada solo cuando se detecta LazyCodex, descrita en [omo ( Codex / LazyCodex) modelos de rol](#omo-codex--lazycodex-role-models). OpenCode-based omo (oh-my-opencode) mantiene su propia configuración bajo OpenCode; opencodex no lo lee ni lo escribe.
+
+<a id="qoder-cn-and-workbuddy-editions"></a>
+
+### Qoder CN y ediciones de WorkBuddy
+
+En **Conectar**, habilita **Qoder CN**, **WorkBuddy (CN)** o **WorkBuddy AI** y elige un modelo
+OpenCodex en el selector de modelos personalizados del cliente. El proxy debe seguir en ejecución.
+La primera habilitación guarda una instantánea. Deshabilitar solo retira lo generado por OpenCodex;
+Deshacer restaura la instantánea. Los modelos y ajustes ajenos se conservan. Estas conexiones son
+independientes de Qoder Global y de las demás ediciones.
+
+También puedes usar la CLI; cambia `workbuddy` por `workbuddy-ai` o `qoder-cn` para las otras ediciones:
+
+```bash
+ocx integration client enable --client workbuddy
+ocx export --client workbuddy --json
+ocx integration client disable --client workbuddy
+```
+
+Qoder CN respeta `QODERCN_CONFIG_DIR`. Las dos ediciones de WorkBuddy usan su variable nativa
+`WORKBUDDY_CONFIG_DIR` y, después, `CODEBUDDY_CONFIG_DIR`. Sin esas variables, se usan los directorios
+regionales de la tabla. Las rutas deben ser absolutas, `~`, o empezar por `~/` o `~\`. Se admiten
+el array antiguo de WorkBuddy y su objeto con una lista `models`. Si una restricción
+`availableModels` excluye los modelos OpenCodex, retírala en WorkBuddy antes de habilitar la conexión.
+Los ajustes del proyecto pueden tener prioridad sobre los del usuario.
+
+Se requiere un listener loopback sin autenticación; no se copian credenciales del proveedor a estos
+clientes. WorkBuddy recibe la URL completa de Chat Completions y las capacidades del catálogo
+OpenCodex. Reinicia el cliente o abre una sesión nueva si el selector no se ha actualizado.
+Las pruebas de configuración y ciclo de vida no demuestran compatibilidad completa con cada modelo
+del proveedor ni con cada versión del cliente.
+
+Doubao Desktop y Devin no tienen actualmente un contrato verificado para configurar proveedores
+arbitrarios en esta integración. No ofrecen un interruptor de habilitación; añadir un JSON local
+por sí solo no haría que sus selectores lo utilizaran.
 
 Qoder IDE / qodercli admite la exportación y la configuración administrada a través del panel de control y CLI:
 

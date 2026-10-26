@@ -35,9 +35,16 @@ Bilgisayar 1 tüm kodlama ajanı girişlerini ve model oturumlarını tutar.
 Kullanmak istediğiniz ajanları oraya kurup giriş yapın, ardından OpenCodex'i
 Hub olarak çalıştırın:
 
+Hub bu terminalde ön planda çalışmaya devam etsin:
+
 ```bash
 ocx config set runtimeRole hub
 OCX_REMOTE_WORKSPACE_ENABLED=1 ocx start
+```
+
+Hub çalışırken ikinci bir terminal açın ve kontrol panelini başlatın:
+
+```bash
 ocx gui
 ```
 

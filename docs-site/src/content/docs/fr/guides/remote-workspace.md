@@ -35,9 +35,16 @@ Hub.
 L'ordinateur 1 détient toutes les connexions aux agents de programmation et toutes les sessions
 de modèle. Installez et connectez-y les agents voulus, puis démarrez OpenCodex comme Hub :
 
+Laissez le Hub fonctionner au premier plan dans ce terminal :
+
 ```bash
 ocx config set runtimeRole hub
 OCX_REMOTE_WORKSPACE_ENABLED=1 ocx start
+```
+
+Pendant que le Hub fonctionne, ouvrez un second terminal et lancez le tableau de bord :
+
+```bash
 ocx gui
 ```
 

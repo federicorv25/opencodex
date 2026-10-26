@@ -183,6 +183,44 @@ fast_mode = true
 
 Pero el catálogo de modelos y el identificador de nivel de solicitud en entorno de ejecución usan `priority`. opencodex preserva esa división. Los modelos de transferencia nativos OpenAI mantienen un soporte rápido; los proveedores enrutados tienen acceso a la capacidad: `service_tier` se elimina solo cuando el proveedor declara `supportsServiceTier: false` (el registro clasifica los canónicos OpenAI como `true`, DeepSeek y Volcengine Ark como `false`), mientras que las puertas de enlace personalizadas no clasificadas mantienen intactos los valores suministrados por el llamante y nunca reciben una inyección. Una puerta de enlace personalizada puede optar a nivel mundial con `supportsServiceTier: true`, o por poco con `modelSupportsServiceTier: { "verified-model": true }`; un `false` exacto reduce un predeterminado de proveedor de `true`, mientras que el nivel de proveedor `false` permanece cerrado por error. La misma decisión final del adaptador/modelo controla tanto los metadatos del catálogo como la inyección en entorno de ejecución, por lo que la opción rápida nunca se anuncia donde no se puede cumplir. Un destino `openai-chat` puede autorizar todos los modelos elegibles con `chatServiceTier: true`, o autorizar solo modelos exactos con `modelSupportsServiceTier`; Responses rutas no necesitan esa autorización de cable de chat adicional.
 
+<a id="selecting-flex-in-codex"></a>
+
+### Seleccionar Flex en Codex
+
+Para un proveedor y modelo enrutados cuya compatibilidad con `service_tier: "flex"` esté
+verificada, declara Flex junto con la configuración existente de Fast. Combina estos campos
+con la entrada **existente** de `providers.nanogpt`; no reemplaces su URL ni sus credenciales:
+
+```json
+{
+  "modelSupportsServiceTier": { "openai/gpt-6-luna": true },
+  "fastWire": {
+    "kind": "service-tier",
+    "canonicalToWire": { "priority": "priority", "flex": "flex" },
+    "foreignCallerTiers": "verbatim"
+  }
+}
+```
+
+En una ruta `openai-responses` apta, la fila Luna anuncia Standard, Fast y Flex en el selector
+de velocidad de Codex. Para `openai-chat`, añade `chatServiceTier: true` **solo si** el endpoint
+Chat Completions acepta niveles de servicio indicados por el cliente. La asignación `fastWire`
+se aplica a **todo el proveedor**: otros modelos aptos para niveles de servicio dentro de la misma
+entrada `providers.nanogpt` también pueden anunciar Flex cuando se publican como filas enrutadas
+ordinarias, aunque no aparezcan en `modelSupportsServiceTier`. Ese mapa no es una lista que excluya
+a los demás modelos aptos. Las filas de espacios de nombres de Combos y de alias nativos **no**
+publican Flex. Verifica la compatibilidad de **cada** modelo enrutado ordinario apto; si solo Luna
+admite Flex, usa una entrada de proveedor separada sin otros modelos aptos para Fast.
+La compatibilidad con Fast no implica compatibilidad con Flex.
+
+Mantén el modo Fast global de OpenCodex en **Auto** (`fastMode` sin configurar): forzar Fast o
+Default reemplaza la elección Flex del cliente. Después de `ocx sync`, actualiza la lista de
+modelos de Codex. Selecciona **Flex** en el selector de velocidad o usa
+`/model <routed-id> --speed=flex` en Codex CLI. Es un nivel seleccionable, no un valor predeterminado
+forzado por modelo: cambiar de modelo no activa Flex automáticamente. Se reenvía como
+`service_tier: "flex"` y el proveedor puede rechazarlo. La disponibilidad, el costo y la latencia
+dependen del proveedor; ni el menú ni una solicitud prueban por sí solos qué nivel se facturó.
+
 <a id="selecting-ultra-fast-in-codex-desktop"></a>
 
 ### Selección ultra rápida en el escritorio Codex

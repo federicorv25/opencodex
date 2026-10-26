@@ -58,6 +58,10 @@ En las solicitudes Responses a Meta se admite omitir la selección de herramient
 
 ## Notas de Windows
 
+La actualización npm del lanzador Node requiere Windows 10 o posterior con atributos de creación
+de procesos Job List. Si no se dispone de supervisión atómica, informa `EINSTALLJOIN` y no inicia npm.
+Actualiza Windows antes de reintentarlo.
+
 El servicio de Windows puede usar el Programador de tareas o un servicio nativo de WinSW; ambos métodos son excluyentes. `ocx service repair` rechaza la reparación si encuentra estado de los dos, para evitar que dos proxies terminen compitiendo por el mismo puerto.
 
 En una instalación de Windows que no esté en inglés, la salida de consola usa la página de códigos del sistema en lugar de UTF-8. OpenCodex la decodifica según esa página para resolver correctamente nombres de cuenta con caracteres no ASCII.

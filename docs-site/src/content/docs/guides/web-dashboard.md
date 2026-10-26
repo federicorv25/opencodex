@@ -205,20 +205,23 @@ upgrade and restart that proxy before retrying. Resetting a manual model price a
 model, preserving other rates saved independently.
 The **Usage** summary and Models/Providers tables show end-to-end output throughput from usage history for the selected range and filters: summed output tokens divided by summed wall-clock seconds, not an average of individual rates. The sample count is measured attempts (or requests for legacy rows without attempts); samples lacking positive finite output tokens or duration are excluded. An em dash means no sample qualified or the server returned an unusable rate. This includes pre-decode waiting and is not estimated decode speed.
 
-The **Usage** Models and Providers tables show the estimated priced portion for each row. Requests
-without a matching price or usable usage are counted as excluded beside that amount when the proxy
-reports pricing coverage fields. Usage that was only partly measured (`unreported` or `unsupported`)
-is not priced, and one excluded part excludes the whole request from that row's priced count. A
-leg that reached no upstream, or that upstream refused with an HTTP error before any output, spent
-nothing and does not; a client cancellation (499), or a leg whose response began or ended without
-a status but reported no usage, may have been billed, so it does. A refusal followed by a measured
-successful send contributes that send's cost to the summary even when the aggregate usage status
-is `unreported`. A row with only excluded requests shows an em dash with that count
-instead of a zero-dollar estimate, and a displayed zero-dollar value is a confirmed priced estimate.
-An older proxy that reports no coverage fields keeps a bare em dash with no count, so missing
-coverage stays distinct from an all-excluded row and from a confirmed zero estimate.
-These are not billing receipts or evidence of an actual charge; subscription usage or provider credits
-may apply instead.
+The **Usage** Models and Providers tables show the estimated priced portion for each row.
+Requests without a matching price or usable usage count as excluded beside that amount when
+the proxy reports pricing coverage fields. Partly measured usage (`unreported` or `unsupported`)
+is not priced; one potentially billable, unpriceable part excludes the whole request from that
+row's priced count. A usage-less leg that never reached an upstream, or was refused with an
+HTTP error before any output and without an aborted stream, is a known zero: it adds no cost
+and does not exclude another measured part of the same request. A client cancellation (499),
+or a leg whose response began or ended without a status and reported no usage, may have been
+billed; its unknown cost does exclude the request from the priced count. A refusal followed
+by a measured successful send contributes that send's cost to the summary even when the
+aggregate usage status is `unreported`. In the overall summary, requests containing only known-zero
+refusals remain unmetered, rather than becoming confirmed zero-dollar estimates. A row with only excluded
+requests shows an em dash with that count instead of a zero-dollar estimate. A displayed
+zero-dollar value is a confirmed priced estimate. An older proxy that reports no coverage
+fields keeps a bare em dash with no count, distinguishing missing coverage, an all-excluded
+row, and a confirmed zero estimate. These are price-list estimates, not billing receipts or
+evidence of an actual charge; subscription usage or provider credits may apply instead.
 
 Provider model rows may include **unresolved requested model usage**: the saved route sent the
 requested name unchanged to the default provider. These tokens belong to that serving provider,
