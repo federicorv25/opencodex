@@ -88,7 +88,8 @@ Signing never blocks a release. What a run does depends on the policy:
 | `release-signing` | Signed and verified as trusted | Signed and verified as trusted |
 
 If a signing request fails, times out or is rejected, or if verification fails, the job logs a
-warning and ships the unsigned file together with its original updater signature.
+warning and ships the original unsigned file. An MSI retains its original updater signature
+when present; the standalone `ocx.exe` has no updater signature.
 
 **Switching to the production certificate.** Once SignPath issues it, set the repository variable
 `SIGNPATH_SIGNING_POLICY_SLUG` to `release-signing` (Settings → Secrets and variables → Actions →

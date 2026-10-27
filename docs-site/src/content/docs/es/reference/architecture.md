@@ -70,7 +70,7 @@ La estimación de entrada previa al envío sigue lo que realmente envía el adap
 
 `bridge/sse.ts` convierte el flujo interno `AdapterEvent` del adaptador en Responses SSE que Codex entiende:
 
-| AdaptadorEvent | Responses SSE emitido |
+| AdapterEvent | Responses SSE emitido |
 | --- | --- |
 | `text_delta` | `response.output_text.delta` → `…done`, `response.content_part.done`, `response.output_item.done` |
 | `thinking_delta` | `response.reasoning_summary_text.delta` → `…done`, artículo cerrar |
@@ -120,7 +120,7 @@ Independientemente de esa configuración orientada al cliente, las solicitudes c
 
 Para el modelo saliente final `gpt-5.3-codex-spark`, el reenvío canónico ChatGPT desactiva explícitamente Responses Lite tanto en la cabecera HTTP como en los metadatos de trama WS nativos, incluso cuando un alias selecciona Spark, pero solo cuando el cuerpo saliente no lleva ningún elemento `additional_tools` con una matriz `tools` no vacía. Ese grupo ES la forma de entrega de herramientas Lite, por lo que un cuerpo de Spark que todavía lo usa mantiene Lite ON incluso si un llamante o un encabezado configurado dijeron lo contrario; de lo contrario, el marco anunciaría que no es Lite mientras que las herramientas existen solo en la forma Lite. Una identidad Lite cambiada retira el socket anterior; las solicitudes elegibles posteriores con la misma identidad pueden reutilizar el socket nuevo. Otros modelos y puertas de enlace mantienen su política Lite existente. Los metadatos nativos mal formados todavía caen de nuevo a HTTP con su cuerpo sin cambios.
 
-Cuando un proveedor rechaza una solicitud de flujo continuo con HTTP 413 antes de que comience SSE, OpenCodex emite un evento de terminal `response.failed` con `context_length_exceeded` en lugar de retransmitir el estado desconocido reintentable. Esto permite que Codex detenga su bucle de reconexión y aplique su propia política de compresión de contexto en el siguiente turno. OpenCodex no elimina silenciosamente mensajes o imágenes; reduzca la entrada actual o reintente después de la compactación. Las personas que no llaman API continúan recibiendo el HTTP 413 del proveedor.
+Cuando un proveedor rechaza una solicitud de flujo continuo con HTTP 413 antes de que comience SSE, OpenCodex emite un evento de terminal `response.failed` con `context_length_exceeded` en lugar de retransmitir el estado desconocido reintentable. Esto permite que Codex detenga su bucle de reconexión y aplique su propia política de compresión de contexto en el siguiente turno. OpenCodex no elimina silenciosamente mensajes o imágenes; reduzca la entrada actual o reintente después de la compactación. Las llamadas a la API sin streaming siguen recibiendo el HTTP 413 del proveedor.
 
 La compactación de contexto Codex funciona para modelos enrutados. `server/responses/compact.ts` maneja `POST /v1/responses/compact` ejecutando un giro de resumen enrutado interno y devolviendo el historial compactado, mientras que `responses/parser.ts` y `bridge/sse.ts` manejan la compactación remota v2 `compaction_trigger` gira emitiendo exactamente un elemento de salida `compaction` sintético.
 

@@ -5,9 +5,9 @@ description: "Despliega un Hub opencodex de un puerto en Linux, macOS o Docker, 
 
 Para enlaces de máquinas SSH, véase [Enlace remoto](/es/guides/remote-link/).
 
-Un concentrador opencodex mantiene las credenciales del proveedor y el estado de uso en un host mientras los clientes autenticados usan su plano de datos de forma remota. El plano de gestión orientado al navegador es independiente: un oyente opcional vincula solo `127.0.0.1`, sirve el tablero de instrumentos y `/api/*`, y está destinado a sentarse detrás de Tailscale Serve u otro frontend HTTPS propiedad del operador.
+Un Hub de opencodex conserva las credenciales de proveedores y los datos de uso en un equipo, mientras los clientes autenticados acceden a su plano de datos de forma remota. La administración del navegador es independiente: un listener opcional escucha solo en `127.0.0.1`, sirve el dashboard y `/api/*`, y debe situarse detrás de Tailscale Serve u otro frontend HTTPS del operador.
 
-El plano de datos es **Un puerto**. Las máquinas remotas marcan `hostname:port` con su propia clave por cliente; los propios procesos del concentrador marcan `127.0.0.1:<the same port>` sin credenciales, a través del loopback compañero de escucha. Comience desde [La receta abajo](#linux-systemd-or-macos-launchd), luego entregue a una segunda máquina un comando listo para usar con [`ocx hub invite`](#inviting-another-machine).
+El plano de datos utiliza **un solo puerto**. Los equipos remotos se conectan a `hostname:port` con una clave propia para cada cliente; los procesos del propio Hub usan `127.0.0.1:<the same port>` sin credenciales mediante el listener auxiliar de loopback. Sigue [la receta de configuración](#linux-systemd-or-macos-launchd) y después entrega al otro equipo el comando generado por [`ocx hub invite`](#inviting-another-machine).
 
 La entrada de gestión nunca sirve `/v1/*`, `/healthz` o `/readyz`. Cuando se habilita explícitamente, el espacio de trabajo remoto admite solo su agente WebSocket autenticado por portador emparejado y su intercambio de emparejamiento único; véase [Espacio de trabajo remoto](/es/guides/remote-workspace/). No publique su puerto directamente, no agregue una regla de firewall en la nube para él y no use Tailscale Funnel. Funnel es una superficie de Internet pública y está fuera de este modelo de despliegue.
 
@@ -23,19 +23,21 @@ Las configuraciones del cliente exportadas o aplicadas a través de ese panel de
 - El token de admisión de datos se entrega a través del archivo `service-api-token` o `OCX_API_TOKEN_FILE`. No es una credencial de gestión.
 - El `allowedModels` de un cliente configurado debe incluir tanto el ejecutor como cualquier modelo de Asesor facturado por separado utilizado por el Anthropic Messages nativo administrado. Se aceptan los ID de modelo desnudo y los `provider/model` nombres configurados del concentrador. Un destino de Asesor no permitido o sin nombre devuelve HTTP 403 antes del envío del proveedor; las claves solo de proveedor y sin restricciones conservan su alcance existente.
 - GitHub Copilot Auto vuelve a comprobar el modelo concreto seleccionado durante la negociación y la renovación. Un modelo fuera del alcance permitido del cliente finaliza la solicitud con `model_not_allowed_for_key` (HTTP 403 antes de la transmisión, o un error de terminal en un flujo ya iniciado). La rotación de credenciales o un objetivo alternativo no pueden anular ese rechazo.
-- Un token de administrador de administración en bruto puede realizar una administración ordinaria, pero no puede acuñar una sesión de navegador ni autorizar acciones con consentimiento, como protagonizar el repositorio. Esas acciones requieren un `gui-session` emitido por el servidor, un origen de navegador coincidente y un token CSRF.
+- Un token de administración sin sesión permite las tareas administrativas ordinarias, pero no crear una sesión de navegador ni autorizar acciones que requieren consentimiento, como dar una estrella al repositorio. Esas acciones exigen una `gui-session` emitida por el servidor, un origen de navegador coincidente y un token CSRF.
 - `Tailscale-User-Login` se confía solo en la entrada de administración por separado. Se ignora el mismo encabezado en el oyente público. `remoteGui.allowedTailscaleUsers` controla la emisión de la sesión; no crea un nuevo principal de propósito general.
 
 <a id="roles-and-direct-data-flow"></a>
 
 ## Roles y flujo directo de datos
 
-`standalone` mantiene los datos y la administración en una sola máquina. Un `hub` posee las credenciales del proveedor, el catálogo y los registros de uso. Un `client` almacena solo sus metadatos de conexión y una clave de datos por cliente. Codex y Claude el tráfico va directamente desde el cliente al centro de escucha de datos; no se tuneliza a través del tablero de instrumentos o el relé de gestión de loopback.
+`standalone` mantiene los datos y la administración en un equipo. Un `hub` conserva las credenciales de proveedores, el catálogo y los registros de uso. Un `client` solo almacena metadatos de conexión y una clave de datos propia. El tráfico Codex y Claude va directamente del cliente al listener de datos del Hub; no pasa por un túnel del dashboard ni por el relé local de administración.
 
-Conéctese con exactamente una fuente de autoridad transitoria. La autoridad se lee desde stdin y nunca se escribe en config o en el archivo token:
+Conecta usando exactamente una fuente de autorización temporal. Se lee desde stdin y no se escribe en la configuración ni en el archivo de token. En el ejemplo, el origen de datos usa HTTPS en 8443 y el de administración usa HTTPS en 443:
 
 ```bash
-ocx connect https://hub-name.tailnet-name.ts.net --pairing-code-stdin
+ocx connect https://hub-name.tailnet-name.ts.net:8443 \
+  --management-url https://hub-name.tailnet-name.ts.net \
+  --pairing-code-stdin
 ocx connect status
 ocx sync
 ```
@@ -44,7 +46,9 @@ Los diagnósticos de preparación legibles por humanos muestran caracteres de co
 
 No tienes que armar esa línea a mano. `ocx hub invite`, se ejecuta en el concentrador, acuña el código e imprime el comando exacto, incluidos ambos orígenes, para la máquina que se está uniendo. Véase [Invitar a otra máquina](#inviting-another-machine).
 
-El concentrador emite automáticamente una clave por cliente. El cliente lo escribe en el archivo `service-api-token` existente solo para el propietario, nunca en `config.json`. Mientras está conectado, el uso proviene del almacén de uso del concentrador filtrado al establo `apiKeyId` de ese cliente. Después de la desconexión, el uso proviene de la tienda local. OpenCodex no refleja el uso entre las dos tiendas. `ocx service uninstall` elimina el servicio local pero conserva una clave existente cuando el cliente está conectado, sus metadatos de conexión no son válidos o no coinciden, o un marcador de conexión pendiente coincide con la clave actual. Un marcador válido para una clave anterior no retiene una clave de servicio no relacionada. Si un marcador no es seguro, está mal formado o es ilegible, no se puede verificar la limpieza del token; el comando advierte en lugar de afirmar que se mantuvo la clave. Utilice `ocx disconnect` para eliminar la clave local y el estado de un cliente conectado.
+El Hub emite una clave propia para cada cliente. Este la escribe en el archivo existente `service-api-token`, accesible solo por su propietario, nunca en `config.json`. Mientras está conectado, el uso se consulta en el Hub y se filtra por el identificador estable `apiKeyId` del cliente. Al desconectarse se consulta el almacén local; no se replica el uso entre ambos almacenes.
+
+`ocx service uninstall` elimina el servicio local, pero conserva una clave existente si el cliente está conectado, si sus metadatos son inválidos o no coinciden, o si un marcador de conexión pendiente corresponde a la clave actual. Un marcador válido de una clave anterior no conserva otra clave de servicio ajena a esa conexión. Si el marcador es inseguro, está mal formado o no puede leerse, no se puede verificar la limpieza del token: el comando advierte en lugar de afirmar que conservó la clave. Usa `ocx disconnect` para eliminar la clave y el estado locales de un cliente conectado.
 
 Si un cliente guardó una URL de concentrador remota `http://` antes de la regla de transporte seguro, sus operaciones de concentrador ahora devuelven `insecure_http_refused`. Ejecute el `ocx disconnect` localmente, luego vuelva a conectar al Hub con el `https://` (o use el bucle de retroceso HTTP cuando ambos lados estén en la misma máquina).
 
@@ -58,7 +62,7 @@ ocx connect rotate --admin-token-stdin
 
 La rotación mantiene las claves de datos antiguas y nuevas válidas durante un máximo de diez minutos bajo el mismo `apiKeyId`. El cliente realiza una copia de seguridad del token antiguo como `service-api-token.prev`, instala atómicamente y sondea la nueva clave, luego confirma. Si una respuesta de confirmación es incierta, vuelva a ejecutar el comando rotar con autoridad transitoria; la recuperación prueba ambos archivos antes de confirmar o restaurar. Nunca elimine ninguno de los archivos cuando se informe de recuperación de que ambos candidatos fueron rechazados.
 
-`ocx disconnect` es local y funciona mientras el concentrador está fuera de línea. Restaura el estado del cliente local y no revoca la clave de concentrador. Después de desconectar, revoque esa clave de **Conecte las llaves → API** en el concentrador. `ocx connect revoke --admin-token-stdin` solo está disponible mientras está conectado y utiliza el persistente `apiKeyId`; no acepta la anulación de id. La sesión de cierre de sesión/caducidad del navegador está separada de la rotación, revocación y desconexión de la clave de datos.
+`ocx disconnect` es una operación local y funciona aunque el Hub no esté disponible. Restaura el estado local, pero no revoca la clave en el Hub. Después de desconectar, revócala desde **Conectar → Claves API** en el Hub. `ocx connect revoke --admin-token-stdin` solo está disponible mientras sigas conectado y usa el `apiKeyId` guardado; no admite sustituir ese identificador. Cerrar o caducar la sesión del navegador es independiente de rotar, revocar o desconectar la clave de datos.
 
 <a id="what-a-connected-client-shows"></a>
 
@@ -72,14 +76,14 @@ Un cliente no almacena credenciales de proveedor y ningún catálogo propio, por
 
 <a id="linux-systemd-or-macos-launchd"></a>
 
-## Lanzamiento de Linux systemd o macOS
+## Linux con systemd o macOS con launchd
 
 Vincule el oyente de datos a la dirección de Tailscale del concentrador, habilite el compañero de bucle de retorno para que los propios procesos del concentrador lleguen a ese mismo puerto sin una credencial y publique la administración por separado. Los valores siguientes son ejemplos:
 
 :::danger[Usa un servidor dedicado para un solo usuario]
-El compañero de loopback no está autenticado: cada proceso y usuario del sistema operativo en esta máquina puede usar el credenciales del proveedor del concentrador y la cuota de cuenta, y puede agotar la capacidad de giro compartida que clientes remotos autenticados dependen de. No lo habilite en un host compartido o multi-tenant. Si el host es compartido, deja el `unauthenticatedLoopbackListener` configuración deshabilitada y no ejecute el local del concentrador integraciones.
+El listener auxiliar de loopback no exige autenticación. Cualquier proceso o usuario del sistema en ese equipo puede usar las credenciales y cuotas del Hub, y agotar la capacidad compartida de turnos de los clientes remotos autenticados. No lo habilites en un servidor compartido o con varios tenants. En ese caso, conserva `unauthenticatedLoopbackListener` desactivado y no ejecutes las integraciones locales del Hub.
 
-Vinculación a `127.0.0.1` significa que el kernel rechaza conexiones remotas, pero no detiene un navegador: una página que visita puede hacer que su navegador se conecte a `127.0.0.1`. Por lo tanto, el oyente misma `Host` y `Origin` como un enlace de bucle de retorno ordinario.
+Escuchar en `127.0.0.1` hace que el kernel rechace conexiones remotas, pero no impide que una página visitada provoque conexiones desde tu navegador a `127.0.0.1`. Por eso el listener aplica las mismas comprobaciones de `Host` y `Origin` que un listener ordinario de loopback.
 :::
 
 ```bash
@@ -138,7 +142,7 @@ Los dos planos usan credenciales diferentes. El token de datos admite llamadas a
 
 <a id="one-port-and-the-ported-alternative"></a>
 
-### Un puerto, y la alternativa porteada
+### Un puerto y la alternativa con puerto separado
 
 `unauthenticatedLoopbackListener: {"enabled": true}` con **no** `port` es la forma *compañero*: un segundo zócalo en `127.0.0.1:<proxy port>` - el mismo número de puerto que el oyente público utiliza en la dirección tailnet. Esa es la dirección que ya escribe cada integración local, por lo que no se debe enseñar nada en el concentrador a un nuevo puerto, y un puerto mantiene toda la superficie de datos remota.
 
@@ -193,7 +197,7 @@ Un `200` de `/healthz` solo demuestra que el proceso está vivo. La aceptación 
 
 <a id="tailscale-serve"></a>
 
-## Escala de cola Servir
+## Tailscale Serve
 
 Primero prueba que el socket de administración es solo loopback, luego publícalo a través de Serve:
 
@@ -219,11 +223,11 @@ La prueba de navegador positiva debe usar una sesión Tailscale con inicio de se
 
 <a id="giving-the-data-listener-tls"></a>
 
-### Dar al oyente de datos TLS
+### Proteger con TLS el listener de datos
 
 El mapa Serve de arriba publica solo la entrada **gestión**. Ese ingreso nunca sirve `/v1/*`, `/healthz` o `/readyz`, por lo que por sí solo no le da a un cliente remoto un plano de datos utilizable. opencodex también termina no TLS de su propio: el oyente es llano HTTP y HTTPS es siempre un frontend poseído por el operador.
 
-Servir puede ser ese frontend para el plano de datos también, en un segundo puerto HTTPS. En macOS necesita un salto extra, porque Tailscale Servir proxies solo a `127.0.0.1` - no puede apuntar al oyente que enlaza a la propia dirección tailnet del nodo, y la compilación de App Store del cliente macOS rechaza un destino remoto por completo. Ejecutar un reenviador de bucle en el concentrador y apuntar Servir en eso:
+Servir puede ser ese frontend para el plano de datos también, en un segundo puerto HTTPS. En macOS necesita un salto extra, porque Tailscale Serve proxies solo a `127.0.0.1` - no puede apuntar al oyente que enlaza a la propia dirección tailnet del nodo, y la compilación de App Store del cliente macOS rechaza un destino remoto por completo. Ejecutar un reenviador de bucle en el concentrador y apuntar Servir en eso:
 
 ```bash
 # Any loopback TCP forwarder works; socat is one. Pick a port the hub is not already using:
@@ -234,7 +238,7 @@ tailscale serve --bg --https=8443 http://127.0.0.1:10110
 tailscale serve status   # expect both mappings: 443 -> 10101, 8443 -> 10110
 ```
 
-**No apuntes Servir al oyente acompañante del loopback.** Es un socket real en `127.0.0.1:10100`, por lo que se crearía la asignación y luego fallaría de la misma manera que describe la trampa a continuación: el compañero ejecuta la política de admisión de loopback, que requiere un encabezado de loopback `Host`, y sirve hacia adelante `Host: hub-name.tailnet-name.ts.net`. El compañero existe para los procesos *on* el concentrador, que envían un loopback `Host` propio. El promotor lleva el oyente tailnet, cuya admisión de credenciales y manejo `Host` es lo que necesita un frontend TLS.
+**No apuntes Serve al listener auxiliar de loopback.** Existe un socket real en `127.0.0.1:10100`, pero el mapeo fallaría después de crearse: el auxiliar aplica la admisión de loopback y exige un `Host` local, mientras Serve reenvía `Host: hub-name.tailnet-name.ts.net`. El auxiliar sirve a los procesos del propio Hub, que sí envían un `Host` local. El reenviador debe llegar al listener vinculado a la dirección de Tailscale, cuya autenticación y manejo de `Host` son los adecuados para el frontend TLS.
 
 Servir acepta un conjunto limitado de puertos HTTPS; confirmar que el mapeo fue creado con `tailscale serve status` en lugar de asumir que el puerto estaba permitido.
 
@@ -253,7 +257,7 @@ Registre esos dos orígenes en el centro como `hub.dataPublicOrigin` y `hub.mana
 
 Cuando se omite `--management-url`, se toma de la respuesta `/readyz`, que informa `hub.managementPublicOrigin`. Establecerlo explícitamente es más claro cuando los dos orígenes difieren.
 
-**No corte esto vinculando el receptor de datos a `127.0.0.1`.** Un enlace de loopback es cómo opencodex reconoce una implementación puramente local: deja de requerir una credencial de datos y comienza a requerir que el encabezado `Host` de la solicitud también sea loopback. Un frontend TLS avanza `Host: hub-name.tailnet-name.ts.net`, por lo que `/v1/catalog` responde `403 origin_rejected` - mientras que `/readyz`, que no ejecuta esa comprobación, todavía devuelve `200`. El despliegue se ve saludable y no puede servir a un modelo. Nada en la ruta de solicitud lee `X-Forwarded-Host`, por lo que el frontend no puede repararlo. Mantenga al oyente en la dirección de la red Tailscale, donde se mantiene la admisión de credenciales y no se aplica el cheque `Host`.
+**No evites el reenviador vinculando el listener de datos a `127.0.0.1`.** OpenCodex interpreta ese enlace como una instalación puramente local: deja de exigir la credencial de datos y exige que el `Host` también sea local. El frontend TLS reenvía `Host: hub-name.tailnet-name.ts.net`; por eso `/v1/catalog` responde `403 origin_rejected`, aunque `/readyz`, que no aplica esa comprobación, devuelva `200`. Puede parecer que el despliegue está sano sin poder servir un modelo. La ruta de solicitudes no lee `X-Forwarded-Host`, así que el frontend no puede corregirlo con esa cabecera. Mantén el listener en la dirección de Tailscale, donde se exige la credencial de datos y no se aplica esa comprobación de `Host`.
 
 Esa trampa es sobre el **enlace**, y sigue siendo cierto. Obtener un conector `127.0.0.1` en un concentrador para los propios procesos del concentrador es un problema diferente, y [`unauthenticatedLoopbackListener`](#one-port-and-the-ported-alternative) es la respuesta sancionada: el enlace público permanece en la dirección de la red Tailscale con la admisión activada, y un segundo conector sirve a las personas que llaman locales. No es un objetivo TLS, por la razón dada anteriormente.
 
@@ -271,7 +275,7 @@ Si opera su propio proxy TLS, obtenga un certificado solo para el FQDN completo 
 tailscale cert hub-name.tailnet-name.ts.net
 ```
 
-Proteja la clave privada, renuévela a través del mecanismo compatible de Tailscale y provide solo a `127.0.0.1:10101`. Un proxy genérico TLS no proporciona una identidad fiable de Tailscale. No fabrique encabezados `Tailscale-User-*`; use el flujo de emparejamiento de un solo uso vinculado al origen.
+Protege la clave privada, renueva el certificado mediante el mecanismo admitido por Tailscale y reenvía únicamente a `127.0.0.1:10101`. Un proxy TLS genérico no aporta una identidad Tailscale confiable. No inventes cabeceras `Tailscale-User-*`; utiliza el emparejamiento de un solo uso vinculado al origen.
 
 <a id="inviting-another-machine"></a>
 
@@ -345,7 +349,7 @@ Antes, una consulta que no se podía ejecutar se presentaba como «no cargado».
 
 <a id="headless-oauth"></a>
 
-## Sin cabeza OAuth
+## OAuth sin navegador
 
 Deshabilitar el inicio del navegador en el concentrador:
 
@@ -480,13 +484,13 @@ Para una reversión de contenedor, conserve tanto los volúmenes de estado con n
 - **Código de emparejamiento perdido o quemado:** ejecutar `ocx hub invite` de nuevo. Las concesiones son de un solo uso y los fallos repetidos son de velocidad limitada sin revelar si existe un código.
 - **`ocx hub invite` dice `No loopback browser origin is admitted for pairing`:** el concentrador no admite el origen del navegador de bucle de retroceso, por lo que una concesión vinculada al origen nunca podría igualar. Nada fue acuñado. Ejecute la línea `ocx config set corsAllowOrigins` las impresiones de error, con el puerto proxy de la máquina de unión. Véase [Invitar a otra máquina](#inviting-another-machine).
 - **`ocx hub invite` dice que el origen de los datos anunciados sería el propio bucle de retorno de esta máquina:** el bind es solo loopback o un comodín y `hub.dataPublicOrigin` está desactivado, por lo que no hay dirección para anunciar y nada adivina una red Tailscale o LAN. Nada fue acuñado. Establecer `hub.dataPublicOrigin`, o pase `--data-url` para esta invitación solamente.
-- **Se rechaza el intercambio de la máquina de unión y se gasta el código:** la subvención estaba vinculada a un origen que la máquina no presenta. Vuelva a leer la línea `Bound browser origin:` de la invitación: nombra el puerto en el que debe ejecutarse la otra máquina u ofrece la admisión `http://localhost:10100` en el concentrador.
+- **El intercambio del equipo que se conecta se rechaza y consume el código:** la autorización estaba vinculada a otro origen. Revisa la línea `Bound browser origin:` de la invitación: indica el puerto que debe usar el otro equipo o propone admitir `http://localhost:10100` en el Hub.
 - **`ocx hub invite` rechaza un `--management-url`:** en un concentrador ese indicador confirma `hub.managementPublicOrigin` en lugar de anularlo, porque la concesión está vinculada al valor configurado. Cambie la configuración o suelte la bandera.
 - **`ocx claude` en el concentrador se inicia de forma nativa Codex / Claude, o el concentrador se niega a escribir sus propias configuraciones de cliente:** `unauthenticatedLoopbackListener` está apagado. El mensaje de omisión nombra la puerta. Habilite el oyente y reinicie el proxy (`ocx service restart` en una instalación de servicio).
 - **`ocx claude` en el concentrador obtiene `404` del oyente:** el proxy sigue siendo el proceso que comenzó antes de que existieran los cables del oyente, o antes de que el puerto cambiara. Reinicie con `ocx service restart` - ver [macOS operaciones de servicio](#macos-service-operations).
-- **`ocx service repair` impreso `nothing to do` y el proceso no rebotó (macOS):** esperados. Una reparación de un trabajo saludable es deliberadamente una opción prohibida. Cuando desee un nuevo proceso, ejecute `ocx service restart`, que inicia el trabajo cargado en su lugar y reporta `service restarted (launchctl kickstart -k …)`. Solo si eso falla es `launchctl kickstart -k gui/$(id -u)/com.opencodex.proxy` el retroceso manual - el mensaje de falla lo nombra.
+- **`ocx service repair` muestra `nothing to do` sin reiniciar el proceso (macOS):** es lo esperado. Reparar un job sano no cambia nada deliberadamente. Para reiniciarlo, usa `ocx service restart`: reinicia el job cargado y muestra `service restarted (launchctl kickstart -k …)`. Solo si falla, usa como alternativa manual `launchctl kickstart -k gui/$(id -u)/com.opencodex.proxy`, tal como indica el error.
 - **`ocx service install` rechaza `OPENCODEX_API_AUTH_TOKEN`:** ese valor es un token de administrador de administración. `unset OPENCODEX_API_AUTH_TOKEN` y reejecutar; el servicio proporciona su propio token de plano de datos. Véase [El propio token del plano de datos](#the-data-plane-token-provisions-itself).
-- **El buje se bloquea en el arranque y `ocx status` muestra `admin-collision (file)`:** el archivo `service-api-token` contiene el token de gestión, por lo que el concentrador cerca su gestión API cerrada. Elimine el archivo y ejecute `ocx service repair` para proporcionar un token de plano de datos. Desactivar la variable de entorno no ayuda aquí - el archivo es la fuente.
+- **El Hub rechaza el arranque y `ocx status` muestra `admin-collision (file)`:** `service-api-token` contiene el token de administración, por lo que OpenCodex mantiene cerrada su API de administración. Elimina ese archivo y ejecuta `ocx service repair` para aprovisionar un token de datos. Eliminar la variable de entorno no corrige una colisión cuyo origen es el archivo.
 - El emparejamiento de **Plain HTTP se negó:** sobre HTTP no loopback se rechaza completamente, y no hay ninguna bandera que opte por salirse de él. Ponga el origen de la administración detrás de HTTPS o pare sobre loopback. Los tokens de administrador nunca se envían por encima de HTTP.
 - **`403 origin_rejected` de `/v1/catalog` mientras que `/readyz` devuelve `200`:** el oyente de datos está obligado a retroceder detrás de un frontend TLS. Véase [Dar al oyente de datos TLS](#giving-the-data-listener-tls).
 - **Finalizó la sesión remota:** Iniciar sesión o emparejar de nuevo. El cierre de sesión y la expiración invalidan solo la sesión del navegador, no una clave de datos del cliente.
@@ -498,7 +502,7 @@ Para una reversión de contenedor, conserve tanto los volúmenes de estado con n
 
 `ocx usage` lee el concentrador conectado con la clave de datos registrada de este cliente. La salida humana identifica la fuente del concentrador y el alcance de la clave del cliente; `--json` devuelve los mismos datos de alcance. Los filtros de rango, superficie, proveedor / modelo y los límites personalizados `--since` / `--until` permanecen disponibles. Los desgloses de cuentas y los registros de otros clientes no se comparten. Un concentrador antiguo o no disponible produce un error explícito en lugar de sustituir el uso local; actualice el concentrador si no admite esta lectura.
 
-El punto final del plano de datos de solo lectura es `GET /v1/usage`, usando `x-opencodex-api-key` con una clave de cliente configurada. En todo el entorno y las claves de administración son rechazadas. Acepta `range`, `surface`, `provider`, `model`, `since` y `until`; se rechazan las opciones desconocidas / repetidas y los identificadores de clave seleccionados por el llamante. Las filas sobredimensionadas omitidas retienen la advertencia explícita de historial incompleto.
+El endpoint de datos de solo lectura es `GET /v1/usage`. Usa `x-opencodex-api-key` con una clave de cliente configurada; se rechazan las claves globales del entorno y las de administración. Acepta `range`, `surface`, `provider`, `model`, `since` y `until`. Rechaza opciones desconocidas o repetidas e identificadores de clave elegidos por quien hace la solicitud. Las filas demasiado grandes que se omiten conservan el aviso explícito de historial incompleto.
 
 Las credenciales de uso del cliente se envían solo por HTTPS o loopback HTTP. Tanto la solicitud como la respuesta deshabilitan el almacenamiento en caché.
 
@@ -516,7 +520,7 @@ Si un oyente auxiliar no puede enlazar, los nombres de inicio `unauthenticatedLo
 
 <a id="return-a-hub-to-standalone"></a>
 
-## Devolver un concentrador a autónomo
+## Devolver un Hub al modo independiente
 
 Ejecuta `ocx hub disable [--json]` en el concentrador para eliminar `hub`, `unauthenticatedLoopbackListener`, `runtimeRole` y `hostname` juntos en una escritura validada. La configuración del proveedor, el puerto y las claves API guardadas se conservan. Se rechaza una configuración de cliente o independiente sin cambios.
 

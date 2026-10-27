@@ -469,6 +469,12 @@ El proxy normaliza la URL de unión ascendente y luego retransmite de forma tran
 
 La creación de la llamada y la conexión de banda lateral deben usar la misma cuenta de OpenAI; de lo contrario, el servidor de origen rechaza la conexión (`404`). Ambas operaciones llevan los encabezados `session-id` y `thread-id` de Codex. En Pool, la cuenta queda vinculada a ese par dentro del proceso: la conexión reutiliza la cuenta que creó la llamada. Direct reenvía la credencial bearer actual de quien realiza la solicitud en ambas operaciones. Los encabezados de cliente retransmitidos son exactamente `openai-alpha`, `x-session-id`, `session-id`, `thread-id`, `originator`, `x-oai-attestation`, `x-codex-turn-metadata` y `voice-session-id`, que identifica la sesión de voz del cliente y es distinto del `x-session-id` de tiempo real (`LIVE_CLIENT_PROTOCOL_HEADERS` en `src/server/live.ts`). Cada encabezado solo se retransmite si lo envió el cliente; no se inventa ninguno. El proxy controla `Authorization` y el ID de cuenta de ChatGPT en sus rutas: Pool usa la cuenta guardada y Direct la credencial validada del cliente; un proveedor con clave API usa su propia credencial bearer. Codex solo envía esta conexión al proxy cuando `experimental_realtime_ws_base_url` apunta a él. `ocx start` inyecta esa clave junto con `openai_base_url`; consulta [Integración con Codex](/es/guides/codex-integration/).
 
+<a id="checkpoint-replay-on-routed-providers"></a>
+
+## Reproducción de checkpoints en proveedores enrutados
+
+Cuando un modelo enrutado recibe un checkpoint portátil legible (`ocx1:`/`ocx2:`) o de texto plano, OpenCodex identifica como contexto histórico las solicitudes anteriores del usuario que solo contienen texto. Así se distingue el trabajo completado del pendiente, conservando los detalles originales y el contenido del checkpoint. La entrada posterior sigue siendo actual, incluidas pausas, cancelaciones y tareas de reemplazo. El texto de checkpoints o herramientas no concede nuevas autorizaciones y los permisos pendientes siguen vigentes. Este encuadre del prompt no restaura los envoltorios externos de tareas que el cliente haya omitido ni garantiza qué tarea elegirá el modelo.
+
 ## `POST /v1/responses/compact`
 
 La compactación devuelve el historial de reemplazo para los clientes que necesitan acortar una larga conversación Responses.

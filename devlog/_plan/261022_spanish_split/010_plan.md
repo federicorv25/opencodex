@@ -377,3 +377,126 @@ Publish the consolidated source update, resolve only the eight corrected
 threads, and request one full review without waiting for it. Keep Draft until
 fresh review, authorized exact-head CI and maintainer acceptance are recorded;
 historical contributor language acceptance is not a new human or native test.
+
+## Consolidated review correction, October 27
+
+The contributor authorized resolving the latest pending review. The completed
+CodeRabbit review of `c5d9b720ba518f761127855c10da1aa65f77a1f7` supplied ten
+inline findings and one outside-diff finding. All eleven are addressed together:
+the separate Hub data/management origins, quota freshness, account selection,
+replay-429 diagnostics, conversation-link normalization, provider generation
+tests, Ollama tool rules, the exact `AdapterEvent` symbol, signing fallback, and
+synced-folder detection. The outside-diff log-filter finding belongs to
+`reference/cli/agents.md`, as its explanation states, rather than the path in
+the generated heading; English and Spanish now document stderr and exit 2 for
+usage errors versus stderr and exit 1 for operational failures.
+
+Preserved published history while merging 29 upstream commits through
+`4118b90ba40076c62af66fd922421943204bb041` (2.94.0) in
+`e0f3e246acbadb9aedfe56afcfddab248bc38392`. A final fetch found two more commits;
+merged through `95cfa30ec72f201818b1c80ff9b03fe70c7a8a0e` in
+`5b173a202026b7d15481ac1f144fbff329fab1d8`. Both layout conflict resolutions
+retain every upstream entry and all eleven upstream shards, appending only
+this contribution's docs shard. The expected fixture roster was checked
+against upstream after removing only the additional Spanish-docs entry.
+
+Synchronized the fifteen canonical pages changed by those upstream commits.
+Spanish now covers GPT-6.1 Terra's distinct native/API limits, context choices,
+reasoning capabilities, Qoder image admission, provider seeds and verification
+limits, Hermes refresh ownership, direct-account credit metadata, combo reprobe
+reservations, checkpoint authority, Claude tool loading, the confirmed POSIX
+Codex CLI update jobs, completed-tool relay, Mistral reasoning and Desktop
+recovery verification. No backend, GUI, desktop, dependency or workflow
+implementation differs from this integration base because of the contribution.
+
+The direct corrections also exposed adjacent mistranslations: a generation
+window shorter than one second is unavailable; Ollama Cloud does not enforce
+format constraints; non-streaming API callers still receive HTTP 413; and Hub
+consent, client-key ownership, disconnection, TLS/Host/Origin checks and service
+repair need their existing conditions preserved. These passages were compared
+with current English and implementation. Signing fallback is clarified in
+English, Spanish and Turkish: an unsigned original remains unchanged, an MSI
+keeps its original updater signature if present, and the standalone executable
+has no original updater signature. This is documentation of existing behavior,
+not a change to signing or authorization.
+
+Corrected the first Hub connection command and the dashboard development
+two-terminal recipe across all nine physical locales. The existing Hub guard
+now checks each connection example, joining shell continuations before
+checking the separate data/management origins. A read-only comparison finds
+one invalid first example in each locale on the preceding published head and
+none after the correction. The foreground-recipe regression checks both the
+Remote Workspace and dashboard guides in every locale. No cap was increased,
+test skipped, or upstream test-layout entry dropped.
+
+Frozen root, GUI and docs installs passed. Bun 1.4.4 matches the runtime/test
+pin. Final root typecheck, structure check and the direct file-size ratchet
+passed. Focused receipts, using repository wrappers and synthetic test homes:
+
+- All docs guards plus layout, structure and hygiene: 470 passed, 0 failed,
+  4,882 assertions across 19 files. This final run follows both merges and the
+  Desktop guide synchronization.
+- Provider completion/quota, Ollama tools, log filters, client connection and
+  spend-ledger contracts on Windows: 768 passed, 5 platform skips and one
+  fixture failure across 23 files, with 3,092 assertions. The failure is
+  `spend-ledger-owner.test.ts` "a dangling journal symlink is refused rather
+  than followed": Windows returned EPERM while creating the symlink fixture,
+  before exercising the behavior. The test and implementation match upstream.
+- Linux storage/startup and signing-policy regressions: 56 passed, 25 skipped,
+  0 failed, 303 assertions across 4 files. This covers the Windows-blocked
+  symlink case and POSIX identity/hard-link cases. The skips are native
+  PowerShell/Authenticode fixtures unavailable in the minimal Linux image.
+- Windows signing-policy file: 26 passed, 12 existing platform skips, 0 failed,
+  186 assertions. This does not establish real release signing.
+- GUI quota freshness/refresh/account and log-filter tests: 93 passed, 0 failed,
+  527 assertions across 7 files using the GUI pinned wrapper and synthetic DOM.
+- Current-dev contracts: the 19-file Linux group initially passed 511 tests,
+  skipped 1 and failed 9 (3,067 assertions) because its temporary mounts were
+  non-executable. A direct executable/access probe reproduced EACCES. Rechecking
+  only the two affected CLI apply/admission files with executable private
+  mounts passed all 50 tests with 1 root-user permission-case skip and 302
+  assertions. The other 17 files had already passed 470 tests; these results
+  overlap and are not an additional unique 50 beyond that 19-file group.
+  Earlier preparation attempts lacked Node/npm or a writable workspace; their
+  failing setup logs are retained locally rather than described as successes.
+- Latest Desktop recovery contracts on Windows: 82 passed, 8 existing platform
+  skips, 0 failed, 505 assertions across 3 files. Compiled native Linux recovery
+  and procfs cases remain for the appropriate platform.
+
+Linux storage used official Bun 1.4.4 image
+`oven/bun@sha256:1d22548f177f4ff38e0c15baa3c2c46c6c2060ba2d1bc573bb4720b407548f1d`.
+CLI apply additionally used Node 24.22.1/npm 11.19.1 from
+`node@sha256:55fb5f5a527ea2c5c4a95f963e48ef90aa38c7b346054fdc8ee9957a2b55d205`,
+with the same Bun copied into a disposable image. Network was disabled; the
+checkout was mounted read-only, and the explicit source copy, private npm
+prefixes, homes and temporary files lived only in container tmpfs. No personal
+installation was updated or tested, and no host permission was changed.
+
+All 74 canonical paths retain command-block and inline-identifier parity.
+The final build completed with 667 pages and 97,927 checked internal links,
+including Pagefind and sitemap. Built locale signing-policy links and
+attribution also passed. Actual-browser review checked the Hub connection,
+provider generation contract and current model guidance at 1280px, and Hub and
+Desktop guidance at 390px. Spanish metadata was present and the inspected
+pages had no horizontal page overflow; long code remains internally scrollable.
+Pagefind returned 15 results for `Terra`, and its GPT-6.1 Terra link opened the
+Spanish provider guide. The viewport was restored after review. Native Desktop
+was not exercised; personal port 10100 and personal configuration were untouched.
+
+Four screenshots are on the separate `pr-assets` branch at
+`4789fc6f3a797341b6d5c4929fe4329b7b5a9b7b`, under
+`spanish-docs-20261027/`; none is on the source branch. The exact commands,
+staged privacy result and published source SHA are recorded in the PR body.
+
+The full-root-suite resource exception remains: no passing full root run is
+claimed, and the earlier 900-second run had failures not all classified as
+environmental. Focused success leaves the remainder, skipped native cases and
+cross-platform coverage for authorized current-head CI and the maintainer's
+requested manual `lane=all`. Adding `ci:full` through the connector was denied
+with HTTP 403; no alternate credential route was attempted. The existing
+fixture-path selector should independently choose the full Ubuntu lane for
+this PR's fixture diff, subject to maintainer authorization. No CI policy is
+changed. After publishing, resolve only the ten corrected threads and request
+one full CodeRabbit review without waiting for its result. Keep the PR Draft
+pending fresh review, authorized CI and maintainer acceptance. Historical
+contributor Spanish acceptance is retained, not recast as a new human test.

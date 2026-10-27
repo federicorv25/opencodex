@@ -205,6 +205,8 @@ Mientras el modo selector está activado, Claude Desktop llega a la red a travé
 
 El modo Selector es parte del modo de primera parte, por lo que el [Riesgo de cuenta de primera parte](#first-party-opt-in) también se aplica a él. El catálogo de escritorio y CLI reescribe los límites de fila y metadatos de uso compartido: si la adición de modelos enrutados supera un límite, OpenCodex devuelve el catálogo original de Anthropic sin cambios en lugar de publicar una lista parcial.
 
+Antes de recibir la primera respuesta del proveedor, una subida del selector que no avance durante 60 segundos se cierra sin una respuesta de éxito. En HTTP/2 solo se reinicia el stream afectado. El temporizador de inactividad se pausa si el proveedor aplica contrapresión y se elimina cuando termina la subida o llega la primera respuesta. No impone un límite a la duración total de la subida; siguen vigentes los límites del entorno de ejecución y del protocolo. Los streams de respuesta quedan fuera de este temporizador.
+
 <a id="use-opencodex-models-from-the-desktop-code-tab-first-party-bindings"></a>
 
 ### Utilice los modelos opencodex en la token Código de escritorio (enlaces de origen)
@@ -542,7 +544,7 @@ El proxy traduce cada solicitud Anthropic Messages API al formato Codex Response
 | Texto del asistente | `output_text` |
 | Asistente `tool_use` | `function_call` ( `input` → JSON -stringed `arguments` ) |
 | Usuario `tool_result` | `function_call_output` (prefijo `is_error` → `[tool error]`) |
-| `tool_reference` en un resultado de herramienta | Texto `Tool loaded: <tool_name>` en el resultado emparejado; conserva los nombres de las herramientas cargadas sin agregar declaraciones ni habilitar el aplazamiento del lado del servidor traducido |
+| `tool_reference` en un resultado de herramienta | De forma predeterminada, texto `Tool loaded: <tool_name>` en el resultado emparejado. La [opción de carga añadida al historial](#preserve-cache-prefixes-when-client-tools-load) puede colocar una función diferida actualmente declarada junto al resultado exitoso de descubrimiento del cliente, si la ruta Responses final cumple los requisitos. Una referencia por sí sola nunca concede una herramienta ni habilita búsqueda del servidor. |
 | `thinking` / `redacted_thinking` repetición | `reasoning` artículos con `ocxr1` sobres limitados para firmas y cargas útiles redactadas |
 | Herramientas de función | `{type: "function"}` (`web_search*` → `{type: "web_search"}`). En una ruta a `api.anthropic.com`, las declaraciones `web_search_*` y `web_fetch_*` escritas también se envían a Anthropic como se declara y se ejecutan en el lado del servidor, a menos que el propio sidecar de búsqueda web suministre `web_search`. Una búsqueda o búsqueda con una llamada coincidente y entrada completa vuelve al cliente como su bloque `server_tool_use` y su bloque `web_search_tool_result` o `web_fetch_tool_result`, literalmente. Los resultados huérfanos se eliminan sin sintetizar una llamada, mientras que el texto circundante se conserva. Cuando el cliente envía un par completo en su historial, la siguiente solicitud `api.anthropic.com` lo lleva en su lugar solo si el siguiente bloque identifica de forma única su turno original. Anclajes repetidos, identificadores de llamada/resultado no coincidentes o duplicados, entrada de llamada malformada o un resultado que aparece antes de que su llamada caiga en el intercambio. La entrada de llamada debe ser un objeto con una consulta de búsqueda no vacía o una cadena de URL de búsqueda; otros destinos nunca ven el intercambio |
 | `tool_choice` | `auto` → `auto`, `none` → `none`, `any` → `required`, llamada función → `{type:"function",name}`, alojada WebSearch/ web_search → `{type:"web_search"}` |
@@ -654,8 +656,9 @@ La barra de guardado pegajosa muestra **Sin cambios** cuando la configuración g
 { "claudeCode": { "toolSearch": true } }
 ```
 
-Esto está desactivado por defecto porque solo vale la pena en **paso nativo Anthropic** Rutas. El aplazamiento es una optimización del lado del servidor, no una solicitud más pequeña: Claude Code todavía envía cada definición de la herramienta, y Anthropic de API es lo que mantiene los esquemas diferidos fuera del contexto del modelo y responde el `tool_search` herramienta de servidor con `tool_reference` bloques. Un traducido (enrutado) modelo nunca llega a esa maquinaria — opencodex deja caer el `tool_search` herramienta e ignora
-`defer_loading` — para que el proveedor siga recibiendo todos los esquemas mientras Claude Code deja de contar y, por lo tanto, deja de compactarse. Con `claudeCode.compatibility: "enforce"` El mismo La solicitud es rechazada con 400 en su lugar. Enciéndelo cuando `ocx claude` se enruta a un Anthropic modelo; déjelo para rutas de terceros hasta que se admita el aplazamiento traducido.
+Esta opción sigue desactivada de forma predeterminada. El **passthrough nativo de Anthropic** conserva la búsqueda de herramientas del servidor: el cliente envía las definiciones diferidas y Anthropic las mantiene fuera del contexto hasta descubrirlas. La ruta traducida predeterminada no implementa ese mecanismo: elimina la declaración de búsqueda tipada y normalmente envía todas las funciones desde el principio, por lo que el cliente puede subestimar la entrada real del proveedor.
+
+Hay una excepción independiente y limitada para **`ToolSearch` ejecutado por el cliente**, en un destino Responses verificado seleccionado mediante [`claudeCode.appendOnlyToolLoadingModels`](#preserve-cache-prefixes-when-client-tools-load). En esa ruta física final, la opción excluye del catálogo inicial las definiciones diferidas aún sin usar y añade las actuales en los resultados estructurados de descubrimiento exitosos. La búsqueda del cliente debe funcionar ya y debe declararse una función `ToolSearch` sin carga diferida. El ajuste del lanzador `toolSearch` puede activar el descubrimiento donde el cliente lo admite, pero no activa por sí solo esa opción ni implementa búsqueda del servidor. Verifica la combinación de cliente y pasarela antes de activarla; mantenla desactivada en otras rutas de terceros. La admisión que exige compatibilidad no cambia y todavía puede rechazar solicitudes de carga diferida no admitidas. Ninguna de las dos opciones garantiza aciertos de caché ni paridad completa con la búsqueda nativa.
 
 Los valores aceptados siguen el propio analizador de Claude Code: `true`, `"auto"`, `"auto:N"` (N al menos 100) y `"force"`. Un valor que usted mismo exporta siempre gana sobre el inyectado.
 
@@ -665,6 +668,48 @@ directivas, no la herramienta del agente `model` argumento. Asegúrese de que la
 Establecer `claudeCode.stabilizePromptCache` a `true` en `config.json` a Claude arnés de aviso de seguimiento de las instrucciones del sistema en las rutas traducidas. Se han retirado `<total_tokens>N tokens left</total_tokens>` pies reconocidos, incluidos los pies repetidos. Los recordatorios de TaskCreate aún se mueven a un mensaje de usuario final; si solo se pelaron los pies de token, no se agrega ningún mensaje de entrada. El valor predeterminado es `false`. Habilítelo solo cuando este cambio de rol sea apropiado para sus clientes. Conserva ejemplos cercados y texto sin igual; el passthrough nativo Anthropic no cambia. La clave prompt-cache sin metadatos sigue instrucciones estabilizadas. Esto no crea una identidad de conversación ni garantiza accesos de caché ascendentes.
 
 En cada ruta de chat traducida, los recordatorios de línea de tiempo mantienen su posición en la conversación, después de cualquier resultado de herramienta pendiente. Esto evita que un recordatorio recién agregado reescriba el indicador principal del sistema, y evita que una instrucción de conversación intermedia llegue antes de los giros que se escribió a seguir. El papel que lleva la ranura se decide por separado: un recordatorio se envía como `system` a menos que el proveedor registre `foldDeveloperRoleToSystem: false`, que establece que el flujo ascendente acepta el papel `developer` y lo reenvía en la misma posición. Un flujo arriba que no lo acepta responde `400 role 'developer' is not allowed` y el giro nunca comienza, por lo que un destino no registrado se pliega. Esto se aplica con o sin `stabilizePromptCache`, y el paso a través de Anthropic nativo no cambia. La reutilización de caché todavía requiere una identidad de sesión estable y disponibilidad de caché ascendente. Los cambios en las instrucciones o herramientas anteriores, y la compactación de la conversación, aún pueden afectar los golpes de caché; preservar el orden del recordatorio por sí solo no garantiza la reutilización.
+
+<a id="preserve-cache-prefixes-when-client-tools-load"></a>
+
+### Conservar el prefijo de caché al cargar herramientas del cliente
+
+En una **ruta directa de Responses cuyo destino se haya verificado que admite `additional_tools`**, una opción explícita puede conservar el historial de carga de ToolSearch del cliente, en lugar de añadir cada función descubierta al catálogo inicial:
+
+```json
+{
+  "claudeCode": {
+    "appendOnlyToolLoadingModels": ["my-gateway/gpt-example"]
+  }
+}
+```
+
+Los selectores coinciden con nombres `provider/model` resueltos, no con alias del selector. Un único comodín final, como `my-gateway/gpt-*`, selecciona una familia verificada; no se acepta el comodín global `*`. La lista está desactivada de forma predeterminada y admite hasta 128 entradas de 512 caracteres cada una. Solo se reescribe la solicitud saliente si su ruta física final es un proveedor Responses directo. El destino se comprueba de nuevo al vincular el adaptador después de un fallback o reemplazo tardío de subagentes: seleccionar la ruta original no autoriza otro destino. El catálogo original sigue disponible para los demás intentos. Las solicitudes de combo o política conservan ese catálogo incluso si están seleccionadas, porque sus destinos alternativos pueden no respetar la ubicación cronológica de las herramientas.
+
+El endpoint Responses de OpenCode Go y los hosts oficiales de xAI Responses conservan el catálogo completo aunque estén seleccionados. Esos destinos aplanan o rechazan `additional_tools` y no pueden mantener el prefijo de carga cronológico. Mantén desactivada esta opción en cualquier otra pasarela que eleve los descubrimientos al arreglo `tools` inicial.
+
+La optimización requiere un valor de texto en `metadata.user_id` y una función `ToolSearch` declarada sin carga diferida. Las definiciones diferidas que aún no se usan se excluyen del catálogo inicial tanto antes como después del descubrimiento. Un resultado estructurado y exitoso de ToolSearch incorpora en esa posición las definiciones que siguen declaradas. El texto de una referencia nunca concede herramientas ni restaura definiciones revocadas. Las herramientas usadas antes de descubrirse y las herramientas no descubiertas cuya selección se fuerza explícitamente permanecen en el catálogo inicial. Se conservan los esquemas, su carácter estricto y la asociación entre llamadas y resultados. Si faltan metadatos, la configuración está ausente o vacía, o se usa passthrough nativo de Anthropic, se mantiene el comportamiento existente. Una configuración mal formada se rechaza al guardarla; la recuperación durante la carga solo desactiva esta opción, sin descartar los proveedores.
+
+Esto no implementa la búsqueda diferida del lado del servidor, no cambia la admisión que exige compatibilidad ni activa la búsqueda de herramientas del cliente. Se aplica cuando el cliente ya realiza el descubrimiento. Tampoco garantiza aciertos de caché: los cambios de esquema, revocaciones, cambios de modelo, compactaciones y disponibilidad de caché del proveedor todavía pueden exigir un prefijo nuevo.
+
+<a id="claude-models-behind-a-gateway-that-also-serves-gpt"></a>
+
+#### Modelos Claude detrás de una pasarela que también ofrece GPT
+
+`appendOnlyToolLoadingModels` no resuelve este problema para modelos Claude enrutados mediante una pasarela Responses. La pasarela puede volver a colocar `additional_tools` en el arreglo inicial `tools` de Claude. Como Claude almacena las herramientas en caché antes del prompt de sistema, la solicitud que carga una herramienta sigue perdiendo la coincidencia. Si una pasarela con autenticación por clave también ofrece Anthropic Messages, envía Claude de forma nativa y conserva Responses para los demás modelos mediante `modelAdapters`:
+
+```json
+{
+  "protocols": { "rollout": { "managedMessagesNative": true } },
+  "providers": {
+    "my-gateway": {
+      "adapter": "anthropic",
+      "modelAdapters": { "gpt-example": "openai-responses" }
+    }
+  }
+}
+```
+
+Incluye en `modelAdapters` todos los modelos del proveedor que no sean Claude: los que no estén en la lista se enviarán como Messages. Messages nativo mantiene en su posición las definiciones diferidas de Claude Code y los resultados `tool_reference`; cargar una herramienta amplía el prefijo de caché en lugar de sustituirlo. `claudeCode.stabilizePromptCache` no se aplica ni hace falta en esa ruta; sigue ayudando a las solicitudes Claude que pasan por el puente. Los combos, las políticas, los esfuerzos fijados, las filas sintéticas, el sidecar de búsqueda web y el preprocesamiento de visión mantienen las solicitudes en el puente, como detalla [la configuración de despliegue](/es/guides/protocol-paths/#rollout-switches). Los proveedores compatibles de terceros no reciben los valores `anthropic-beta` del cliente, por lo que la pasarela debe aceptar estas solicitudes sin ellos.
 
 <a id="intercept-token-recovery"></a>
 

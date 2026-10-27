@@ -60,7 +60,9 @@ Connect with exactly one transient authority source. The authority is read from 
 written to config or the token file:
 
 ```bash
-ocx connect https://hub-name.tailnet-name.ts.net --pairing-code-stdin
+ocx connect https://hub-name.tailnet-name.ts.net:8443 \
+  --management-url https://hub-name.tailnet-name.ts.net \
+  --pairing-code-stdin
 ocx connect status
 ocx sync
 ```

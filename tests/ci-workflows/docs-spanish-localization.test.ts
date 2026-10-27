@@ -158,17 +158,22 @@ describe("Spanish documentation localization", () => {
     expect(pages(join(root, "es"))).toEqual(english);
   });
 
-  test("Remote Workspace separates the foreground Hub and dashboard terminal commands in every locale", () => {
+  test("foreground proxy recipes separate subsequent terminal commands in every locale", () => {
     let checked = 0;
-    for (const locale of ["", ...localeFolders]) {
-      const path = join(root, locale, "guides/remote-workspace.md");
-      if (!existsSync(path)) continue;
-      const blocks = codeBlocks(source(path));
-      const foreground = blocks.find(block => block.includes("OCX_REMOTE_WORKSPACE_ENABLED=1 ocx start"));
-      expect(foreground, path).toBeDefined();
-      expect(foreground, `${path} foreground start blocks later shell commands`).not.toContain("ocx gui");
-      expect(blocks, `${path} dashboard runs in a separate terminal block`).toContain("ocx gui\n");
-      checked++;
+    for (const [guide, start, next] of [
+      ["guides/remote-workspace.md", "OCX_REMOTE_WORKSPACE_ENABLED=1 ocx start", "ocx gui"],
+      ["guides/web-dashboard.md", "ocx start\n", "bun run dev:gui"],
+    ] as const) {
+      for (const locale of ["", ...localeFolders]) {
+        const path = join(root, locale, guide);
+        if (!existsSync(path)) continue;
+        const blocks = codeBlocks(source(path));
+        const foreground = blocks.find(block => block.includes(start));
+        expect(foreground, path).toBeDefined();
+        expect(foreground, `${path} foreground start blocks later shell commands`).not.toContain(next);
+        expect(blocks, `${path} next command runs in a separate terminal block`).toContain(next + "\n");
+        checked++;
+      }
     }
     expect(checked).toBeGreaterThan(1);
   });

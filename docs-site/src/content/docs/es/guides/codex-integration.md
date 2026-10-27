@@ -632,6 +632,8 @@ La revalidación de fondo es separada y desactivada por defecto. Requiere Token 
 
 Actualice la cuota de la cuenta principal en Codex Auth después de cambiar su plan ChatGPT. Cuando la respuesta de uso autenticada confirma que una ventana larga ha reemplazado la ventana de cinco horas, opencodex elimina la antigua lectura de cinco horas tanto de la admisión de solicitud como de la selección de cuenta. Una respuesta permitida con ventanas primarias y secundarias puede omitir la ventana terciaria opcional. Esta recuperación utiliza su asignación de plan incluida y no requiere habilitar **Usar créditos**. Los datos de uso parciales o no válidos retienen el bloque anterior hasta que se confirma la recuperación.
 
+Las cuentas guardadas con **Usar créditos tras el límite** activado renuevan la evidencia de créditos mediante el ciclo de fondo existente cuando se agota una ventana de uso incluida y la observación de créditos tiene al menos tres minutos. En modo **Direct**, esto también cubre cuentas guardadas vinculadas explícitamente en `codexAccountNamespaces`, como un selector de subcuenta. Puedes mantener Direct y separar las identidades principal y secundaria: no se activa el enrutamiento Pool ni se actualizan cuentas sin vincular. Se omiten las cuentas pausadas o que necesitan volver a autenticarse. Leer metadatos no valida cuentas pendientes ni envía solicitudes al modelo. Los fallos de lectura conservan la espera entre intentos y las solicitudes siguen necesitando evidencia reciente de créditos disponibles. Las cabeceras de uso de respuestas ordinarias no renuevan la marca de tiempo del saldo de créditos.
+
 <a id="cancelling-main-account-device-reauthentication"></a>
 
 ### Cancelación de la reautenticación del dispositivo de la cuenta principal

@@ -12,7 +12,9 @@ Remote Hub 把供應商憑證、模型目錄與用量記錄保存在一台主機
 `standalone` 在同一台機器上執行全部功能；`hub` 保存供應商金鑰與用量；`client` 只保存連線狀態與專屬資料金鑰。
 
 ```bash
-ocx connect https://hub-name.tailnet-name.ts.net --pairing-code-stdin
+ocx connect https://hub-name.tailnet-name.ts.net:8443 \
+  --management-url https://hub-name.tailnet-name.ts.net \
+  --pairing-code-stdin
 ocx connect status
 ocx sync
 ```

@@ -12,7 +12,9 @@ Remote Hub はプロバイダー認証情報、カタログ、使用量を一台
 `standalone` は一台で完結し、`hub` はプロバイダー秘密情報と使用量を所有し、`client` は接続状態とクライアント専用データキーだけを保存します。
 
 ```bash
-ocx connect https://hub-name.tailnet-name.ts.net --pairing-code-stdin
+ocx connect https://hub-name.tailnet-name.ts.net:8443 \
+  --management-url https://hub-name.tailnet-name.ts.net \
+  --pairing-code-stdin
 ocx connect status
 ocx sync
 ```

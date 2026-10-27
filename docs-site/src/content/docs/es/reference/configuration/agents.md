@@ -206,8 +206,6 @@ El mapa opcional de nivel raíz `modelPinnedEfforts` completa o sustituye el esf
 
 La búsqueda consulta primero el selector final antes de normalizar el prefijo del proveedor; después, el destino completo `provider/model`; y, por último, el identificador del modelo de origen sin prefijo. Los alias originales de Combos y los identificadores sintéticos de filas de esfuerzo no son claves de asignaciones globales: configura el destino concreto. Los valores predeterminados de esfuerzo de filas sintéticas y de Combos se conservan como entrada efectiva antes de aplicar la asignación. Cada destino elegido resuelve su propia asignación, luego los límites aplicables y la normalización del protocolo. Las solicitudes de compactación quedan exentas. `none` omite el esfuerzo y usa el comportamiento predeterminado del proveedor; no garantiza que se desactive el razonamiento.
 
-En el reenvío canónico a OpenAI, tiene prioridad la lista de esfuerzos del modelo final.
-`gpt-6.1-sol` empieza en `low`: un `none` o `minimal` entrante se envía como `low`, incluso después
-de cambiar de modelo por compactación o de pasar a otro destino del combo.
+Para el reenvío canónico de OpenAI prevalece la lista de esfuerzos del modelo final: `gpt-6.1-sol` y `gpt-6.1-terra` empiezan en `low`, por lo que `none` o `minimal` entrantes se envían como `low`, también tras cambiar de modelo de compactación o durante un fallback de combo.
 
 `GET /api/effort-caps` incluye el mapa. `PUT /api/effort-caps` acepta `modelPinnedEfforts` junto con los límites existentes: los campos omitidos no cambian, `null` borra el mapa y una entrada con `null` o `""` elimina solo esa clave. Una actualización combinada inválida no modifica los límites ni las asignaciones. Guardar una asignación no cambia la lista de subagentes destacados.

@@ -12,7 +12,9 @@ Remote Hub хранит учётные данные провайдеров, ка
 `standalone` объединяет всё на одной машине; `hub` владеет секретами и статистикой; `client` хранит только состояние подключения и отдельный ключ данных.
 
 ```bash
-ocx connect https://hub-name.tailnet-name.ts.net --pairing-code-stdin
+ocx connect https://hub-name.tailnet-name.ts.net:8443 \
+  --management-url https://hub-name.tailnet-name.ts.net \
+  --pairing-code-stdin
 ocx connect status
 ocx sync
 ```

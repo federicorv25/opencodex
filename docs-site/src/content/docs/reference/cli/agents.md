@@ -551,10 +551,12 @@ maximum; unavailable values fail active speed filters. Protocol none includes
 absent or invalid traces. Conversation matching uses the same hash-aware IDs as
 ordinary logs. Interception selects string-valued rewrite markers.
 
-Unknown/repeated/conflicting flags, invalid bounds, and follow/events fail before
-discovery. Malformed, oversized or failed reads are nonzero, not empty results.
-To reduce response size, reduce the scan limit; reducing output limit does not
-change the fetch. For streaming use the separate follow forms below.
+Unknown, repeated or conflicting flags, invalid bounds, and unsupported follow/events options
+are refused before discovery: they write an error to stderr and exit 2. Operational failures,
+including discovery failures and malformed, oversized, refused or transport-failed reads, write
+an error to stderr and exit 1. These failures are not zero values or empty results.
+To reduce response size, reduce the scan limit; reducing output limit does not change the fetch.
+For streaming use the separate follow forms below.
 
 ### Search usage model rows
 

@@ -736,3 +736,5 @@ de gasto medido y cancelación. Un Retry-After explícito del proveedor puede re
 de su plazo únicamente si el operador habilita esta opción. Las vistas previas y las listas
 no borran enfriamientos. El intervalo se registra por combo en memoria y se reinicia al reiniciar
 el proxy o el estado de selección del combo. Si está deshabilitada, se conserva la espera habitual.
+
+Una pasada de recuperación pertenece solo a la solicitud que la reservó; las demás siguen observando los periodos de enfriamiento guardados. La reserva acompaña a esa solicitud durante las esperas y la selección JEV. Un destino que vuelve a estar disponible durante una espera puede reintentarse si su periodo de enfriamiento no cambió. Un enfriamiento más reciente cancela la reserva de ese destino. El éxito solo borra el enfriamiento sin cambios del destino que respondió; los destinos no probados y los fallos más recientes conservan sus periodos.

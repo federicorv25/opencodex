@@ -27,6 +27,14 @@ Una credencial principal bloqueada cierra la solicitud de admisión; no reserva 
 
 Un rechazo de bloqueo duro se informa como `usage_limit_reached`, por lo que Codex termina el turno y marca un objetivo activo como limitado al uso en lugar de esperar días en un reintento. El tiempo de reintento sugerido es el restablecimiento de la cuenta principal o, para una solicitud de que el grupo de cuentas enrutado a la cuenta principal, el primer momento conocido en que se recupera otra cuenta del grupo, lo que ocurra primero (nunca antes de un minuto). Reanudar el objetivo después de ese tiempo; enrutamiento a continuación, recoge una cuenta de estado fresco.
 
+<a id="stored-account-credit-metadata-retries"></a>
+
+## Reintentos de metadatos de crédito de cuentas guardadas
+
+Una cuenta guardada seleccionada explícitamente puede agotar su uso incluido cuando la última observación del saldo de créditos tiene más de cinco minutos. Si tiene activado el uso de créditos y la evidencia está desactualizada, ausente o incompleta, su rechazo local 429 recomienda reintentar tras el intervalo base de metadatos de 300 segundos, o al restablecerse la cuota incluida si ocurre antes. Un enfriamiento conocido del proveedor más tardío para el ámbito de cuota seleccionado, incluidas las retenciones de toda la cuenta, conserva la prioridad: si ambos se aplican, gana el plazo posterior. No se incorporan retenciones de otros grupos de modelos. El restablecimiento original de la ventana incluida sigue asociado al rechazo interno como `resetAt`; el aviso más corto ofrece volver a consultar metadatos, no un nuevo restablecimiento de cuota.
+
+La solicitud sigue rechazada hasta disponer de evidencia reciente de créditos utilizables. El aviso no actualiza datos, no evita el ritmo de consultas, no garantiza la recuperación, no cambia la cuenta ni activa el uso de créditos. Los vínculos Direct conservan su identidad. La desactivación explícita de créditos, un valor null antiguo en caché sin procedencia, un veto de gasto conocido o un saldo finito vacío sin derecho a créditos ilimitados conservan el aviso de restablecimiento incluido. Un resumen de créditos recién observado ausente o mal formado retira la autorización de gasto, pero permite el reintento corto de metadatos; un veto explícito sigue prevaleciendo. Los créditos ilimitados con saldo cero también necesitan evidencia reciente. Los retrasos 429 ordinarios del proveedor mantienen el máximo de 24 horas del analizador para valores Retry-After numéricos y en formato de fecha HTTP.
+
 <a id="triage-idle-timeout-waiting-for-sse"></a>
 
 ## Diagnóstico: `idle timeout waiting for SSE`

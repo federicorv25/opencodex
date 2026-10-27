@@ -31,7 +31,9 @@ Codex와 Claude 요청은 클라이언트에서 허브의 데이터 리스너로
 임시 권한은 stdin으로만 전달하며 설정 파일이나 토큰 파일에 저장되지 않습니다.
 
 ```bash
-ocx connect https://hub-name.tailnet-name.ts.net --pairing-code-stdin
+ocx connect https://hub-name.tailnet-name.ts.net:8443 \
+  --management-url https://hub-name.tailnet-name.ts.net \
+  --pairing-code-stdin
 ocx connect status
 ocx sync
 ```

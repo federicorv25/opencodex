@@ -71,7 +71,7 @@ La firma nunca bloquea una publicación. El resultado depende de la política:
 | `test-signing` | Firmado con el certificado de prueba y conservado solo como artefacto del workflow | Sin firma, con un aviso; nunca se distribuye un certificado de prueba |
 | `release-signing` | Firmado y verificado como confiable | Firmado y verificado como confiable |
 
-Si la solicitud de firma falla, agota el tiempo o se rechaza, o si falla la verificación, el trabajo registra una advertencia y publica el archivo sin firmar con su firma original del actualizador.
+Si la solicitud de firma falla, agota el tiempo o se rechaza, o si falla la verificación, el trabajo registra una advertencia y publica el archivo original sin firmar. El MSI conserva su firma original del actualizador cuando existe; el ejecutable independiente `ocx.exe` no tiene firma del actualizador.
 
 **Cambiar al certificado de producción.** Cuando SignPath lo emita, establece `SIGNPATH_SIGNING_POLICY_SLUG` en `release-signing` desde la configuración del repositorio (Settings → Secrets and variables → Actions → Variables). No hace falta modificar el workflow. Desde entonces, cada publicación, incluidas las simulaciones, abre dos solicitudes: una para el binario independiente y otra para el instalador. Un aprobador debe aceptar ambas en [app.signpath.io](https://app.signpath.io) mientras la ejecución espera. El flujo espera hasta una hora por solicitud antes de continuar con archivos sin firmar.
 
