@@ -938,7 +938,11 @@ Los fallos de acceso mantienen cerrada la admisión y nunca detienen un instalad
 proceso hijo ausente, registros parciales o evidencia de actividad inaccesible requieren inspección.
 Un registro completo de estado final que quedó pendiente del renombrado que lo publica puede
 restaurar la admisión tras un reinicio si se verifica su propietario exacto y que ya no existen el padre
-ni el grupo. Las escrituras pendientes incompletas o activadas todavía requieren inspección.
+ni el grupo. En Windows, una identidad completa de un hijo pendiente también puede restaurar la
+admisión si coincide con el propietario activado y el Job, la prueba final del guardián es válida y
+se demuestra que ya no existen el padre, la instancia exacta del proceso hijo ni ningún miembro del
+Job. Si falta la prueba, las escrituras pendientes incompletas o activadas todavía requieren
+inspección; la muerte del guardián por sí sola no permite reabrir la admisión.
 
 La recuperación no modifica un resultado ambiguo, no reintenta la instalación ni recupera un bloqueo de instalación abandonado. Sin historial de recuperación, un `OPENCODEX_HOME` alcanzado mediante un enlace simbólico, o con un enlace en un directorio superior, permite estas operaciones ordinarias. Con historial, la admisión lee el destino canónico protegido del directorio de estado; las rutas de recuperación inseguras siguen informando de que están ocupadas. Esto no relaja los requisitos del actualizador para las rutas de instalación o configuración. Reparar shims, actualizar aplicaciones nativas o usar otros gestores de instalación sigue sin admitirse.
 

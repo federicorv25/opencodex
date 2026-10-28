@@ -638,6 +638,14 @@ La barra de guardado pegajosa muestra **Sin cambios** cuando la configuración g
 
 ## Solución de problemas
 
+### Desktop en Windows informa de `client_lifecycle_lock_failed` al aplicar
+
+Actualiza OpenCodex si aplicar la configuración de Desktop se bloquea cuando hay muchos archivos de
+bloqueo antiguos. La adquisición del bloqueo de ciclo de vida ahora verifica si el directorio de
+ejecución ya es privado antes de repetir los cambios de permisos. Sigue rechazando la aplicación
+si falla el endurecimiento de permisos requerido. Conserva los archivos de bloqueo existentes;
+eliminarlos mientras hay clientes en ejecución puede romper la coordinación entre procesos.
+
 **Claude Code dice "Hizo 0 búsquedas"** - Las compilaciones actuales traducen los elementos completados Responses `web_search_call` en bloques emparejados Anthropic `server_tool_use` y `web_search_tool_result`, incluido `usage.server_tool_use.web_search_requests`. Actualización opencodex si una compilación anterior completó la búsqueda, pero Claude Code todavía contaba cero.
 
 **Un sidecar no se activa** - Para `backend: "openai"`, confirme que ha iniciado sesión en ChatGPT y que tiene un proveedor `authMode: "forward"` habilitado. Para `backend: "anthropic"`, confirme que la cuenta Anthropic OAuth almacenada activa no está marcada como `needsReauth`. Una selección Anthropic explícita sin esa credencial falla intencionalmente.
