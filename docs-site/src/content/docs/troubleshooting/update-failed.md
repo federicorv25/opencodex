@@ -17,7 +17,17 @@ and, afterwards, a folder next to the package that cannot be deleted because `bu
 
 ## What state you are in
 
-The updater stops the proxy it owns, installs and verifies the new version in a separate staging folder, and only then swaps it in. If installation fails, no swap occurs: the previous version remains installed and runnable. Before exiting, the updater attempts to restore the previous service or proxy if it stopped it and still has authority to do so. If recovery cannot be verified, it reports that manual review is needed rather than starting a second proxy owned elsewhere. Reinstallation is not required merely to recover the previous package.
+The updater stops the proxy, installs the new version into a separate staging folder, checks it,
+and only then swaps it in. When the install step fails, the swap never happens: the previous version
+stays installed and runnable, and the updater restarts the previous background service (or the
+previous proxy) before it exits, when ownership and service-home checks authorize recovery.
+
+If the initial service-home check is inconclusive, for example because Bun is missing or a service
+query fails, the updater can replace an idle package without stopping or restarting the proxy.
+A successful package-only update prints a manual restart hint and explains that service ownership
+could not be verified. Check `ocx service status` and the registered installation before restarting.
+Changes in authority, unknown durable runtime ownership, Desktop supervision, a live package
+runtime or an unresolved teardown receipt still block package replacement; an inconclusive check is not permission to control them.
 
 Check that with:
 
