@@ -90,11 +90,11 @@ model = "anthropic/claude-opus-4-8"
 model_provider = "opencodex"
 ```
 
-Para un proxy accesible a través de la red, el punto `base_url` en la dirección `grok` puede marcar y usar su token de admisión:
+Para un proxy accesible a través de la red, configura un frontend TLS antes de proporcionar tu token de admisión y apunta `base_url` a su dirección HTTPS. Como alternativa, utiliza un túnel local y su dirección de loopback. Grok almacena el valor literal de `api_key` en `~/.grok/config.toml`; restringe el acceso al archivo y mantenlo fuera del control de versiones y de las copias de seguridad compartidas.
 
 ```toml
 [model_providers.opencodex]
-base_url = "http://192.168.1.10:10100/v1"   # the reachable host, not 127.0.0.1
+base_url = "https://proxy.example.com/v1"   # configured TLS frontend
 api_backend = "responses"
 api_key = "your-OPENCODEX_API_AUTH_TOKEN"
 

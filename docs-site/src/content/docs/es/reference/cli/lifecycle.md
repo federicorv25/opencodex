@@ -48,9 +48,32 @@ ocx start --socks5-off
 
 Detiene el proxy en ejecución por su PID, elimina el archivo PID y restaura Codex nativo cuando el entorno es independiente. Si hay un servicio administrado, `ocx stop` lo detiene primero para impedir que vuelva a iniciar el proxy.
 
-En un cliente conectado, sea un Child de Remote Link o un cliente de Hub, la parada conserva el enrutamiento de Codex, su catálogo y la configuración de Grok, incluso si se detiene correctamente mediante la API. Esos ajustes pertenecen a la conexión; `ocx start` vuelve a servirlos sin reinyección. Usa `ocx disconnect` para devolver Codex a su propia cuenta. Si un cliente conectado ya muestra enrutamiento nativo, `ocx status` indica `ocx sync --restart-codex` para recuperarlo.
+En un cliente conectado a un Hub, la parada conserva el enrutamiento de Codex, su catálogo y la
+configuración de Grok, incluso si se detiene correctamente mediante la API. Esos ajustes pertenecen
+a la conexión; `ocx start` vuelve a servirlos sin reinyección. Usa `ocx disconnect` para devolver Codex
+a su propia cuenta. Si un cliente conectado ya muestra enrutamiento nativo, `ocx status` indica
+`ocx sync --restart-codex` para recuperarlo.
 
-Antes de modificar el servicio, la parada de un cliente conectado verifica el entorno local. Se admite un listener de rol cliente con PID coincidente. Un proxy ordinario debe declarar expresamente que conserva los ajustes al detenerse mediante API, señal y servicio; si es antiguo o no puede verificarse, se rechaza la parada antes de actuar. Actualiza o reinicia ese entorno mediante su supervisor y reinténtalo. Usa `ocx disconnect` solo si quieres liberar las integraciones de la conexión. Si el cliente ya está detenido, otra parada verifica que el gestor del servicio esté inactivo y que no haya listeners en los endpoints locales conocidos antes de devolver el resultado habitual de proceso ausente.
+Una parada explícita en un Child de Remote Link restaura el enrutamiento y el catálogo nativos de
+Codex y los metadatos respaldados del historial de reanudación, y elimina la configuración administrada
+de Grok cuando la restauración compartida termina correctamente. La conexión guardada con Home
+se conserva; `ocx disconnect` la elimina. Para volver a usar Home desde Codex, inicia el Child con
+`ocx start` (o `ocx service start` si hay un servicio instalado) y después ejecuta
+`ocx sync --restart-codex`. Iniciar por sí solo no vuelve a aplicar el enrutamiento;
+sync no recrea el bloque de Grok. Si no se puede confirmar la titularidad de la conexión antes de
+detener el servicio, la API de parada devuelve HTTP 409 con `sharedTeardown: "refused"` y mantiene
+en ejecución el proxy y el gestor del servicio. Deja que termine cualquier conexión o desconexión
+pendiente y vuelve a intentarlo.
+
+Antes de modificar el servicio, la parada de un cliente conectado verifica el listener frente al
+registro local protegido del entorno de ejecución. Tanto los listeners de rol cliente como los proxies
+ordinarios deben demostrar esa identidad; un proxy ordinario debe además declarar, mediante una
+lectura autenticada, que conserva los ajustes al detenerse mediante API, señal y servicio.
+Los entornos antiguos o no verificados se rechazan antes de actuar. Actualiza o reinicia ese entorno
+mediante su supervisor y reinténtalo. Usa `ocx disconnect` solo si quieres liberar las integraciones
+de la conexión. Si el cliente ya está detenido, otra parada verifica que el gestor del servicio esté
+inactivo y que no haya listeners en los endpoints locales conocidos antes de devolver el resultado
+habitual de proceso ausente.
 
 Mientras OpenCodex Desktop esté abierto, `ocx stop` no mantiene detenido el proxy: la aplicación lo trata como una salida inesperada y lo inicia de nuevo, en segundos si lo había iniciado ella o en aproximadamente un minuto si solo se había conectado a él. Usa **Stop proxy** en su bandeja, para un proxy iniciado por la aplicación, o **Quit** para mantenerlo detenido. Por esa misma razón, el botón **Stop** del dashboard rechaza la acción con `desktop_supervised` sin cambios cuando el proxy pertenece a la aplicación. En otros entornos, ejecuta `POST /api/stop`, salvo con el Programador de tareas de Windows: allí un contenedor puede reiniciar el proxy después de terminar la tarea. El dashboard responde `respawnable_service`, no cambia nada y pide ejecutar `ocx stop` desde fuera del proxy para verificar que no reaparezca antes de restaurar los ajustes del cliente.
 
@@ -505,6 +528,23 @@ En macOS esto también cubre un fallo más sutil: `launchctl load` informa de un
 
 En Windows, `ocx service status` informa el registro del Programador de tareas por separado de la accesibilidad del proxy OpenCodex verificado por identidad. No imprime la tabla localizada `schtasks`, por lo que el resumen sigue siendo legible en Windows páginas de código. La recuperación de copia de seguridad transaccional registra un mensaje de éxito fijo en lugar del nombre del directorio de copia de seguridad; los nombres de copia de seguridad que contienen metacaracteres de shell no se convierten en comandos en ese mensaje de registro.
 
+En Windows, desinstalar una tarea `opencodex-proxy` registrada con elevación puede requerir un
+terminal elevado. Si se deniega su eliminación, o termina con código 1 y la tarea sigue presente,
+OpenCodex informa de que se requiere elevación y conserva los archivos del servicio.
+Abre PowerShell o Terminal con **Ejecutar como administrador** y ejecuta:
+
+```powershell
+schtasks /delete /tn opencodex-proxy /f
+```
+
+Después, vuelve a ejecutar `ocx service uninstall` desde la cuenta original para terminar la limpieza
+y comprueba `ocx service status`. Los comandos de inicio o parada con acceso denegado indican el
+comando `schtasks` elevado correspondiente. Los fallos del Programador usan diagnósticos y códigos
+de salida estables en lugar de reproducir el stderr localizado del hijo, que puede usar otra página
+de códigos de Windows. Si la tarea está ausente o no puede leerse después de una eliminación fallida,
+el código 1 por sí solo no confirma una denegación de acceso; el texto de acceso denegado reconocido
+en la eliminación sigue clasificándose como tal.
+
 En Windows, la creación de la entrada del Programador de tareas requiere elevación. El texto denegado de acceso localizado reconocido mantiene la ruta de guía existente. Si ese texto es ilegible, el recurso alternativo requiere la forma de comando propia `/create /tn opencodex-proxy /xml <non-empty-path> /f`, estado 1, y un token no elevado confirmado; la acción de seguridad de inicio del panel de control puede solicitar UAC automáticamente. Si esa reserva no puede determinar el estado del token, retiene el error del programador original. Las tareas y operaciones en el extranjero nunca pueden emitir el marcador de elevación automática. Aprobar el indicador UAC del panel de control o volver a ejecutar `ocx service install` en una ventana de PowerShell elevada.
 
 Para una instalación nueva en la que la tarea del planificador OpenCodex se confirma ausente, la aprobación de UAC ahora ocurre antes de que el instalador detenga cualquier proxy existente. Su XML de registro único se organiza en un directorio privado endurecido por ACL fuera de la raíz de configuración OpenCodex, y la tarea se registra sin ejecutarse. Solo después de que el registro tenga éxito, OpenCodex elimina ese XML, requiere metadatos de propiedad para una raíz de configuración genuinamente nueva, detiene el antiguo oyente, elimina y vuelve a verificar de manera limitada cualquier registro nativo de WinSW, publica los activos de servicio e inicia la tarea programada. La cancelación o denegación de UAC, o no reclamar una nueva raíz de forma segura, por lo tanto, deja el proxy de trabajo y su enrutamiento Codex en su lugar. Los registros de planificador existentes o conflictivos continúan fallando en lugar de ser eliminados como un retroceso inseguro del mejor esfuerzo.
@@ -592,7 +632,7 @@ Instale y controle el icono de la bandeja de estado Windows. Se inicia en el ini
 
 ### `ocx gui`
 
-Abra el [panel web](/es/guides/web-dashboard/) en `http://localhost:<port>` - o en `http://127.0.0.1:<management port>` cuando la entrada de administración de concentradores esté habilitada - inicie automáticamente el proxy si no se está ejecutando.
+Abra el [panel web](/es/guides/web-dashboard/) en `http://127.0.0.1:<port>` - o en `http://127.0.0.1:<management port>` cuando la entrada de administración de concentradores esté habilitada - inicie automáticamente el proxy si no se está ejecutando.
 
 <a id="updating"></a>
 
@@ -658,6 +698,22 @@ El resumen se calcula sobre este JSON compacto en UTF-8, con las claves exactame
 `subagentDefaults` es `null` si no se configura; en caso contrario, es `{"model":…,"reasoningEffort":…}` en ese orden. El ejemplo anterior produce `57c751eff89844f93db71a6ee4acdac03afbc29fec52734ade80a40193e826cd`. El resumen no contiene los valores de los ajustes, y el nombre y la versión del Home no forman parte de él: un Home y un Child que aplicaron los mismos valores informan el mismo resumen.
 
 En el Home, cada fila de `ocx link status --json` incluye lo último que declaró el Child: `lastApplyAt`, `runtimeStartedAt`, `appliedCodexSettingsDigest` (con los significados anteriores) y `reportedAt` (milisegundos desde epoch según el reloj del Home). El Child informa poco después del arranque y luego una vez por minuto. El Home solo conserva los informes en memoria: tras reiniciarse, los campos son `null` hasta el siguiente informe. Un Child cuyo entorno arrancó antes de `lastApplyAt` ejecuta un entorno anterior a su última aplicación de ajustes.
+
+<a id="remote-link-child-attestations"></a>
+
+## Atestaciones del Child de Remote Link
+
+Un equipo que envía trabajo a través de un Child de Remote Link puede comprobar dos datos más en
+`ocx status --json` del Child. Ambos campos se omiten, nunca son `null`, si no pueden demostrarse.
+
+| Campo | Significado |
+| --- | --- |
+| `localCredentials` | `{count, generation}`. `count` es el número de credenciales de proveedor que esta instalación guarda en este equipo: cuentas OAuth, entradas de claves API de proveedor (incluidas las deshabilitadas y las referencias al llavero o al entorno), registros del pool de cuentas de Codex, el `auth.json` nativo de Codex y los perfiles nativos inactivos de Codex. No cuentan las claves de enlace, los tokens de administración ni las claves API entrantes, ni tampoco las cuentas que sirve un Home. `generation` es opaco y cambia cada vez que se añade, sustituye o elimina una credencial guardada, aunque el recuento final sea el mismo. Solo se informa mientras haya un entorno de ejecución de OpenCodex activo en este equipo y todos los almacenes puedan leerse por completo. Si la configuración nativa de Codex tiene `cli_auth_credentials_store` con un valor distinto de `file`, se omite. |
+| `link.connectionGeneration` | En un Child: es opaco y cambia cada vez que el túnel a su Home se conecta (incluida una reconexión que conserva el mismo enlace) y cada vez que se reinicia cualquiera de los dos entornos de ejecución. Solo se informa cuando el entorno del Child está listo. Para un enlace iniciado desde Home, el Child lo obtiene de la respuesta firmada del Home, por lo que un Home con una versión anterior lo omite. |
+
+Un Child que informa `localCredentials.count` 0, con `localCredentials.generation` y
+`link.connectionGeneration` sin cambios durante una solicitud, no tuvo credenciales locales de
+proveedor durante ella ni observó ninguna reconexión del túnel.
 
 Para los enlaces añadidos por Home, cada fila incluye además `tunnel`: `attempt`, cantidad de intentos SSH desde la última conexión; `nextRetryAt`, hora ISO del próximo intento o `null` si hay uno activo o no hay ninguno programado; `lastTransition` (`{from, to, at, cause}`) y `lastFailure` (`{cause, at}`). Las causas posibles son `auth`, `hostkey`, `forward`, `remote_forward_conflict`, `timeout`, `network`, `unknown`, `spawn_failed` y `listener_unavailable`. Home guarda estos datos en memoria, por lo que empiezan vacíos tras reiniciarse. `GET /api/link/status` solo incluye el campo con `?diagnostics=1`, porque las versiones antiguas de `ocx link status` rechazan campos desconocidos.
 

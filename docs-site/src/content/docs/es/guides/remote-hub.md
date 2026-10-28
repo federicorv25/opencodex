@@ -247,10 +247,12 @@ Dar al promotor la misma vida útil que el hub. Un trabajo de shell en segundo p
 Luego conéctese con los dos orígenes establecidos por separado. El URL posicional es el origen **datos** - es donde `/readyz` y `/v1/catalog` son buscados - y `--management-url` es el origen del tablero de instrumentos utilizado para el emparejamiento y la emisión de claves. No tienen que compartir un puerto:
 
 ```bash
-# This is exactly the line `ocx hub invite` prints, with the code filled in.
-echo '<pairing-code>' | ocx connect https://hub-name.tailnet-name.ts.net:8443 \
+# Bash: enter the one-time code without echoing it or putting it in shell history.
+read -r -s -p 'Pairing code: ' pairing_code; printf '\n'
+printf '%s\n' "$pairing_code" | ocx connect https://hub-name.tailnet-name.ts.net:8443 \
   --management-url https://hub-name.tailnet-name.ts.net \
   --pairing-code-stdin
+unset pairing_code
 ```
 
 Registre esos dos orígenes en el centro como `hub.dataPublicOrigin` y `hub.managementPublicOrigin`, y `ocx hub invite` los imprimirá para usted en lugar de pedirle que los recuerde.
@@ -287,11 +289,13 @@ Ejecute esto en el concentrador en lugar de escribir una línea `ocx connect` a 
 ocx hub invite
 ```
 
-Acuña un código de emparejamiento de un solo uso y de corta duración e imprime el comando para ejecutarse en la otra máquina:
+Crea un código de emparejamiento de un solo uso y de corta duración e imprime el comando para ejecutarlo en la otra máquina. Para mantener el código fuera del historial del shell, léelo sin mostrarlo y pásalo por stdin:
 
-```text
-# Run on the other machine:
-echo '<code>' | ocx connect https://hub-name.tailnet-name.ts.net:8443 --management-url https://hub-name.tailnet-name.ts.net --pairing-code-stdin
+```bash
+# Bash, on the other machine:
+read -r -s -p 'Pairing code: ' pairing_code; printf '\n'
+printf '%s\n' "$pairing_code" | ocx connect https://hub-name.tailnet-name.ts.net:8443 --management-url https://hub-name.tailnet-name.ts.net --pairing-code-stdin
+unset pairing_code
 ```
 
 El origen de los datos proviene de `--data-url`, luego `hub.dataPublicOrigin`, luego la dirección de enlace. Ese último recurso solo funciona cuando el enlace **es** una dirección que otra máquina puede marcar: en un enlace de loopback o comodín se resolvería con `http://localhost:<port>`, que le dice a la otra máquina que se marque a sí misma y gasta el código de un solo uso por nada, por lo que `invite` se niega e imprime la línea `ocx config set hub.dataPublicOrigin` (más el formulario `--data-url` por invitación). Un `--data-url` o `hub.dataPublicOrigin` explícito nunca se cuestiona en segundo lugar: un origen de datos de bucle de retorno es legítimo sobre un túnel SSH.

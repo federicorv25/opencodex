@@ -619,6 +619,93 @@ ocx claude desktop profile show --json
 
 Import acepta el perfil en sí, no la respuesta externa `{profile,models,rendered,port}`, utilizando archivos JSON regulares limitados o stdin explícito `-` (4 MiB / 30 segundos). Devuelve esos campos observados más `ok:true`, es decir, guardados solo. `--apply` y se rechazan las banderas en modo nativo; la función de guardado en entorno de ejecución no tiene respaldo local. Apply es una acción de escritorio existente separada en su máquina, así que verifique el host/contexto antes de elegirlo. Los modelos renderizados no son prueba de aplicación nativa.
 
+### `ocx codex [codex args...]`
+
+La clave solo se suministra cuando la configuración y sus espacios de nombres están protegidos
+frente a otros usuarios; se confía en el usuario actual y en las autoridades privilegiadas del sistema
+operativo. También se confía en los procesos del mismo usuario: quien tenga tus permisos de escritura
+ya puede leer el archivo de clave de OpenCodex. La sustitución de la configuración por ese mismo
+usuario entre la verificación y el arranque nativo queda fuera de este modelo de amenazas;
+el lanzador no inmoviliza la configuración al ceder el control.
+
+En una instalación normal de Windows, los permisos predeterminados de ProgramData permiten que
+otros usuarios creen directorios. Por eso se retienen las credenciales automáticas incluso si no
+existe `ProgramData\OpenAI\Codex`. La carpeta de configuración de sistema de Codex bajo ProgramData
+debe existir y solo Administrators/SYSTEM deben poder escribir en ella; sus directorios superiores
+deben impedir que otros usuarios la sustituyan. Pide a un administrador que revise la política del
+directorio. opencodex nunca cambia las ACL por sí mismo ni ofrece un comando de aprovisionamiento.
+
+Como alternativa, suministra la clave tú mismo, por ejemplo exportando `OPENCODEX_API_AUTH_TOKEN`;
+`ocx codex` la conserva intacta. Los archivos de configuración de sistema existentes siguen impidiendo
+la entrega automática de credenciales y requieren una revisión aparte. Cada motivo de retención
+produce un diagnóstico breve y específico en stderr, sin valores de claves, contenido ni rutas de sus archivos.
+
+Usa `--` antes de un mensaje de una sola palabra para que no pueda seleccionar un subcomando desconocido de Codex.
+
+El espacio de nombres de configuración del equipo también debe impedir que otros usuarios creen
+archivos de sistema ausentes. Un espacio ProgramData/OpenAI/Codex sin protección en Windows
+impide la entrega automática de credenciales; el lanzador no lo crea. macOS acepta ACL que solo
+deniegan permisos y entradas de permiso de solo lectura, pero rechaza cualquier entrada que conceda
+escritura, anexado, eliminación, cambios de atributos o seguridad, o cambios de propietario, incluso
+después de una entrada de denegación. Las etiquetas desconocidas y los errores de inspección causan rechazo.
+
+Solo se carga un token de servicio nuevo si los argumentos están en la lista permitida de abajo,
+el entorno no contiene opciones no vacías de proxy HTTP(S)/ALL ni variables `CODEX_*`/`OPENAI_*`/
+`AZURE_OPENAI_*` que alteren el comportamiento (se permite `CODEX_HOME` canónico), y los espacios
+de nombres del directorio personal, la configuración y el sistema superan las comprobaciones de
+propiedad. La configuración solo debe contener claves auditadas y el proveedor loopback administrado
+exacto, sin otros consumidores de credenciales ni capas de configuración. Cualquier argumento no
+admitido, incluidos `-c`/`--config`, `-p`/`--profile`, opciones desconocidas y `resume`/`fork`, impide
+cargar el token y genera un diagnóstico sin valores; se conservan las credenciales explícitas y los argumentos originales.
+
+El directorio personal canónico y `config.toml` deben pertenecer al usuario actual. POSIX rechaza
+la escritura de grupo u otros; Windows comprueba el SID del propietario y rechaza permisos DACL
+de escritura para identidades ajenas al usuario actual, SYSTEM y Administrators. También se
+comprueba si los directorios superiores permiten sustituciones. macOS exige además que no haya
+preferencias de configuración forzadas de Codex. Estas comprobaciones excluyen escritores de otros
+usuarios; no aíslan un proceso malicioso del mismo usuario ni a un administrador.
+
+| Lista permitida | Opciones |
+| --- | --- |
+| Interruptores | `--no-daemon`, `--json`, `--ephemeral`, `--skip-git-repo-check`, `--no-alt-screen`, `--full-auto`, `--dangerously-bypass-approvals-and-sandbox`, `--search` |
+| Un valor | `--model`/`-m`, `--sandbox`/`-s`, `--ask-for-approval`/`-a`, `--image`/`-i` |
+
+La entrega automática de credenciales interpreta `CODEX_HOME` como una ruta literal, incluidos
+`~` y los espacios, verifica ese directorio y pasa su ruta absoluta canónica al proceso hijo.
+Si no puede leerse, omite la carga. Cualquier variable `HTTP_PROXY`, `HTTPS_PROXY` o `ALL_PROXY`
+no vacía, con cualquier combinación de mayúsculas y minúsculas, también la impide, independientemente
+de `NO_PROXY`; no cambia los lanzamientos rechazados ni las credenciales exportadas por el usuario.
+Con un token recién cargado, `NO_PROXY` y `no_proxy` del hijo incluyen `127.0.0.1` y `::1`, conservando
+las excepciones existentes. Habilitar `features.respect_system_proxy` o reenviar `--enable`/`--disable`
+impide la carga automática.
+
+Se asegura de que el proxy esté en ejecución y después inicia Codex con los argumentos originales.
+El enrutamiento permanece en la configuración de Codex; el lanzador nunca lo reescribe. Las rutas
+nativas y ajenas omiten el arranque del proxy. Si el enrutamiento es desconocido, avisa e intenta
+iniciarlo; si falla, avisa y continúa. La ayuda, la versión y los comandos internos como `login`,
+`doctor` y `help` omiten tanto el arranque como la carga automática del token.
+
+Si falta `OPENCODEX_API_AUTH_TOKEN`, se lee del `service-api-token` de esta instalación solo cuando
+la configuración de transporte completa del proveedor seleccionado coincide con el bloque administrado
+del listener loopback configurado o de la conexión de cliente local persistente. Los nombres y los
+comentarios de inyección por sí solos no conceden acceso a credenciales. Los destinos desconocidos
+o remotos, los perfiles predeterminados, la configuración del proyecto, `OPENAI_BASE_URL` y las opciones
+reenviadas `-c`/`--config`, `-p`/`--profile`, `-C`/`--cd` o `--remote` impiden la carga automática.
+Se conservan las credenciales exportadas por el usuario y los argumentos; las opciones que cambian
+el archivo de token no permiten seleccionar otra credencial y se rechazan las colisiones con tokens de administración.
+
+Solo un envoltorio de arranque automático que coincida con el esperado ejecuta directamente el Codex
+que respalda. Un estado desconocido, incluida una excepción de inspección, requiere una vía de omisión
+verificada; los envoltorios CMD administrados de Windows deben coincidir con la plantilla generada
+actual completa antes de ejecutar el comando absoluto seleccionado con `OCX_SHIM_BYPASS=1`.
+Los lanzadores npm ordinarios siguen admitidos. Los envoltorios obsoletos o no verificables terminan
+con código 1 sin iniciar Codex; ejecuta `ocx codex-shim install` para actualizarlos. Este lanzamiento
+no repara shims. La comprobación del contenido no demuestra la procedencia del archivo de respaldo
+en Windows ni impide la sustitución concurrente de su ruta.
+
+Usa `ocx help codex` para la ayuda del lanzador y `ocx codex --help` para la de Codex.
+Ejecutar después `codex` directamente conserva su comportamiento habitual.
+
 ### `ocx opencode [opencode args...]`
 
 Asegúrese de que el proxy se está ejecutando, después inicia OpenCode con los bloques `provider.opencodex` y `providers.opencodex` generados en la capa de entorno de ejecución en línea de OpenCode (`OPENCODE_CONFIG_CONTENT`). El bloque heredado mantiene a los clientes V1 trabajando con mapas variantes; el bloque V2 lleva matrices nativas para las mismas opciones de esfuerzo de razonamiento y valores predeterminados. La configuración en línea existente se conserva y solo se reemplazan esas dos claves para este lanzamiento. Los archivos globales o de proyecto `opencode.json` se pueden leer para advertir sobre una anulación existente, pero los archivos en el disco nunca se modifican. Los modelos enrutados aparecen como `opencodex/<provider>/<model>`. El lanzamiento del plain `opencode` más tarde se comporta exactamente como antes.
@@ -631,11 +718,28 @@ Administre y aplique la valla modelo Grok Build.
 
 ## Exportación de configuración de cliente
 
+La exportación de Hermes y Command Code y las operaciones de integración apply/overwrite aceptan
+`--model-names alias|routed` (campo JSON de la API: `modelNames`). Omitirlo al exportar significa
+`routed`; omitirlo al aplicar después conserva el modo guardado. Es independiente de
+`preferModelAliasIds`. Solo se emite un alias cualificado por proveedor que llegue al mismo proveedor
+y modelo; si falta, es inseguro o hay colisiones, se usa el nombre enrutado. Los combos conservan sus claves.
+
+`ocx export --client hermes --model-names alias --json` previsualiza un catálogo actual ya existente
+sin escribir archivos del cliente ni estado administrado. Un catálogo sin cargar o desactualizado
+devuelve que no está disponible; cárgalo por separado y reintenta. `--out` solo escribe el archivo
+de exportación solicitado y conserva su comportamiento de creación exclusiva/`--force`.
+Para escrituras administradas, pasa el mismo modo a `integration client preview --operation apply|overwrite`
+y a `enable` al confirmar un plan. El campo no se admite en disable/restore ni para otros clientes.
+Cambiar un alias durante Aplicar o una actualización puede causar un conflicto antes de escribir;
+reintenta con el catálogo actual. Los alias eliminados o renombrados migran en la siguiente actualización
+correcta, que sigue rechazando ediciones ajenas. Consulta [la guía de integraciones](/es/guides/integrations/#opt-in-alias-model-names).
+
 ### `ocx export --client <opencode|pi|omp|hermes|openclaw|kimi|gajae|dsh|mcode|zcode|prime|aside|raycast|omo|cline|kilo|commandcode|droid>`
 
 Imprima una configuración de cliente conectada al proxy en ejecución. El comando serializa el bloque del proveedor `opencodex` (URL base, lista de modelos y el marcador de posición de referencia de credenciales o loopback del cliente) en el formato nativo del cliente seleccionado.
 
-El proxy debe estar ejecutándose; el comando resuelve su puerto activo, lee `/api/models` y emite solo los modelos Codex que puede ver actualmente.
+El proxy debe estar ejecutándose; el comando resuelve su puerto activo, usa el catálogo actual
+(`/api/models` o la exportación del cliente en el servidor) y emite solo los modelos que Codex puede ver actualmente.
 
 Las exportaciones de OpenCode y Kilo preservan los límites efectivos del modelo, las capacidades conocidas, las opciones de razonamiento declaradas y los valores predeterminados, incluidos los metadatos heredados por las filas personalizadas. Las anulaciones explícitas aún ganan; no se inventan capacidades desconocidas y valores predeterminados. El lanzador de OpenCode utiliza los mismos metadatos. Consulte [Integraciones de clientes](/es/guides/integrations/) para conocer el comportamiento de actualización y actualización administrados.
 
@@ -731,7 +835,32 @@ Nueva opción escribe informe `{ok:true, settings: observedFields, catalogRefres
 ocx system codex-cli-update check --json
 ```
 
-`check` no realiza ninguna solicitud de registro de paquetes e inspecciona la evidencia de procedencia de candidatos configurados limitada, incluida una evidencia de ubicación y propiedad ejecutable redactada. El contexto de lanzador publicado de confianza autentica la instantánea candidata, no la ejecución exitosa de Codex. En POSIX, la selección se certifica solo cuando el solucionador en entorno de ejecución selecciona el mismo candidato de entorno canónico sin ejecutarlo. Un manifiesto vinculado npm-global puede establecer `managed: true` cuando prueba la propiedad y, si se informa de una versión candidata, esa versión coincide con el manifiesto; los candidatos persistentes permanecen sin certificar. El informe JSON expone `candidateAvailable`, `candidateVersion`, `candidateSource` y `selectionAttested`. Inspeccionar el candidato configurado requiere un contexto de lanzador publicado de confianza; un lanzamiento Bun /source directo no tiene tal prueba, ignora el estado del candidato ambiental y persistente, y puede informar `candidate_unavailable` en POSIX. En Windows este primer segmento no realiza ninguna E/S candidata o de sistema de archivos de configuración: solo un candidato de entorno absoluto capturado por prueba puede recibir etiquetas de paquete de aplicaciones o gestor de versiones léxicas; cada otro candidato Windows falla cerrado. Debido a que ese segmento nunca consulta el estado persistente, una ejecución Windows sin informes de candidatos de entorno capturados `windows_inspection_deferred` en lugar de `candidate_unavailable`: el comando no puede observar si está instalado un Codex CLI, por lo que informa el aplazamiento en lugar de afirmar que no existe ningún candidato. El comando no ejecuta Codex o un administrador de paquetes, reparar una shim, escribir configuración o estado de caché, detener un proceso o instalar nada. Los estados de shim independientes, ambiguos y no verificados, reconocidos y agrupados en aplicaciones se informan como no administrados o desconocidos y nunca se clasifican como administrados.
+`check` no consulta ningún registro de paquetes e inspecciona evidencia acotada de la procedencia
+del candidato configurado, incluidos su ubicación y propiedad con datos sensibles ocultos.
+El contexto confiable del lanzador publicado autentica la instantánea del candidato, no una ejecución
+correcta de Codex. En POSIX, la selección solo se certifica cuando el resolvedor del entorno de ejecución
+selecciona el mismo candidato canónico del entorno sin ejecutarlo. Un manifiesto npm-global vinculado
+puede establecer `managed: true` si demuestra la propiedad y, cuando se informa una versión del
+candidato, coincide con la del manifiesto; los candidatos persistentes siguen sin certificar.
+El informe JSON expone `candidateAvailable`, `candidateVersion`, `candidateSource` y `selectionAttested`.
+Inspeccionar el candidato requiere un contexto confiable del lanzador publicado; arrancar directamente
+con Bun o desde el código fuente no aporta esa prueba, ignora los candidatos del entorno y persistentes
+y puede informar `candidate_unavailable` en POSIX.
+
+En Windows x64, un `codex.cmd` npm estándar con ruta absoluta capturada por ese contexto puede
+considerarse administrado cuando los handles locales mantenidos abiertos vinculan su paquete,
+un par Node/npm del prefijo o el par de metadatos del PATH capturado ligado a la arquitectura del
+lanzador, y el primer ejecutable de plataforma de respaldo dentro del prefijo. Ese par de metadatos
+no certifica qué intérprete seleccionaría una invocación CMD posterior. Las rutas del plan y las raíces
+configuradas de gestores de versiones deben usar sus nombres DOS largos canónicos; los alias,
+las raíces inaccesibles y los puntos de reanálisis dejan la instalación sin administrar. Los demás
+diseños de Windows siguen aplazados o sin administrar. Windows nunca consulta el estado persistente:
+sin un candidato capturado del entorno informa `windows_inspection_deferred`, en lugar de
+`candidate_unavailable`, porque no puede observar si Codex CLI está instalado. El comando no ejecuta
+Codex ni un gestor de paquetes, no repara shims, no escribe configuración ni caché, no detiene procesos
+ni instala nada. Las instalaciones independientes, los paquetes de aplicación, los gestores de versiones
+reconocidos y los shims ambiguos o no verificados se informan como no administrados o desconocidos;
+nunca se clasifican como administrados.
 
 En Windows, un comando desnudo capturado como `CODEX_CLI_PATH=codex`, una ruta remota o una ruta de dispositivo informa `candidate_path_unavailable` en su lugar. Esos casos tienen un candidato capturado; su trayectoria no es elegible para esta inspección.
 
@@ -743,26 +872,75 @@ En Windows, un comando desnudo capturado como `CODEX_CLI_PATH=codex`, una ruta r
 ocx system codex-cli-update plan --channel latest --json
 ```
 
-Ejecute a través del lanzador de nodos publicado con el `CODEX_CLI_PATH` previsto en el entorno de shell. El plan requiere una instalación global certificada de POSIX npm y una versión de manifiesto de paquete vinculada. Consulta el registro oficial npm para una versión exacta, integridad SHA-512 y tarball del mismo origen, utilizando el PATH capturado del lanzador y la configuración, caché y registros temporales aislados npm. La configuración del proxy y `NODE_EXTRA_CA_CERTS` siguen siendo compatibles; la limpieza es el mejor esfuerzo. No se ejecuta el comando Codex.
+Ejecuta el comando mediante el lanzador Node publicado con el `CODEX_CLI_PATH` deseado en el entorno
+del shell. El plan requiere una instalación npm-global certificada y una versión vinculada del
+manifiesto del paquete. Windows solo admite un `codex.cmd` npm estándar indicado mediante una ruta
+absoluta explícita, con las herramientas Node/npm vinculadas mediante handles mantenidos abiertos:
+se usa el par del prefijo cuando existe y, en caso contrario, el par del PATH capturado ligado a la
+arquitectura del lanzador. La selección solo por PATH, los envoltorios de arranque automático de
+OpenCodex y las alternativas globales o del proveedor siguen aplazados. El comando consulta el
+registro oficial npm para obtener una versión exacta, integridad SHA-512 y un tarball del mismo origen,
+usando el PATH capturado del lanzador y configuración, caché y registros npm temporales aislados.
+Se siguen admitiendo los ajustes de proxy y `NODE_EXTRA_CA_CERTS`; la limpieza se intenta sin garantía.
+No se ejecuta ningún comando Codex.
 
-Un plan aplicable devuelve `applicable: true` y un `planId` determinista que vincula la plataforma, los hashes de la raíz y del contenido instalado, la versión instalada, el canal y los archivos exactos de los paquetes principal y de plataforma. El plan no se guarda. Rechaza versiones anteriores o ya instaladas, sesiones Codex activas y observaciones incompletas de procesos. Windows devuelve `windows_inspection_deferred` antes de consultar el registro de paquetes o los procesos. Un rechazo termina con 0: inspecciona `applicable` y `refusal`. Los argumentos de instalación mostrados son orientativos. Este comando no instala nada, no cambia el estado de la aplicación ni envía señales a las sesiones. Un identificador de plan por sí solo no autoriza instalar: aplicar exige una confirmación explícita adicional.
+Un plan aplicable devuelve `applicable: true` y un `planId` determinista que vincula la plataforma,
+los hashes de la raíz y del contenido instalado, la versión instalada, el canal y los archivos exactos
+de los paquetes principal y de plataforma. El plan no se guarda. Rechaza versiones anteriores o ya
+instaladas, sesiones Codex activas y observaciones incompletas de procesos. Las consultas de metadatos
+admitidas en Windows usan el Node/npm observado con handles coincidentes mantenidos abiertos.
+Windows x64 solo puede producir un plan aplicable para un prefijo npm acotado con permisos de
+escritura verificados; otros prefijos observados conservan `windows_apply_disabled`. Las sesiones
+activas o desconocidas siguen causando rechazo antes. Los diseños de Windows no admitidos devuelven
+`windows_inspection_deferred` antes de consultar el registro o los procesos. Un rechazo termina con 0:
+inspecciona `applicable` y `refusal`. Los argumentos de instalación mostrados son orientativos.
+Este comando no instala nada, no cambia el estado de la aplicación ni envía señales a las sesiones.
+Un identificador de plan por sí solo no autoriza instalar: aplicar exige una confirmación explícita adicional.
 
-<a id="confirmed-posix-codex-cli-apply-and-job-status"></a>
+<a id="confirmed-codex-cli-apply-and-job-status"></a>
 
-#### Aplicar una actualización confirmada de Codex CLI en POSIX y consultar el trabajo
+#### Aplicar una actualización confirmada de Codex CLI y consultar el trabajo
 
 ```bash
 ocx system codex-cli-update apply --plan-id <32-hex> --yes --request-id <stable-key> --json
 ocx system codex-cli-update status <job-id> --json
 ```
 
-La aplicación solo admite la CLI npm-global administrada y seleccionada en Linux/macOS, sin shim. Revalida el plan aprobado bajo un bloqueo exclusivo de instalación, verifica los archivos exactos de los paquetes principal y de plataforma, los instala sin red y con los scripts de ciclo de vida desactivados, y comprueba los archivos instalados y la versión de la CLI seleccionada. Nunca detiene sesiones de Codex existentes: si hay procesos activos o no se conoce su estado, rechaza la actualización.
+La aplicación admite la CLI npm-global administrada y seleccionada en Linux/macOS, sin shim,
+y el diseño npm restringido de Windows x64. Revalida el plan aprobado bajo un bloqueo exclusivo
+de instalación, verifica los archivos exactos de los paquetes principal y de plataforma, los instala
+sin red y con los scripts de ciclo de vida desactivados, y comprueba los archivos instalados y la versión
+de la CLI seleccionada. Nunca detiene sesiones de Codex existentes: si hay procesos activos o no se
+conoce su estado, rechaza la actualización.
+
+Windows admite prefijos compartidos con ACL verificadas y sin rutas con puntos de reanálisis.
+La observación incluye paquetes y shims ajenos, con límites de 4,096 entradas, 512 MiB en total
+y 384 MiB por archivo. Deben conservarse sus bytes e identidades. Los prefijos mayores o inseguros,
+ARM64, la reparación de shims, las aplicaciones nativas y otros gestores de instalación siguen sin
+admitirse. Si no se conoce la duración de los hijos o la limpieza de handles queda incompleta,
+se conservan la preparación y el bloqueo de instalación; no borres el bloqueo para reintentar.
+La lectura posterior incluye archivos auxiliares, raíces de respaldo nuevas o ausentes y el archivo
+de bloqueo oculto de npm. `not_applied` significa que se observó sin cambios el estado de instalación
+dentro del ámbito inspeccionado, no que npm no haya hecho E/S en ningún lugar.
 
 Los directorios de instalación y preparación deben tener propietarios y permisos POSIX confiables en toda su cadena de directorios. Las rutas de instalación inseguras producen `installation_prefix_unsupported` o `installation_paths_untrusted`; las raíces temporales inseguras producen `staging_path_untrusted`. Usa un directorio temporal privado bajo directorios confiables; se admiten raíces temporales de root con el bit sticky.
 
-Durante la instalación y verificación, el inicio de sesiones de Codex bajo control de OCX, los reinicios de Desktop y los cambios de selección del entorno de ejecución o shim informan de que están ocupados. Mientras no se confirme la terminación del instalador o del proceso hijo de verificación, la admisión sigue cerrada. Se recupera cuando se demuestra que el grupo de procesos bajo control de OCX ya no existe, incluso si el hijo de verificación terminó después del plazo para recogerlo. Perder el worker antes de confirmar también restaura la admisión; su cierre por sí solo después de confirmar no basta. Los registros de recuperación persistentes conservan esta exclusión tras reiniciar el proxy. Una identidad de proceso hijo ausente, registros parciales o evidencia de actividad inaccesible requieren inspección. Un registro completo de estado final que quedó pendiente del renombrado que lo publica puede restaurar la admisión tras un reinicio si se verifica su propietario exacto y que ya no existen el padre ni el grupo. Las escrituras pendientes incompletas o activadas todavía requieren inspección.
+Durante la instalación y verificación, el inicio de sesiones de Codex bajo control de OCX, los
+reinicios de Desktop y los cambios de selección del entorno de ejecución o shim informan de que están
+ocupados. Mientras no se confirme la terminación del instalador o del proceso hijo de verificación,
+la admisión sigue cerrada. Se recupera cuando se demuestra que el grupo de procesos bajo control de
+OCX ya no existe, incluso si el hijo de verificación terminó después del plazo para recogerlo.
+Perder el worker antes de confirmar también restaura la admisión; su cierre por sí solo después
+de confirmar no basta. Los registros de recuperación persistentes conservan esta exclusión tras
+reiniciar el proxy. En Windows, la recuperación comprueba el Job exacto del instalador o verificador
+y la identidad original de creación del proceso; todos los miembros del Job deben haber terminado.
+Los fallos de acceso mantienen cerrada la admisión y nunca detienen un instalador. Una identidad de
+proceso hijo ausente, registros parciales o evidencia de actividad inaccesible requieren inspección.
+Un registro completo de estado final que quedó pendiente del renombrado que lo publica puede
+restaurar la admisión tras un reinicio si se verifica su propietario exacto y que ya no existen el padre
+ni el grupo. Las escrituras pendientes incompletas o activadas todavía requieren inspección.
 
-La recuperación no modifica un resultado ambiguo, no reintenta la instalación ni recupera un bloqueo de instalación abandonado. Sin historial de recuperación, un `OPENCODEX_HOME` alcanzado mediante un enlace simbólico, o con un enlace en un directorio superior, permite estas operaciones ordinarias. Con historial, la admisión lee el destino canónico protegido del directorio de estado; las rutas de recuperación inseguras siguen informando de que están ocupadas. Esto no relaja los requisitos del actualizador para las rutas de instalación o configuración. Aplicar en Windows, reparar shims, actualizar aplicaciones nativas o usar otros gestores de instalación sigue sin admitirse.
+La recuperación no modifica un resultado ambiguo, no reintenta la instalación ni recupera un bloqueo de instalación abandonado. Sin historial de recuperación, un `OPENCODEX_HOME` alcanzado mediante un enlace simbólico, o con un enlace en un directorio superior, permite estas operaciones ordinarias. Con historial, la admisión lee el destino canónico protegido del directorio de estado; las rutas de recuperación inseguras siguen informando de que están ocupadas. Esto no relaja los requisitos del actualizador para las rutas de instalación o configuración. Reparar shims, actualizar aplicaciones nativas o usar otros gestores de instalación sigue sin admitirse.
 
 La aplicación termina con código 0 solo si el trabajo queda `applied`. Los estados `not_applied`, `refused`, `ambiguous` y los trabajos duplicados aún pendientes terminan con 1, también con `--json`. La consulta de estado lee el mismo registro privado sin necesitar un proxy en ejecución ni un token del dashboard. Si se pierde una respuesta, repite el mismo identificador opcional de solicitud: la misma clave y el mismo plan devuelven el trabajo original; reutilizar la clave con otro plan se rechaza.
 
@@ -785,7 +963,7 @@ ocx system codex-cli-update attest --candidate <absolute-path> --npm-prefix <abs
 
 Los controladores nativos mantienen los directorios y archivos antecesores durante las lecturas limitadas. Las plataformas no soportadas, los puntos/secciones de análisis, los escritores en conflicto, las rutas inseguras y los archivos de gran tamaño son rechazados. El informe fijo no contiene rutas: `status` es `observed` o `refused`, con `installationIdentityObserved`; `selectionAttested`, `managed` y `applyAllowed` permanecen `false`. Compruebe `status`, no solo el código de salida del proceso: un rechazo informado puede salir 0.
 
-Una identidad o resumen observado describe esos archivos durante esta observación. No es un permiso de actualización duradero y no prueba el entorno de ejecución seleccionado, el instalador anterior, la configuración efectiva del npm o la autenticidad de la herramienta. El ejecutable Node suministrado solo se observa; no se ha demostrado que sea el que seleccionaría un lanzador. No se ejecuta ningún destino; no se produce ninguna solicitud de registro, instalación, escritura de configuración o control de procesos. El comando existente Windows `check` todavía no realiza ninguna E/S del sistema de archivos candidato/configuración.
+Una identidad o resumen observado describe esos archivos durante esta observación. No es un permiso de actualización duradero y no prueba el entorno de ejecución seleccionado, el instalador anterior, la configuración efectiva del npm o la autenticidad de la herramienta. El ejecutable Node suministrado solo se observa; no se ha demostrado que sea el que seleccionaría un lanzador. No se ejecuta ningún destino; no se produce ninguna solicitud de registro, instalación, escritura de configuración o control de procesos. Los criterios independientes de `check`/`plan` para Windows descritos antes pueden establecer evidencia de planificación de solo lectura; `attest` sigue limitado a la observación.
 
 ### `ocx config [show|get|set|unset|validate|export|import] ...`
 

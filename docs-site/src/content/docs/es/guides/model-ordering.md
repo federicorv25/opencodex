@@ -20,8 +20,11 @@ Sin el pedido completo del seleccionador, las prioridades relevantes de no selec
 | `subagentModels[i]` | `i` (`0` a través de `4`) | El mapa de rango destacado en `src/codex/catalog/sync.ts` |
 | Otros modelos ruteados | `5` | Creación de la entrada encaminada en `src/codex/catalog/sync.ts` |
 | Modelos ruteados no destacados listados en `modelPickerOrder` | `1000 + i` | Rango de selector de solo visualización en `src/codex/catalog/sync.ts` |
-| Por defecto, las identificadores GPT nativas | `9` | Creación de entradas nativas en `src/codex/catalog/sync.ts` |
-| Modelos nativos no seleccionados mientras existe una lista destacada | Al menos `featured.length + 100` | Catálogo nativo fusionar en `src/codex/catalog/sync.ts` |
+| Identificadores GPT nativos sin una lista destacada | `sourcePriority` (valor de respaldo `9`) | Resolución compartida de la prioridad nativa de origen |
+| Modelos nativos no seleccionados mientras existe una lista destacada | `featured.length + 100 + sourcePriority` | Resolución compartida de la prioridad nativa de origen |
+
+La prioridad nativa de origen se obtiene del descriptor descubierto actual; si no contiene un valor válido, se consulta la copia de seguridad intacta del catálogo, el valor de origen conservado para ese mismo modelo y, por último, la instantánea del proveedor. Cada candidato debe ser un entero entre `0` y `1000`; los valores no válidos se omiten y el valor final de respaldo es `9`. Las prioridades de visualización publicadas nunca se reutilizan como prioridades de origen. Con cuatro modelos destacados, las prioridades nativas de origen `3`, `8` y ausente se convierten en `107`, `112` y `113`, respectivamente.
+Así se conserva el orden de origen de los modelos nativos detrás de las filas destacadas y las enrutadas ordinarias, incluso tras sincronizaciones repetidas o después de destacar un modelo nativo y dejar de destacarlo. La lista de modelos en vivo de Codex, el catálogo publicado y la caché de modelos usan las mismas prioridades para las mismas entradas. Los grupos de selectores de cuenta conservan su política de intervalos independiente; el orden del selector completo sigue teniendo la última palabra.
 
 La gestión API limita `subagentModels` a cinco entradas con `slice(0, 5)` en `src/server/management/agent-settings-routes.ts`. Esto coincide con la superficie Codex `spawn_agent`, que anuncia solo los primeros cinco modelos anulados. Los modelos fuera de esos cinco todavía pueden permanecer visibles en el selector principal y llamarse por su id exacto.
 
@@ -56,7 +59,7 @@ Sin selectores de cuenta elegibles y una lista de características no vacía, el
 2. Todos los modelos enrutados restantes, ordenados alfabéticamente por proveedor y luego por ID de modelo, con prioridad `5`.
 3. Modelos nativos no seleccionados, empujados por debajo del bloque destacado durante la fusión del catálogo.
 
-Sin `subagentModels`, los modelos enrutados permanecen en la prioridad `5`, las entradas GPT nativas usan su prioridad normal (normalmente `9` para las entradas construidas por opencodex), y el grupo enrutado permanece alfabético como proveedor/identificador.
+Sin `subagentModels`, los modelos enrutados permanecen en la prioridad `5`, las entradas GPT nativas usan su prioridad de origen (valor de respaldo `9`) y el grupo enrutado mantiene el orden alfabético por proveedor e identificador.
 
 <a id="example"></a>
 
@@ -85,7 +88,7 @@ El selector comienza de la siguiente manera:
 | 5 | `gpt-5.6-terra` | `4` | Quinta selección |
 | 6 | `anthropic/claude-fable-5` | `5` | Primer id enrutado restante en orden alfabético proveedor/id |
 | 7 en adelante | Los modelos enrutados restantes | `5` | Proveedor alfabéticamente, luego modelar id alfabéticamente |
-| Después de modelos enrutados | Los modelos nativos | `featured.length + 100` o superior | Los nativos no seleccionados se mueven por debajo del bloque destacado |
+| Después de los modelos enrutados | Los modelos nativos restantes | `featured.length + 100 + sourcePriority` | Se conserva el orden de origen dentro de la banda nativa |
 
 Las primeras cinco entradas son las anulaciones anunciadas a `spawn_agent`; el resto continúa en el orden normal del selector. Con los selectores de cuenta, el límite de cinco entradas se aplica después de que las opciones nativas desnudas se hayan expandido a grupos calificados por el selector.
 

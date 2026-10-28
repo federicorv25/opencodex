@@ -16,7 +16,9 @@ y, después, una carpeta junto al paquete que no se puede eliminar porque `bunx.
 
 ## En qué estado estás
 
-El actualizador detiene el proxy que le corresponde, instala y verifica la versión nueva en un directorio de preparación y solo entonces la sustituye. Si falla la instalación, no se produce el intercambio: la versión anterior sigue instalada y puede ejecutarse. Antes de terminar, el actualizador intenta recuperar el servicio o proxy previo si llegó a detenerlo y conserva la autoridad para hacerlo. Si no puede verificar la recuperación, indica que requiere revisión manual; no inicia un segundo proxy de otro propietario. No hace falta reinstalar solo para volver a disponer de la versión anterior.
+El actualizador detiene el proxy, instala y verifica la nueva versión en una carpeta de preparación separada y solo entonces la sustituye. Si falla la instalación, no hay sustitución: la versión anterior sigue instalada y ejecutable. Antes de salir, el actualizador reinicia el servicio o proxy anterior cuando las comprobaciones de propiedad y del directorio del servicio autorizan la recuperación.
+
+Si la comprobación inicial del directorio del servicio no es concluyente, por ejemplo porque falta Bun o falla la consulta del servicio, el actualizador puede sustituir un paquete inactivo sin detener ni reiniciar el proxy. Una actualización correcta de solo paquete indica que hace falta reiniciar manualmente y explica que no pudo verificarse la propiedad del servicio. Revisa `ocx service status` y la instalación registrada antes de reiniciar. Los cambios de autoridad, una propiedad persistente del entorno desconocida, la supervisión de Desktop, un proceso activo del paquete o un recibo de cierre sin resolver siguen bloqueando la sustitución del paquete; una comprobación inconclusa no autoriza a controlarlos.
 
 Compruebe esto con:
 

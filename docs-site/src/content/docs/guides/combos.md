@@ -890,7 +890,10 @@ A native parent can send a newly spawned worker's task only as ciphertext minted
 ChatGPT backend. An external provider cannot read that payload.
 
 For such a request, a combo filters its eligible targets to canonical native ChatGPT routes,
-including after a retryable failure. If the combo has no decrypt-capable target, opencodex stops
+including after a retryable failure. Direct-key Responses routes explicitly trusted with
+`allowEncryptedV2AgentTasks: true` can also receive the encrypted task when selected directly,
+outside a combo; the opt-in does not make them eligible combo targets.
+If the combo has no decrypt-capable target, opencodex stops
 before dispatch and returns HTTP 400:
 
 ```json

@@ -69,7 +69,7 @@ Si destacas entre uno y cuatro modelos, Codex completa los espacios restantes co
 
 | Catálogo | Filas que completan los espacios restantes |
 | --- | --- |
-| Sin selectores de cuenta de Codex | Las demás filas enrutadas `provider/model`. Todas tienen prioridad `5`, por lo que se ordenan alfabéticamente por proveedor y después por identificador de modelo. Las filas GPT nativas no destacadas tienen una prioridad de al menos `100` más la cantidad de identificadores destacados, y aparecen después. |
+| Sin selectores de cuenta de Codex | Las demás filas enrutadas `provider/model`. Todas tienen prioridad `5`, por lo que se ordenan alfabéticamente por proveedor y después por identificador de modelo. Las filas GPT nativas no destacadas usan `featured.length + 100 + sourcePriority`, conservando su orden de origen detrás de esas filas enrutadas. |
 | Con selectores de cuenta de Codex | Las filas nativas calificadas por cuenta (`<selector>/<native-model>`), inmediatamente después de las destacadas. Las filas enrutadas no destacadas pasan a la prioridad `1005` y quedan detrás. |
 
 Por ejemplo, sin selectores de cuenta y con esta lista:
@@ -85,7 +85,9 @@ Por ejemplo, sin selectores de cuenta y con esta lista:
 | 3 | `deepseek/deepseek-v4-flash` | `5` | Primera fila enrutada restante en orden alfabético |
 | 4 | `google/gemini-3-pro` | `5` | Siguiente fila enrutada |
 | 5 | `moonshot/kimi-k3` | `5` | Siguiente fila enrutada |
-| 6+ | `zai/glm-5.2`, y después las filas GPT nativas | `5`, y después `102` | Fuera de las cinco primeras |
+| 6+ | `zai/glm-5.2`, y después las filas GPT nativas | `5`, y después `102 + sourcePriority` | Fuera de las cinco primeras |
+
+La prioridad nativa de origen usa primero el descubrimiento actual, después la copia de seguridad intacta, la prioridad de origen conservada para el mismo modelo y la instantánea del proveedor, con `9` como valor de respaldo. Las sincronizaciones repetidas y los cambios entre destacar y dejar de destacar conservan esa prioridad sin el desplazamiento de banda. La lista en vivo, el catálogo publicado y la caché coinciden para las mismas entradas. Consulta [Orden de modelos](/es/guides/model-ordering/) para conocer la validación y las anulaciones del orden del selector.
 
 Con la lista vacía, opencodex no fija ninguna prioridad y se eligen las cinco filas según las prioridades habituales del catálogo.
 

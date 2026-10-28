@@ -132,6 +132,8 @@ ocx restore back  # route Codex through the still-running proxy again
 
 Si al iniciar aparecen `Shared-client owner could not be verified` y `refusing startup`, OpenCodex no pudo determinar de forma segura si otro proxy controla las opciones compartidas de los clientes. Se detiene antes de publicar otro entorno de ejecución o modificar esas opciones. Reintenta cuando se recupere la conectividad local; un servicio en segundo plano ya instalado reintenta mediante su gestor de servicios. Un tiempo de espera agotado no convierte permanentemente el proceso nuevo en una instancia secundaria.
 
+`Proxy ownership is unverified; startup refused` significa que la comprobación del propietario local no fue concluyente. OpenCodex conserva el registro del PID, el diario de recuperación y los ajustes compartidos de los clientes. Reintenta cuando el propietario responda o termine; una comprobación de salud fallida por sí sola no autoriza la recuperación tras un cierre inesperado. Si el proceso registrado ya no existe y nadie escucha en el puerto, la recuperación sigue siendo automática.
+
 No es necesario habilitar IPv6 en el bucle local. El inicio comprueba si puede vincular cada dirección de bucle local y omite las familias no disponibles. Si se agota el tiempo de espera de una familia disponible, se detiene hasta que pueda verificar la propiedad.
 
 <a id="next"></a>

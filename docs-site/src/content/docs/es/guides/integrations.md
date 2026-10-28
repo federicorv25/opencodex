@@ -1,6 +1,6 @@
 ---
 title: "Integraciones"
-description: "Conectar opencodex a OpenCode, Pi, Gentle Shell, OMP, Hermes, OpenClaw, Kimi Code, gjc, DeepSeek Harness, MiniMax Code, ZCode, Prime Agent, Aside, Raycast, omo, Cline CLI, Kilo, Command Code y Factory Droid desde el panel — un interruptor por cliente, con una copia de seguridad tomada antes de cada escritura."
+description: "Conectar opencodex a OpenCode, Pi, Gentle Shell, OMP, Hermes, OpenClaw, Kimi Code, gjc, DeepSeek Harness, MiniMax Code, ZCode, Prime Agent, Aside, Raycast, omo, Qoder, Cline CLI, Kilo, Command Code, Factory Droid y T3 Code desde el panel — un interruptor por cliente, con una copia de seguridad tomada antes de cada escritura."
 ---
 
 La página **Conectar** escribe el bloque de proveedor de opencodex en el archivo de configuración del cliente y permite retirarlo. Cada cliente de la tabla tiene su propio interruptor:
@@ -30,6 +30,7 @@ La página **Conectar** escribe el bloque de proveedor de opencodex en el archiv
 | Kilo | primero existente `kilo.jsonc`, `kilo.json`, `opencode.jsonc`, `opencode.json`, o `config.json` bajo `~/.config/kilo` | JSONC | Nuevas sesiones | `OPENCODEX_KILO_API_KEY` |
 | Command Code | `~/.commandcode/providers.json` (en Windows con el inicio predeterminado: usar `HOME ?? USERPROFILE` solo si no está en blanco y Windows-absoluto, de lo contrario `homedir()`; se conserva una vivienda suministrada por separado; adjuntar `.commandcode\providers.json`) | JSON | Lanzamiento del Command Code | Ninguno - Loopback sin llave ( `apiKey: false` ) |
 | Factory Droid | `~/.factory/settings.json` ( `%USERPROFILE%\.factory\settings.json` en Windows) | JSON | inmediatamente a través de la observación de archivos | ninguno - sin llave |
+| T3 Code | `$T3CODE_HOME/userdata/settings.json` (por defecto `~/.t3/userdata/settings.json`) | JSON | inmediatamente — T3 Code observa el archivo | marcador loopback no secreto |
 
 <a id="gentle-shell"></a>
 
@@ -100,6 +101,51 @@ Si `modelConfigs.customModels` ya contiene una fila `opencodex` para un modelo e
 
 La clave API generada es un marcador no secreto. La integración solo admite acceso mediante loopback y rechaza un enlace autenticado fuera de loopback. Si hay un listener local dedicado sin autenticación, la exportación apunta a él. `ocx sync` y los cambios de catálogo actualizan una integración ya habilitada. Los identificadores que contienen `,` o `]`, como `kimi/k3[1m]`, se exportan igual que los demás.
 
+<a id="t3-code"></a>
+
+## T3 Code
+
+[T3 Code](https://github.com/pingdotgg/t3code) utiliza las CLI de Codex y Claude Code que ya están
+instaladas en el equipo. Sus hilos de Codex pasan por opencodex una vez habilitada la
+[integración de Codex](/es/guides/codex-integration/), porque T3 Code obtiene la lista de modelos
+mediante `codex app-server`, que lee `$CODEX_HOME/config.toml` como cualquier cliente de Codex.
+Los modelos enrutados aparecen entonces bajo Codex sin activar ningún interruptor de T3 Code,
+siempre que T3 Code ejecute Codex con el mismo directorio que administra opencodex (`CODEX_HOME`,
+por defecto `~/.codex`). Una instancia de Codex de T3 Code que use otro directorio no verá ese catálogo.
+
+El interruptor **T3 Code** añade la integración con Claude. Requiere la API Messages, utilizada
+en cada turno de Claude: si Messages está desactivada en la página API, se rechazan la habilitación
+y la actualización, pero sigue siendo posible deshabilitar la integración.
+
+```bash
+ocx export --client t3code --json
+ocx integration client enable --client t3code
+ocx integration client disable --client t3code
+```
+
+Habilitar escribe una instancia de proveedor, `providerInstances.opencodex`, en los ajustes del
+servidor de T3 Code y conserva las demás instancias y opciones. Es una instancia de Claude llamada
+**opencodex** que ejecuta tu propio binario `claude` con `ANTHROPIC_BASE_URL` apuntando al proxy,
+el marcador no secreto `opencodex-proxy` como `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_API_KEY`
+explícitamente vacía y `CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST=1` para que un bloque env de
+`settings.json` en la configuración de Claude no pueda cambiar el destino. Cada modelo enrutado
+es un modelo personalizado cuya clave es su selector de opencodex (`provider/model`), que T3 Code
+envía literalmente. Aparece bajo **opencodex** en el selector de modelos de T3 Code. T3 Code recarga
+el archivo por sí mismo, sin reiniciar; los cambios del catálogo y `ocx sync` actualizan la instancia.
+
+T3 Code guarda sus datos en `T3CODE_HOME` si está definida y, en caso contrario, en `~/.t3`.
+Si cambias esa ubicación, configura la misma variable en el proceso de opencodex; se rechazan los
+valores relativos. En Windows, usa una ruta completa con unidad (`C:\shared\t3`) o una ruta UNC
+(`\\server\share\t3`); se rechazan las rutas sin unidad, como `\shared\t3` o `/shared/t3`.
+`~` se expande con respecto al directorio personal efectivo. El marcador no es una credencial:
+la integración requiere acceso loopback y rechaza un enlace autenticado fuera de loopback,
+salvo que esté habilitado el listener loopback sin autenticación.
+
+Trata la instancia como una configuración administrada por opencodex. Marcar una variable como
+**Sensitive** en T3 Code, añadirle un modelo personalizado o desactivarla reescribe el bloque.
+El interruptor muestra entonces un conflicto en lugar de sobrescribir la edición; **Reemplazar**
+restaura el bloque generado. Para usar otros ajustes, añade tu propia instancia de Claude en T3 Code.
+
 Los catálogos generados incluyen solo modelos habilitados de cada selección de proveedor. Esto se aplica tanto a las descargas como a las integraciones administradas, incluidas Pi y Aside. La lista de modelos de administración aún muestra la lista completa para que pueda habilitar modelos adicionales.
 
 `ocx uninstall` deshabilita las integraciones registradas, incluyendo todos los perfiles de propiedad de Aside, antes de eliminar el estado de recuperación de OpenCodex. La propiedad ilegible, el registro de perfil faltante o una edición en conflicto detiene esa eliminación. La limpieza es secuencial: las inhabilitaciones anteriores no se deshacen cuando una posterior falla. Si la compensación también falla, un archivo cliente puede dejarse en un estado intermedio. Inspeccione los archivos del cliente reportados y las instantáneas de recuperación retenidas antes de volver a intentar; el estado retenido no significa que todos los clientes se restauraron o se dejaron sin cambios.
@@ -148,6 +194,12 @@ Los caminos honran el propio entorno de cada cliente anulan donde tiene uno. Par
 Para los modelos nativos OpenAI, el bloque OMP generado selecciona su nivel de modelo Responses API, preservando la entrada de imágenes y los controles de esfuerzo de razonamiento. Los modelos enrutados conservan el dialecto Chat Completions del proveedor para que sus adaptadores existentes sigan siendo compatibles.
 
 OpenClaw tiene varios, y hacen diferentes trabajos. `OPENCLAW_CONFIG_PATH` selecciona el archivo; `OPENCLAW_STATE_DIR`, `OPENCLAW_PROFILE` y `OPENCLAW_HOME` seleccionan el directorio de estado, que es también lo que la detección observa, por lo que un perfil o una casa reubicada aún se lee como instalado, mientras que una anulación de ruta de configuración mueve solo el archivo. Si todavía está en el diseño anterior `.clawdbot`, también se encuentra: el directorio moderno gana cuando existe y el heredado se usa cuando es el único allí.
+
+En Windows, las opciones que requieren rutas absolutas deben incluir una letra de unidad
+(`C:\Users\me\client`) o un recurso UNC (`\\server\share\client`). Se rechazan las rutas
+que parten de la raíz sin unidad, como `\Users\me\client` o `/client/config`, porque dependen
+de la unidad actual. Un selector que admita `~` lo expande respecto al directorio personal efectivo;
+Gentle Shell no expande `~`.
 
 Estos deben ser **Caminos absolutos** o comenzar con `~`. Se rechaza uno relativo en lugar de resolverlo, porque significaría cualquier directorio en el que se inicie cada proceso, y esa ruta se almacena con la copia de seguridad, por lo que tiene que nombrar el mismo archivo mañana que hoy.
 
@@ -265,6 +317,39 @@ ocx integration client disable --client hermes
 ocx integration client history --client hermes
 ocx integration client restore --op <opId> [--confirm-drift]
 ```
+
+<a id="opt-in-alias-model-names"></a>
+
+### Nombres de modelo con alias opcionales
+
+Hermes y Command Code aceptan `--model-names alias|routed`. El valor predeterminado es
+`routed`, independientemente de `preferModelAliasIds`. Por ejemplo:
+
+```bash
+ocx export --client hermes --model-names alias --json
+ocx integration client preview --client hermes --operation apply --model-names alias --json
+ocx integration client enable --client hermes --model-names alias
+ocx integration client enable --client commandcode --model-names alias
+```
+
+La exportación es una vista previa: usa un catálogo actual ya cargado y no escribe configuración
+del cliente ni estado de integración. Si ese catálogo no está disponible, cárgalo por separado
+y vuelve a intentarlo. `--out` escribe explícitamente un archivo de exportación; no conecta el cliente.
+
+La conexión guarda el modo. Omitir la opción al aplicar después, también desde el panel, lo conserva;
+`--model-names routed` lo restablece explícitamente. Un alias cualificado como `AC/AC-model-x`
+sustituye a `acme/vendor-model-x` solo si el enrutador demuestra que ambos llegan al mismo proveedor
+y modelo. Si faltan alias, son inseguros o hay colisiones, se usa la clave enrutada.
+Los combos conservan sus claves actuales.
+
+Tras cambiar el nombre de un alias o eliminarlo, ejecuta `ocx sync` o aplica explícitamente la conexión:
+la siguiente actualización administrada que termine correctamente sustituirá la clave anterior por
+el alias recién validado o por la clave enrutada. Editar alias no actualiza los archivos del cliente
+de forma atómica. La actualización sigue siendo idempotente y rechaza ediciones ajenas. Si un alias
+cambia mientras Aplicar o la actualización esperan, se rechaza la escritura; reintenta con el catálogo
+actual. Cada perfil con nombre de Hermes guarda su propio modo; la actualización automática del
+catálogo solo cubre el perfil predeterminado, por lo que los perfiles con nombre requieren Aplicar
+explícitamente. Los demás exportadores conservan los nombres enrutados.
 
 <a id="preview-and-bind-a-terminal-write"></a>
 
@@ -508,14 +593,40 @@ ocx agent roles suggest
 ocx agent roles suggest --model xai/grok-4.5 --apply
 ```
 
+Debajo de la tabla, **Historial de cambios** muestra los cambios más recientes escritos al guardar,
+aplicar una asignación automática o ejecutar `ocx agent roles set`, del más nuevo al más antiguo,
+en lotes completos y hasta un máximo de 50. Así, una operación Aplicar todo aparece con todos los
+roles que escribió o no aparece: se muestran el modelo y el esfuerzo de cada rol antes y después.
+Cada Aplicar todo cuenta como una entrada. **Restaurar** recupera los valores anteriores mediante
+el mismo guardado, de modo que la restauración también queda registrada. Guardar nunca elimina
+un modelo fijado: un rol que antes no tenía uno conserva su modelo actual y solo recupera el esfuerzo.
+El historial se guarda en `integrations/codex-agent-roles.jsonl`, dentro del directorio de configuración
+de opencodex, con un límite de 256 KiB y 1000 filas; se eliminan los lotes completos más antiguos.
+La compactación busca reducirlo a 128 KiB y conserva una restauración junto con su lote de origen
+completo si ambos caben en los dos límites, descartando otros lotes anteriores para hacer espacio.
+El historial puede caducar con escrituras posteriores. Antes de añadir entradas, el escritor captura
+el historial acotado para que una restauración no expulse su propio origen al alcanzar el límite.
+El centro de restauración de la tarjeta omo descrito antes solo sigue `~/.omo/agent/models.json`.
+Cada cambio registra el directorio de Codex donde se hizo; solo se muestran y restauran los cambios
+del directorio actual. Al cambiar `CODEX_HOME`, la lista empieza vacía y se rechaza restaurar desde
+el historial de otro directorio. Si no se puede leer el archivo, la sección lo indica en lugar de
+mostrar la lista, y la tabla de roles sigue funcionando.
+
 ## Kilo
 
 Kilo CLI, VS Code y JetBrains comparten una configuración global. Esta integración escribe `provider.opencodex` en el primer archivo existente entre `kilo.jsonc`, `kilo.json`, `opencode.jsonc`, `opencode.json` y `config.json` en `~/.config/kilo` (`XDG_CONFIG_HOME` reubica ese directorio). Si no existe, el destino es `kilo.jsonc`. Las configuraciones del proyecto nunca se escriben. Kilo fusiona todos estos archivos globales. Si otro candidato también define `provider.opencodex`, el estado nombra todos los archivos competidores y Aplicar y Reemplazar rechazo; elimine `provider.opencodex` de esos archivos antes de habilitar la integración. Un candidato ilegible o inseguro también bloquea la escritura. Deshabilitar aún puede eliminar un bloque perteneciente al archivo grabado mientras otro candidato entra en conflicto o no se puede analizar; el otro candidato se deja intacto.
+
+OpenCodex lee estos archivos candidatos como JSONC. Un comentario de línea `//` termina con CR,
+LF o CRLF, por lo que los ajustes posteriores al comentario se conservan con cualquiera de esos finales de línea.
 
 El fragmento de propiedad es solo `provider.opencodex` (forma OpenCode V1: `npm`, `options`, `models`). El esquema publicado de Kilo no tiene la clave OpenCode V2 `providers`, por lo que el bloque no se emite; Kilo recibe las opciones de razonamiento por modelo como un mapa variante dentro de su bloque de proveedor, construido a partir de los mismos metadatos canónicos efectivos que la exportación de OpenCode. `$schema`, `model`, `enabled_providers`, MCP, y otras claves permanecen propiedad del usuario. Seleccione `opencodex/<provider/model>` en Kilo después de aplicar.
 
 Loopback utiliza `{env:OPENCODEX_KILO_API_KEY}` como `options.apiKey`. Un enlace sin bucle retro mueve la admisión a `options.headers["x-opencodex-api-key"]` y nunca serializa una clave real. Apply reescribe todo el archivo global como bastante JSON, por lo que los comentarios y las comas posteriores en otras claves no se conservan. Kilo está en el catálogo de salida implícita: `ocx
 sync`, `POST /api/sync`, y visibilidad, proveedor, o cambios preestablecidos actualizar un bloque de Kilo propiedad bajo las mismas reglas de propiedad segura como cualquier otro cliente, y una nueva sesión de Kilo carga el archivo actualizado.
+
+Al leer estos archivos candidatos, OpenCodex acepta una coma final tras un elemento de un array
+o una propiedad de un objeto. Escribe los arrays y objetos vacíos como `[]` o `{}`;
+`[,]` y `{,}` se rechazan por estar mal formados.
 
 ```bash
 ocx integration client enable --client kilo

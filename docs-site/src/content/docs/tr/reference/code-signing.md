@@ -86,7 +86,7 @@ SignPath çıktı yapılandırmaları: `windows-standalone-zip` (ZIP kökünde t
 | `release-signing` | İmzalanır ve güvenilirliği doğrulanır | İmzalanır ve güvenilirliği doğrulanır |
 
 İstek başarısız olur, zaman aşımına uğrar veya reddedilirse ya da doğrulama
-başarısız olursa iş uyarı kaydeder ve özgün imzasız dosyayı yayımlar. MSI dosyası varsa özgün
+başarısız olursa iş uyarı kaydeder ve özgün imzasız dosyayı yayımlar. MSI, varsa özgün
 güncelleyici imzasını korur; bağımsız `ocx.exe` dosyasının güncelleyici imzası yoktur.
 
 **Üretim sertifikasına geçiş:** SignPath sertifikayı verince depo değişkeni

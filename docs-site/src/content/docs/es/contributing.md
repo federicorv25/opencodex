@@ -16,7 +16,7 @@ bun install
 bun run setup:hooks  # retire the managed pre-push and post-merge hooks
 bun run dev:proxy    # proxy API in dev mode
 bun run dev:gui      # dashboard dev server (another terminal)
-bun run typecheck    # bun x tsc --noEmit
+bun run typecheck    # bun check --no-script --noEmit
 bun run test        # full suite (default)
 ```
 
@@ -30,10 +30,11 @@ El antiguo hook `post-merge` reconstruía `gui/dist` tras cada merge. Ahora, si 
 
 ## Comandos de compilación y pruebas
 
-El paquete raíz usa TypeScript nativo de Bun, sin una compilación separada del servidor. Usa los scripts del repositorio para que los comandos locales coincidan con CI:
+El paquete raíz usa TypeScript nativo de Bun, sin una compilación separada del servidor. Usa los scripts del repositorio para las comprobaciones locales:
 
 ```bash
-bun run typecheck                 # strict TypeScript check
+bun run typecheck                 # strict Bun-native type check
+bun run typecheck:tsc             # reference check with the installed TypeScript compiler
 bun run test:changed              # import-graph tests against the resolved dev merge base
 bun run test                      # full suite (default)
 bun test tests/routing/router.test.ts     # focused test file
@@ -41,6 +42,9 @@ bun run build:gui                 # Vite GUI build + package preparation
 bun run privacy:scan              # credential/privacy scan used by CI
 bun run prepare:package           # refresh package launchers/assets
 ```
+
+`typecheck` usa el comprobador nativo de Bun con el `tsconfig.json` raíz, conservando su alcance en `src/` y las opciones estrictas del compilador sin emitir archivos. `--no-script` mantiene la ejecución en el comprobador de tipos aunque más adelante se añada un script de paquete llamado `check`. La dependencia Bun instalada proporciona el comprobador; `typecheck:tsc` conserva el compilador de TypeScript para comparaciones y como alternativa. CI y las comprobaciones previas a una versión siguen invocando `tsc` directamente, y la GUI mantiene su propia comprobación de tipos durante la compilación.
+El hook `prepublishOnly` también usa `typecheck:tsc`, entre la auditoría y la compilación de la GUI; un fallo de auditoría o del compilador detiene los pasos restantes.
 
 La suite usa Bun 1.4.4, declarado en `testRunnerBun` de `package.json`; el entorno de ejecución distribuido es 1.4.4. `scripts/test.ts` busca Bun 1.4.4 en PATH o `~/.bun/bin`, o utiliza `OCX_TEST_RUNNER_BUN`. Si falta esa versión, instálala localmente: el selector no la descarga.
 
@@ -128,7 +132,7 @@ Los PR de contribuyentes normalmente necesitan aprobación de un mantenedor. Un 
 
 ## Convenciones
 
-- **Módulos ES** (`import`/`export`), TypeScript y modo `strict`. Mantén en verde `bun x tsc --noEmit`.
+- **Módulos ES** (`import`/`export`), TypeScript y modo `strict`. Mantén en verde `bun run typecheck`.
 - **Máximo aproximado de 500 líneas por archivo**: divide por responsabilidad, como los sidecars `web-search/` y `vision/`, con módulos pequeños tras un `index.ts`.
 - **Errores asíncronos en los límites**: un sidecar no debe propagar una excepción a la ruta de la solicitud; debe degradarse mediante un marcador controlado.
 - **Fuente de verdad de estructura**: los invariantes mantenidos viven en `structure/`, los flujos públicos en `docs-site/` y las notas de planificación e investigación en `devlog/`.

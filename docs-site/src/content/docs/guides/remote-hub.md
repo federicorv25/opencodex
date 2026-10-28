@@ -382,10 +382,12 @@ it is where `/readyz` and `/v1/catalog` are fetched — and `--management-url` i
 origin used for pairing and key issuance. They do not have to share a port:
 
 ```bash
-# This is exactly the line `ocx hub invite` prints, with the code filled in.
-echo '<pairing-code>' | ocx connect https://hub-name.tailnet-name.ts.net:8443 \
+# Bash: enter the one-time code without echoing it or putting it in shell history.
+read -r -s -p 'Pairing code: ' pairing_code; printf '\n'
+printf '%s\n' "$pairing_code" | ocx connect https://hub-name.tailnet-name.ts.net:8443 \
   --management-url https://hub-name.tailnet-name.ts.net \
   --pairing-code-stdin
+unset pairing_code
 ```
 
 Record those two origins on the hub as `hub.dataPublicOrigin` and `hub.managementPublicOrigin`, and
@@ -438,11 +440,14 @@ Run this on the hub rather than writing an `ocx connect` line by hand:
 ocx hub invite
 ```
 
-It mints a single-use, short-lived pairing code and prints the command to run on the other machine:
+It mints a single-use, short-lived pairing code and prints the command to run on the other machine.
+To keep the code out of shell history, read it silently and pass it through stdin:
 
-```text
-# Run on the other machine:
-echo '<code>' | ocx connect https://hub-name.tailnet-name.ts.net:8443 --management-url https://hub-name.tailnet-name.ts.net --pairing-code-stdin
+```bash
+# Bash, on the other machine:
+read -r -s -p 'Pairing code: ' pairing_code; printf '\n'
+printf '%s\n' "$pairing_code" | ocx connect https://hub-name.tailnet-name.ts.net:8443 --management-url https://hub-name.tailnet-name.ts.net --pairing-code-stdin
+unset pairing_code
 ```
 
 The data origin comes from `--data-url`, then `hub.dataPublicOrigin`, then the bind address. That

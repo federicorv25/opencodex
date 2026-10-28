@@ -154,6 +154,31 @@ Los límites de entrada conocidos también se incluyen y se limitan al contexto;
 
 El bloque del proveedor `opencodex` se regenera en cada inicio, por lo que los ajustes manuales por modelo dentro de ese bloque no se conservan. Guarda tus entradas personalizadas bajo una clave de proveedor propia.
 
+<a id="slow-local-models-prefill-timeouts"></a>
+
+## Modelos locales lentos: tiempos de espera durante el prefill
+
+opencode espera un tiempo limitado hasta recibir el primer encabezado de respuesta del proveedor (cinco minutos por defecto en la V2 actual) y aplica otro límite más largo entre fragmentos del streaming. Detrás del proveedor `opencodex`, un modelo local (LM Studio, vLLM, Ollama o cualquier endpoint alojado por ti) puede superar ese tiempo durante el *prefill* de un prompt grande: el procesamiento del prompt antes de emitir el primer token. En un turno sin streaming, el proxy no envía nada a opencode hasta que termina el proveedor de origen, por lo que vence primero la espera de encabezados de opencode y el turno falla con `Timed out waiting for response headers`, aunque el modelo siga trabajando.
+
+El proveedor `opencodex` generado reúne todos los proveedores enrutados en un solo bloque y los tiempos de espera de opencode se aplican al proveedor completo. Para ampliar o desactivar la espera de todo el proveedor, usa `opencodeClientExport` en la configuración de opencodex. Se omite por defecto, de modo que opencode conserva sus esperas nativas de encabezados y fragmentos salvo que actives esta opción:
+
+```json
+{
+  "opencodeClientExport": {
+    "headerTimeoutMs": false,
+    "chunkTimeoutMs": 1800000
+  }
+}
+```
+
+| Campo | Ajuste de opencode | Significado |
+| --- | --- | --- |
+| `headerTimeoutMs` | `settings.headerTimeout` | Espera hasta el primer encabezado de respuesta del proxy. Un número de milisegundos, o `false` para desactivarla. |
+| `chunkTimeoutMs` | `settings.chunkTimeout` | Espera entre fragmentos de respuesta del streaming. Un número de milisegundos, o `false` para desactivarla. |
+| `timeoutMs` | `settings.timeout` | Límite para la solicitud completa. Un número de milisegundos, o `false`. opencode no aplica un valor predeterminado. |
+
+Cada valor se emite sin cambios tanto en el bloque `provider.opencodex` (`options`) como en `providers.opencodex` (`settings`). Desactivar `headerTimeout` elimina la protección de opencode frente a un proxy bloqueado para todos los modelos enrutados a través de él; por eso conviene usar un valor explícito amplio (por ejemplo, `1800000` para treinta minutos), salvo que quieras expresamente quitar el límite. Un valor mal formado se descarta y opencode conserva su valor nativo predeterminado, en lugar de fallar al cargar.
+
 <a id="requirements"></a>
 
 ## Requisitos

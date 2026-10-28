@@ -19,6 +19,8 @@ El panel de control, la administración API y la mutación CLI persisten en el m
 
 Si el archivo no se puede analizar, opencodex lo respalda como `config.json.invalid-<timestamp>`, advierte en la consola y comienza con valores predeterminados. Un archivo que falta también utiliza el valor predeterminado de instalación reciente: un proveedor de reenvío `openai`.
 
+Los comandos locales `ocx config set`, `unset`, `import`, `ocx effort` sin conexión, las altas y bajas de modelos personalizados y las altas, bajas y cambios de proveedor predeterminado rechazan un `config.json` existente inválido o ilegible sin cambiar sus bytes. Ejecuta `ocx config validate` y repara el archivo antes de reintentar. La importación también exige un destino válido y legible si ya existe configuración.
+
 <a id="precedence-and-defaults"></a>
 
 ## Precedencia y valores por defecto

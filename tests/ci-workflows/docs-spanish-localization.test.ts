@@ -25,13 +25,16 @@ function fencedBlocks(markdown: string): { start: number; end: number; content: 
   const lines = [...markdown.matchAll(/[^\n]*(?:\n|$)/g)].filter(line => line[0].length);
   const blocks: { start: number; end: number; content: string }[] = [];
   const unquote = (line: string): string => line.replace(/^(?:[ \t]*>[ \t]?)+/, "");
+  const quoteDepth = (line: string): number => (line.match(/^(?:[ \t]*>[ \t]?)+/)?.[0].match(/>/g) ?? []).length;
   for (let i = 0; i < lines.length; i++) {
+    const depth = quoteDepth(lines[i]![0]);
     const opening = /^[ \t]*(`{3,}|~{3,})([^\n]*)\n?$/.exec(unquote(lines[i]![0]));
     if (!opening || (opening[1]![0] === "`" && opening[2]!.includes("`"))) continue;
     const start = lines[i]!.index!;
     const contentStart = start + lines[i]![0].length;
     let closing = i + 1;
     for (; closing < lines.length; closing++) {
+      if (quoteDepth(lines[closing]![0]) !== depth) continue;
       const fence = /^[ \t]*(`+|~+)[ \t]*\n?$/.exec(unquote(lines[closing]![0]))?.[1];
       if (fence?.[0] === opening[1]![0] && fence.length >= opening[1]!.length) break;
     }
@@ -148,6 +151,21 @@ describe("Spanish documentation localization", () => {
     expect(codeBlocks(markdown)).toEqual(["> ocx start\n> echo '`quoted-code`'\n"]);
     expect(codeBlocks(markdown.replace("ocx start", "ocx wrong"))).not.toEqual(codeBlocks(markdown));
     expect([...inlineCode(markdown)]).toEqual(["config.json"]);
+  });
+
+  test("closing fences must match the opening quote context", () => {
+    for (const quote of ["", "> ", "> > "]) {
+      for (const marker of ["`", "~"]) {
+        const fence = marker.repeat(3);
+        const body = [`${quote}> ${fence}`, `${quote}ocx start`, `${quote}echo '\`code-only\`'`, ""].join("\n");
+        const markdown = [`Read \`config.json\`:`, "", `${quote}${fence}text`, body + `${quote}${fence}`,
+          "", "Then use `models.json`."].join("\n");
+        expect(codeBlocks(markdown)).toEqual([body]);
+        expect(codeBlocks(markdown.replace("ocx start", "ocx wrong"))).not.toEqual(codeBlocks(markdown));
+        expect([...inlineCode(markdown)]).toEqual(["config.json", "models.json"]);
+        expect(withoutFencedCode(markdown)).not.toContain("code-only");
+      }
+    }
   });
 
   test("registers Spanish and covers every current canonical documentation path", () => {
