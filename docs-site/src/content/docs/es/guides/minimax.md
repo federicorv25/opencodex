@@ -6,15 +6,15 @@ description: "Enruta MiniMax Code y los comandos de texto de MiniMax CLI mediant
 MiniMax publica dos productos de línea de comandos diferentes. OpenCodex integra cada uno en el límite del protocolo que realmente expone:
 
 - **MiniMax Code** (`mcode`) es un agente de codificación con proveedores personalizados Anthropic Messages.
-- **MiniMax CLI** (`mmx`) es una plataforma multimodal CLI. Solo su recurso `text` habla del Anthropic -compatible API que OpenCodex puede encaminar.
+- **MiniMax CLI** (`mmx`) es una CLI de plataforma multimodal. Solo su recurso `text` utiliza la API compatible con Anthropic que OpenCodex puede enrutar.
 
 <a id="minimax-code"></a>
 
 ## MiniMax Code
 
-En la página de Modelos OpenCodex, ambas regiones del Plan de Codificación MiniMax anuncian la entrada de imagen para `MiniMax-M3` y `MiniMax-M3.1-Flash`. El conmutador **Imagen / multimodal** de Combo solo está disponible cuando cada modelo seleccionado admite la entrada de imágenes. El interruptor controla los archivos adjuntos de la imagen; no permite la carga de vídeos.
+En la página Modelos de OpenCodex, las dos regiones del plan de programación de MiniMax anuncian la entrada de imágenes para `MiniMax-M3` y `MiniMax-M3.1-Flash`. El interruptor **Imagen / multimodal** de un Combo solo está disponible cuando todos los modelos seleccionados admiten la entrada de imágenes. Este interruptor controla las imágenes adjuntas; no habilita la carga de vídeos.
 
-Instale e inicie sesión en MiniMax Code utilizando primero las instrucciones de MiniMax. Luego inicie OpenCodex y conecte la integración de archivos reversibles:
+Primero instala MiniMax Code e inicia sesión siguiendo las instrucciones de MiniMax. Después, inicia OpenCodex y conecta la integración reversible mediante archivos:
 
 ```bash
 ocx start
@@ -24,7 +24,7 @@ ocx mcode
 
 ![Integración de MiniMax Code con datos de ejemplo aislados](/screenshots/minimax-code-integration.png)
 
-La integración fusiona un bloque en `~/.minimax/config.yaml`:
+La integración incorpora un bloque a `~/.minimax/config.yaml`:
 
 ```yaml
 custom_provider:
@@ -43,9 +43,9 @@ custom_provider:
           context: 1000000
 ```
 
-La lista de modelos generados, las ventanas de contexto y las escaleras de esfuerzo de razonamiento provienen del catálogo OpenCodex en ejecución. Las ventanas de contexto pueden incluir [Estimaciones de proveedores personalizados](/es/reference/configuration/providers/#context-windows-on-custom-providers); si el catálogo no tiene ventana o escala de esfuerzo, se omite el campo correspondiente. MCode mantiene el esfuerzo seleccionado actualmente en la sesión, por lo que OpenCodex exporta `effortOptions` sin sobrescribir esa selección. El bloque no escribe una clave real, no reemplaza `defaultModel` y no cambia su inicio de sesión MiniMax. En MCode, elija un modelo bajo `custom_provider:opencodex/...`.
+La lista de modelos generada, las ventanas de contexto y las escalas de esfuerzo de razonamiento proceden del catálogo de OpenCodex en ejecución. Las ventanas de contexto pueden incluir [estimaciones para proveedores personalizados](/es/reference/configuration/providers/#context-windows-on-custom-providers); si el catálogo no incluye una ventana o una escala de esfuerzo, se omite el campo correspondiente. MCode conserva en la sesión el esfuerzo seleccionado, por lo que OpenCodex exporta `effortOptions` sin sobrescribir esa selección. El bloque no escribe una clave real, no sustituye `defaultModel` ni cambia tu inicio de sesión en MiniMax. En MCode, elige un modelo bajo `custom_provider:opencodex/...`.
 
-`ocx mcode` verifica que este proveedor apunta al proxy que se está ejecutando actualmente antes de lanzar el cliente. Después de la habilitación de una sola vez, `ocx sync` actualiza el bloque propietario cuando cambian las capacidades del puerto o catálogo. La sincronización automática nunca crea un bloque sin dueño, recrea uno que eliminó o sobrescribe un archivo que cambió después de que lo escribió OpenCodex; use el comando enable cuando desee volver a conectarse intencionalmente. Deshabilitar o restaurar a través del mismo sistema de integración auditado:
+`ocx mcode` verifica que este proveedor apunta al proxy en ejecución antes de iniciar el cliente. Tras habilitarlo una vez, `ocx sync` actualiza el bloque que administra cuando cambia el puerto o las capacidades del catálogo. La sincronización automática nunca crea un bloque que no esté bajo su control, nunca vuelve a crear uno que hayas eliminado ni sobrescribe un archivo que haya cambiado después de que OpenCodex lo escribiera; utiliza el comando de habilitación cuando quieras volver a conectarlo de forma intencional. Puedes deshabilitarlo o restaurarlo mediante el mismo sistema de integración auditado:
 
 ```bash
 ocx integration client disable --client mcode
@@ -53,18 +53,18 @@ ocx integration client history --client mcode
 ocx integration client restore --op <opId> [--confirm-drift]
 ```
 
-`MINIMAX_DATA_DIR` y el legado `MAVIS_DATA_DIR` son honrados. Se rechazan las anulaciones relativas porque OpenCodex y MCode pueden iniciarse en diferentes directorios de trabajo.
+Se respetan `MINIMAX_DATA_DIR` y la variable antigua `MAVIS_DATA_DIR`. Se rechazan las rutas relativas en estas variables porque OpenCodex y MCode pueden iniciarse en directorios de trabajo diferentes.
 
 ## MiniMax CLI (`mmx`)
 
-Instale el CLI oficial por separado:
+Instala la CLI oficial por separado:
 
 ```bash
 npm install -g mmx-cli
 mmx --version
 ```
 
-Enrutar un comando de texto a través de OpenCodex mediante el wrapper y un identificador de modelo OpenCodex:
+Enruta un comando de texto a través de OpenCodex utilizando el envoltorio y un identificador de modelo de OpenCodex:
 
 ```bash
 ocx mmx text chat \
@@ -76,16 +76,15 @@ ocx mmx --output json text chat \
   --message "Return a JSON summary"
 ```
 
-Códigos duros MMX `/anthropic/v1/messages` debajo de su base API URL. El envoltorio comienza a puente temporal de loopback durante toda la vida del proceso hijo. Solo acepta POST solicitudes a esa ruta Messages y `/anthropic/v1/messages/count_tokens`, cartografiarlos a OpenCodex existente `/v1/messages` y `/v1/messages/count_tokens` Plano de datos mientras preservar los cuerpos de solicitud y los datos de consulta. Canonical OpenCodex solicitud de traducción, la contabilidad de uso y la autenticación configurada del proveedor descendente permanecen en efecto; Los proveedores reciben `x-api-key` o transporte de portador según su configuración. La transmisión conserva los eventos de mensajes y contenido Anthropic. Antes de reenviar la solicitud, el puente elimina los encabezados entrantes de credenciales de admisión y establece el marcador de posición público
-`opencodex-loopback` en la solicitud reenviada. Los recursos arbitrarios de Anthropic no se representan, y El puente nunca se expone más allá del bucle.
+MMX tiene fijada en su código la ruta `/anthropic/v1/messages` bajo la URL base de su API. El envoltorio inicia un puente temporal en loopback que dura lo mismo que el proceso hijo. Solo acepta solicitudes POST a esa ruta de Messages y a `/anthropic/v1/messages/count_tokens`, y las dirige al plano de datos existente de OpenCodex, en `/v1/messages` y `/v1/messages/count_tokens`, conservando los cuerpos de las solicitudes y los datos de consulta. Se mantienen la traducción canónica de solicitudes de OpenCodex, la contabilidad de uso y la autenticación configurada para el proveedor de destino; los proveedores reciben `x-api-key` o autenticación de tipo bearer según su configuración. El streaming conserva los eventos de mensajes y contenido de Anthropic. Antes de reenviar una solicitud, el puente elimina las cabeceras entrantes de credenciales de admisión y fija el marcador de posición público `opencodex-loopback`. No actúa como proxy para otros recursos arbitrarios de Anthropic y nunca se expone fuera de loopback.
 
-La envoltura también crea un `MMX_CONFIG_DIR` temporal que contiene solo ese marcador de posición, luego lo elimina después de las salidas `mmx`. Sus tokens `~/.mmx/config.json`, OAuth y MiniMax API nunca se cargan ni copian.
+El envoltorio también crea un directorio temporal `MMX_CONFIG_DIR` que contiene únicamente ese marcador de posición y lo elimina después de que termine `mmx`. Nunca carga ni copia tu archivo `~/.mmx/config.json`, tus tokens OAuth ni tu clave API de MiniMax.
 
 Los siguientes límites son intencionales:
 
-- Sólo `text chat` y `text repl` se encaminan a través de OpenCodex.
-- `--api-key`, `--base-url` y `--region` son rechazadas por la envoltura para que las credenciales de llamada o los selectores de destino no puedan entrar en conflicto con el puente aislado.
-- La envoltura es solo bucle porque MMX no puede enviar el encabezado de admisión dedicado `x-opencodex-api-key` de OpenCodex para un enlace remoto.
-- Ejecutar el plan `mmx` para `image`, `video`, `speech`, `music`, `vision`, `search`, `quota`, `auth`, `config`, `file` y `update`; los llaman MiniMax - APIs específicas que OpenCodex no emula.
+- Solo `text chat` y `text repl` se enrutan a través de OpenCodex.
+- El envoltorio rechaza `--api-key`, `--base-url` y `--region` para que las credenciales o los selectores de destino proporcionados por quien lo invoca no entren en conflicto con el puente aislado.
+- El envoltorio solo funciona en loopback porque MMX no puede enviar la cabecera de admisión específica de OpenCodex, `x-opencodex-api-key`, cuando el proxy escucha en una dirección remota.
+- Ejecuta `mmx` directamente para `image`, `video`, `speech`, `music`, `vision`, `search`, `quota`, `auth`, `config`, `file` y `update`; esos comandos utilizan API específicas de MiniMax que OpenCodex no emula.
 
-`mmx` por defecto su modelo de texto a `MiniMax-M3`. Pase `--model <provider/model>` cuando desee una ruta específica de OpenCodex; de lo contrario, las reglas de enrutamiento del modelo OpenCodex normales decidirán si el id predeterminado está disponible.
+`mmx` utiliza `MiniMax-M3` como modelo de texto predeterminado. Pasa `--model <provider/model>` cuando quieras una ruta concreta de OpenCodex; de lo contrario, las reglas habituales de enrutamiento de modelos de OpenCodex decidirán si el identificador predeterminado está disponible.
