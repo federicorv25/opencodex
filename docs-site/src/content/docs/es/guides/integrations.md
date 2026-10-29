@@ -52,6 +52,16 @@ El modo de enlace o un aliasing de inicio Pi se niega con un remedio de integrac
 
 "omo" nombra tres productos que comparten la carpeta `~/.omo`. La pestaña **omo** administra el omo basado en Pi (el motor senpi) a través de `~/.omo/agent/models.json`, como en la tabla anterior. El omo basado en Codex (LazyCodex) tiene su propia sección en la misma pestaña, mostrada solo cuando se detecta LazyCodex, descrita en [omo ( Codex / LazyCodex) modelos de rol](#omo-codex--lazycodex-role-models). OpenCode-based omo (oh-my-opencode) mantiene su propia configuración bajo OpenCode; opencodex no lo lee ni lo escribe.
 
+El bloque administrado de omo basado en Pi usa Chat (`api: "openai-completions"`) de forma predeterminada. Chat descarta el razonamiento del paso anterior entre llamadas a herramientas, algo que se nota en los bucles largos de omo. Para que la habilitación y cada actualización escriban el protocolo Responses, añade esta clave al archivo de configuración de opencodex; no está disponible en el dashboard:
+
+```json
+{ "omoClientExport": { "api": "openai-responses" } }
+```
+
+Reinicia el proxy para cargar el archivo editado (`ocx service restart` si usa un servicio, o `ocx stop` y después `ocx start`). A continuación, actualiza la integración desde **Conectar → omo** en el dashboard. Actualizar por sí solo utiliza la configuración del proxy en ejecución; no vuelve a leer el archivo.
+
+Este ajuste solo afecta a omo. Pi, Gentle Shell y los demás clientes con formato de Pi conservan `openai-completions`. Para volver a Chat, elimina la clave, reinicia el proxy del mismo modo y actualiza **Conectar → omo**. Se ignoran los valores desconocidos. opencodex sigue administrando únicamente `providers.opencodex` en `~/.omo/agent/models.json`; los demás proveedores de ese archivo se conservan.
+
 <a id="qoder-cn-and-workbuddy-editions"></a>
 
 ### Qoder CN y ediciones de WorkBuddy

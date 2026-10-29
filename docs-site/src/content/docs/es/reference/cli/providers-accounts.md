@@ -32,6 +32,7 @@ Gestión de proveedores no interactivos. Las entradas del registro se siembran p
 | `resets` | `--limit <n>`, `--json` | Listar los restablecimientos de ventana de cuota detectados recientemente. |
 | `presets` | `--json` | Listar los ajustes preestablecidos del proveedor del panel de control. |
 | `account-mode` | `pool`, `direct`, `--json` | Seleccione el enrutamiento de cuenta agrupado o directo Codex. |
+| `import-cc-switch` | `--source <FILE>`, `--provider <id>`, `--apply`, `--restore`, `--allow-private-network`, `--json` | Previsualiza, aplica de forma selectiva o revierte entradas de proveedor sin claves desde una base de datos SQLite de CC-Switch (`cc-switch.db`) o un archivo JSON antiguo. |
 
 ```bash
 ocx provider list --json
@@ -136,6 +137,31 @@ ocx provider snapshot --json
 Agregue `--yes` solo para eliminaciones o cambios de nombre revisados y autorizados. Batch PUT conserva los valores privados intactos y utiliza la línea de base pública para detectar conflictos. No realiza la limpieza de cuentas OAuth que ejecuta DELETE al eliminar un proveedor individual. HTTP 409 devuelve la salida 5: tome una nueva instantánea, revise los cambios simultáneos y reconstruya la edición propuesta. No reemplace la línea base ni vuelva a intentarlo automáticamente. Los resultados de escritura desconocidos requieren inspección, no una suposición de retroceso.
 
 Use archivos UTF-8 JSON regulares o explícitos canalizados `-`; como máximo una entrada por lotes puede ser stdin. Cada entrada tiene un límite de 4 MiB y una fecha límite de lectura de 30 segundos. La solicitud serializada combinada `{baseline,next}` también debe ajustarse a 4 MiB. Interactivo stdin, archivos especiales, banderas conflictivas, campos no válidos y eliminaciones no confirmadas son rechazadas antes de la mutación con la salida 2. Los errores de entrada nunca se hacen eco de los valores enviados.
+
+<a id="keyless-cc-switch-provider-import"></a>
+
+### Importar proveedores de CC-Switch sin claves
+
+```bash
+ocx provider import-cc-switch --source ~/.cc-switch/cc-switch.db
+ocx stop
+ocx provider import-cc-switch --source ~/.cc-switch/cc-switch.db --provider my-provider --apply
+# Start the proxy in another terminal (or run ocx ensure), then add credentials:
+ocx start
+printf '%s\n' "$API_KEY" | ocx account add-key my-provider
+
+# Separate rollback path (stop the proxy first; removes unedited keyless entries only):
+ocx stop
+ocx provider import-cc-switch --restore
+```
+
+`ocx provider import-cc-switch` solo extrae una lista explícita de metadatos no secretos: identificadores de proveedor, tipos de aplicación, URL base, protocolos y modelos predeterminados. La fuente debe ser una base SQLite regular de CC-Switch o un archivo JSON antiguo. Los bytes de la fuente y de las configuraciones incluidas se leen temporalmente para inspeccionarlos; los campos secretos, nombres libres y comentarios TOML se omiten a nivel de bytes, sin convertirlos en cadenas, escribirlos ni registrarlos. Los búferes temporales se ponen a cero en `finally`.
+
+Como protección adicional, la URL base debe tener la forma `http(s)://host[:port]` con una ruta vacía o de 1 a 4 segmentos de API en minúsculas `[a-z0-9._-]`, como `/v1`, `/api/v1` o `/compatible-mode/v1`. También se valida la sintaxis de los identificadores y modelos; los valores no conformes se rechazan sin mostrarlos. La fuente se abre una vez y se verifica mediante el descriptor con `O_NOFOLLOW | O_NONBLOCK`. SQLite se deserializa solo para lectura en memoria, sin archivos temporales. Se rechazan bases con varios enlaces duros (`nlink > 1`), para que una ruta alternativa no evite las comprobaciones de archivos auxiliares. Si un archivo hermano `-wal` o `-journal` contiene datos, se pide cerrar CC-Switch o consolidar la base y volver a intentarlo. Usa solo una fuente local de confianza y verifica cada identificador, modelo y `baseUrl` mostrado antes de añadir credenciales.
+
+- **Previsualizar (predeterminado):** requiere `--source <FILE>`, no escribe nada e informa de las entradas descubiertas, elegibles, conflictivas y no válidas.
+- **Aplicar (`--apply`):** requiere `--source <FILE>` y el proxy detenido (`ocx stop`); se rechaza en un Child de Remote Link. Repite `--provider <id>` para elegir entradas concretas o añade `--allow-private-network` para permitir destinos de loopback o red privada. Aunque no hayas previsualizado, muestra cada identificador, modelo predeterminado y destino antes de guardar entradas sin claves y registrar `$OPENCODEX_HOME/cc-switch-provider-import-journal.json`. Los muestra por `stdout` en modo texto y por `stderr` con `--json`. Se rechaza otra aplicación mientras exista un diario activo. Verifica los destinos, inicia el proxy (`ocx start` en otra terminal u `ocx ensure`) y añade las credenciales con `printf '%s\n' "$API_KEY" | ocx account add-key <provider>` por stdin canalizado o con `ocx login <provider>`.
+- **Restaurar (`--restore`):** es una ruta de reversión separada. Requiere el proxy detenido (`ocx stop`), se rechaza en un Child de Remote Link y no admite `--source`, `--provider` ni `--allow-private-network`. Inspecciona `auth.json` solo para lectura a nivel de bytes y rechaza la operación si es ilegible o no válido. Solo elimina proveedores del diario activo que aún coincidan con el estado importado sin claves y que no sean `defaultProvider` ni estén referenciados por enrutamiento, combos, fallback, cuentas OAuth o claves API.
 
 <a id="authentication"></a>
 

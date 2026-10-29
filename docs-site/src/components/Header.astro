@@ -351,6 +351,21 @@ const contributing: NavLink = {
 	.title-wrapper :global(.site-title) { min-height: 44px; }
 	:global(.sl-skip-link:focus) { min-height: 44px; }
 
+	/* Longer locale labels need room before the full search pill fits. */
+	@media (min-width: 50rem) and (max-width: 89.99rem) {
+		.header { gap: 0.5rem; }
+		.title-wrapper { flex-shrink: 0; }
+		.search-wrapper :global(button[data-open-modal]) {
+			width: 44px;
+			min-width: 44px;
+			min-height: 44px;
+			padding: 0;
+			justify-content: center;
+		}
+		.search-wrapper :global(button[data-open-modal] > span),
+		.search-wrapper :global(button[data-open-modal] > kbd) { display: none; }
+	}
+
 	.search-wrapper,
 	.github-link,
 	.right-group,

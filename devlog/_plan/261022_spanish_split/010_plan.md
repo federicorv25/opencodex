@@ -500,3 +500,93 @@ changed. After publishing, resolve only the ten corrected threads and request
 one full CodeRabbit review without waiting for its result. Keep the PR Draft
 pending fresh review, authorized CI and maintainer acceptance. Historical
 contributor Spanish acceptance is retained, not recast as a new human test.
+
+## Readiness refresh, October 29
+
+The contributor authorized closing the actionable pending work after a read-only
+audit. Fast-forwarded the clean checkout to the maintainer's published
+`f074adb71c631b057ef375dbf683ed3e5b3bd14f`, retaining the ordinary carry merges,
+their Spanish corrections and attribution. Merged 49 newer dev commits through
+`3ea89653f5727aea41948ddbd5e833f74afe3e36` (2.95.0) in ordinary merge
+`fae2396a53a066dbe05d31d49131f304cb57f618`. Before publication a fresh fetch still
+reported that same tip and zero missing dev commits. No history was rewritten.
+
+Resolved four merge conflicts: the configuration sidebar retains Catalog with
+Spanish copy and every upstream entry; landing and JSON-LD retain the new
+gateway wording and locale registration; the test layout retains all 19
+upstream shards plus this contribution's docs shard. Compared the normalized
+layout with upstream after removing only that shard, verified every upstream
+shard, and compared the expected fixture map after removing only the added
+Spanish-docs test entry. None was dropped.
+
+Spanish now covers all 78 canonical paths, including the new LM Studio strict
+template, catalog omission and Windows ACL-timeout pages. Updated the changed
+quickstart, Claude Desktop model visibility, constrained tool translation,
+native model omission, context-overflow failover, Advisor caller policy,
+provider/model batch probes, Kiro IAM login, Moonshot migration, xAI includes,
+Opus thinking display, SSH recovery and keyless CC-Switch import. The previously
+separate #7770 is now in dev, so its `completeOnMaxOutputTokens` setting is
+included with the same default and exclusions as English. Added the new
+Spanish runtime-evidence strings and regenerated the client support matrix with
+the owning command; no other locale output changed.
+
+The shared landing-key contract now compares complete Spanish and French key
+sets and verifies every visible/accessibility call. It found missing labels
+from the upstream landing refresh; all are translated. Kept the French drum
+accessibility label while adopting the new copy. Browser review also confirmed
+that the full search pill crowded the brand at desktop widths: its name had an
+81px text box for 127px of content. At intermediate widths the header now uses
+the existing 44px accessible search button without its decorative label/shortcut,
+reserves the brand and reduces gaps. At 1160px and 1280px the complete 127px
+name fits, without page overflow; clicking search and opening a result still
+works. Mobile keeps its existing controls. No runtime or CI behavior is changed.
+
+Frozen root and docs installs passed with Bun 1.4.4. Root typecheck passed for
+2,243 files; structure check and direct file-size ratchet passed. Validation
+used the isolated repository test wrapper and synthetic data:
+
+- The 20-file docs/client-matrix/layout/structure/hygiene batch initially had
+  490 passes and two failures (5,462 assertions). The remaining failures identified
+  provider-role prose that did not name single-leading-system compatibility and
+  combined two role cases. Corrected the documentation, preserving the tests.
+  The final two affected files passed all 48 tests, 0 failures, 2,499 assertions;
+  46 overlap the original batch. All selected cases are accounted for; this is
+  not a claim that the initial batch exited successfully. The new landing-key
+  check also caught omitted labels before this final run.
+- The 14-file current-dev runtime-contract batch had 456 passes and two Windows
+  fixture-cleanup failures, 3,100 assertions. Both failures were EBUSY from
+  removing temporary SQLite fixture directories in `cc-switch-import.test.ts`.
+  A focused rerun of F1/F2 and F3 passed F1/F2 but retained the F3 cleanup failure
+  (1 pass, 1 fail, 7 filtered out, 98 assertions). No assertion or timeout was
+  weakened and the test/runtime source is unchanged from upstream.
+- Ran the unchanged full CC-Switch file on Linux: 9 passes, 0 failures, 545
+  assertions, including F1/F2, F3, WAL/hard-link and FIFO cases. The disposable
+  Bun 1.4.4/Node 24.22.1 container had no network, a read-only checkout and an
+  explicit private source copy, configuration and prefixes in temporary memory.
+  The Windows cleanup limitation remains disclosed; Linux does not establish
+  that Windows cleanup passed. These cases overlap the Windows batch.
+
+All 78 pages retain technical command/inline parity. Final docs build: 703 pages
+and 104,154 internal links, including Pagefind and sitemap. Actual-browser
+inspection covered the Spanish homepage on desktop/mobile, LM Studio at desktop
+width, the new catalog reference on mobile and the Windows ACL page through
+search. The compact search found one Spanish result for `icacls` and opened the
+new Spanish troubleshooting page. Inspected pages had Spanish language metadata
+and no horizontal page overflow. The viewport was restored; the isolated static
+preview remains at port 4323. No personal Desktop state or port 10100 was used.
+
+Four screenshots are pinned on the separate `pr-assets` branch at
+`2a461766e22f3aaad57f873a10fe420553484468`, under `spanish-docs-20261029/`.
+No screenshot is on this source branch. The PR description records final staged
+privacy validation, commands, the published head and exact-head CI status.
+
+Keep the full-root resource exception and unexecuted native-client/platform
+coverage explicit. Independent final Spanish/render acceptance is the separate
+maintainer-arranged gate requested in the October 28 triage; this implementing
+agent's inspection and the contributor's historical acceptance do not replace
+it. The current policy treats `lane=all` as a batched dev check, not a per-PR
+gate; do not request or dispatch it again for this branch. The fixture-path diff
+should choose the full Ubuntu PR lane when CI is authorized. Publish once,
+update the description once, request one full CodeRabbit review without waiting
+for its result, and leave Draft pending independent acceptance and current-head
+CI. Do not merge or change CI permissions, labels or workflows.

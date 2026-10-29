@@ -307,6 +307,17 @@ describe("Spanish documentation localization", () => {
     expect(source(join(root, "es/index.mdx"))).toContain('<Landing locale="es" />');
     expect(source(repoPath("docs-site/src/components/Header.astro"))).toContain("Español");
     expect(source(repoPath("docs-site/src/data/frontier-i18n.ts"))).toMatch(/\bes:\s*\{/);
+    const landing = source(repoPath("docs-site/src/components/Landing.astro"));
+    const decodeKey = (key: string): string => key.replace(/\\(['"\\])/g, "$1");
+    const keys = (block: string): string[] => [...block.matchAll(/^\s*(?:"((?:\\.|[^"\\])*)"|'((?:\\.|[^'\\])*)')\s*:/gm)]
+      .map(match => decodeKey(match[1] ?? match[2] ?? "")).sort();
+    const french = keys(landing.match(/const fr = \{([\s\S]*?)^\}(?: as const)?;/m)?.[1] ?? "");
+    const spanish = keys(landing.match(/const es:[^=]+ = \{([\s\S]*?)^\};/m)?.[1] ?? "");
+    expect(french.length).toBeGreaterThan(0);
+    expect(spanish).toEqual(french);
+    for (const call of landing.matchAll(/\bt\((?:"((?:\\.|[^"\\])*)"|'((?:\\.|[^'\\])*)')/g)) {
+      expect(french, "visible or accessible landing copy").toContain(decodeKey(call[1] ?? call[2] ?? ""));
+    }
   });
 
   test("every translated Pi quickstart keeps the non-secret loopback export contract", () => {
