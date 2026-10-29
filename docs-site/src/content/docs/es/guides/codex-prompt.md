@@ -33,6 +33,8 @@ Si una capa no se puede desactivar, la fila no muestra un interruptor. Mostrarlo
 
 Haz clic en su nombre para ver el texto que envía. El diálogo lo obtiene de `codex debug prompt-input`: muestra el contenido real, no una descripción.
 
+La lectura dispone de un único presupuesto fijo de 15 segundos para quien la solicita, incluido el tiempo dedicado a leer metadatos y a esperar una consulta de diagnóstico compartida. Las lecturas síncronas de metadatos terminan antes de que se pueda comprobar si ha vencido el plazo; si el presupuesto se ha agotado, se impide iniciar una nueva consulta. Si vence el plazo, el diálogo informa de que no se pudo leer el prompt; las instrucciones base disponibles localmente se devuelven de todos modos.
+
 A veces no hay contenido que mostrar. El diálogo explica cuál de estos casos se aplica:
 
 - **El archivo existe, pero está vacío.** `~/.codex/AGENTS.md` tiene cero bytes y la capa no tiene contenido que enviar. El diálogo muestra la ruta.

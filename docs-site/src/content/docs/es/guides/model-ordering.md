@@ -11,7 +11,7 @@ El selector de modelos Codex no conserva el orden de las declaraciones del prove
 
 Codex 's models-manager ordena las entradas de catálogo visible por `priority` en orden ascendente. Descarta el orden de la matriz de catálogo, por lo que mover una entrada anterior en una matriz JSON generada no la mueve anterior en el selector. La implementación registra esta restricción directamente en `src/codex/catalog/sync.ts`.
 
-Por lo tanto, opencodex controla la ubicación de las funciones asignando prioridades más bajas, no confiando en la posición de la matriz. A menos que se indique lo contrario, las prioridades fijas y el ejemplo trabajado a continuación describen un catálogo sin selectores de cuenta Codex elegibles. Con `N` selectores elegibles, las prioridades presentadas usan `N` como un paso: una elección nativa desnuda en el rango configurado `i` se expande a filas de selectores en las prioridades `i * N + j`, donde `j` es la posición basada en cero del selector; una elección encaminada usa `i * N`; y una elección calificada por selector exacta usa `i * N + j` para su selector. Las filas enrutadas no seleccionadas se mueven fuera de esos grupos selectores. Codex todavía anuncia sólo las primeras cinco filas visibles.
+Por lo tanto, opencodex controla la posición de los modelos destacados asignando prioridades más bajas, no confiando en la posición de la matriz. A menos que se indique lo contrario, las prioridades fijas y el ejemplo trabajado a continuación describen un catálogo sin selectores de cuenta Codex elegibles. Con `N` selectores elegibles, las prioridades presentadas usan `N` como un paso: una elección nativa desnuda en el rango configurado `i` se expande a filas de selectores en las prioridades `i * N + j`, donde `j` es la posición basada en cero del selector; una elección encaminada usa `i * N`; y una elección calificada por selector exacta usa `i * N + j` para su selector. Las filas enrutadas no seleccionadas se mueven fuera de esos grupos selectores. Codex todavía anuncia sólo las primeras cinco filas visibles.
 
 Sin el pedido completo del seleccionador, las prioridades relevantes de no selector son:
 
@@ -30,7 +30,7 @@ La gestión API limita `subagentModels` a cinco entradas con `slice(0, 5)` en `s
 
 <a id="how-ties-are-ordered"></a>
 
-## Cómo se ordenan los lazos
+## Cómo se ordenan los empates
 
 Todos los modelos ruteados ordinarios tienen prioridad `5`, por lo que necesitan un desempate. Antes de que se construyan las entradas del catálogo, `gatherRoutedModels()` ordena la lista de modelos enrutados por nombre del proveedor y luego por la identificación del modelo, ambos alfabéticamente (`src/codex/catalog/provider-fetch.ts`).
 

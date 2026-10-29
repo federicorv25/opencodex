@@ -139,7 +139,7 @@ ocx v2 mode v1 --live --json
 ocx v2 status --live --json
 ```
 
-La escritura en vivo utiliza la ruta de gestión existente. Sólo explícito en vivo `mode` acepta `--acknowledge-surface-advisory`; añadirlo sólo cuando se reconoce que se solicita asesoramiento. Modo local y estado/encendido/apagado/mantenimiento nativo/hilos/pista rechazarlo. No hay reconocimiento automático.
+La escritura en vivo utiliza la ruta de gestión existente. Sólo explícito en vivo `mode` acepta `--acknowledge-surface-advisory`; añadirlo sólo cuando se reconoce que se solicita asesoramiento. El modo local y `status`/`on`/`off`/`keep-native`/`threads`/`hint` lo rechazan. No hay reconocimiento automático.
 
 Para el texto literal reservado, pase un operando citado después de `--`:
 
@@ -360,7 +360,7 @@ Las banderas desconocidas, repetidas o conflictivas, los límites inválidos y l
 ocx usage --range 7d --search 'model-a' --json
 ```
 
-`--search` coincide con una subcadena recortada que no distingue entre mayúsculas y minúsculas en el modelo, proveedor o modelo resuelto después de leer el informe. Ordena las filas del modelo descendiendo tokens totales con lazos estables y mantiene hasta 100 por defecto. JSON agrega `modelView:{query,matchedModelCount,returnedModelCount,limit:100,truncated}`; la salida humana etiqueta la vista y muestra las filas de modelos seleccionadas. Los totales de los informes, las filas proveedor/día/cuenta, los filtros exactos y los metadatos incompletos/ventana permanecen sin cambios. Ninguna coincidencia de modelo no significa que no se utilice el informe.
+`--search` coincide con una subcadena recortada que no distingue entre mayúsculas y minúsculas en el modelo, proveedor o modelo resuelto después de leer el informe. Ordena las filas del modelo descendiendo tokens totales con empates estables y mantiene hasta 100 por defecto. JSON agrega `modelView:{query,matchedModelCount,returnedModelCount,limit:100,truncated}`; la salida humana etiqueta la vista y muestra las filas de modelos seleccionadas. Los totales de los informes, las filas proveedor/día/cuenta, los filtros exactos y los metadatos incompletos/ventana permanecen sin cambios. Ninguna coincidencia de modelo no significa que no se utilice el informe.
 
 Una consulta en blanco explícita (`--search=`) selecciona la vista top-100; la omisión de la búsqueda conserva el resultado existente. Exacto `--provider` / `--model` todavía alcance el informe subyacente. La búsqueda no amplía el auto alcance de la clave seleccionada o del cliente conectado y nunca se envía como un nuevo parámetro de consulta de Hub API.
 
@@ -813,7 +813,7 @@ Un enlace `model_catalog_json` modificado por esta solicitud también fuerza el 
 ocx system settings --stream-mode eager-relay
 ```
 
-Otros booleanos del sistema toman encendido/apagado: `--show-codex-credits`, `--account-picker`, `--main-account-hard-lock`, `--ultra-fast-tier` y `--fast-rows`. Escriben solo campos explícitos y pueden combinarse con las opciones del sistema existentes. Mostrar créditos es una preferencia de visualización, no una opción de crédito pagado; el sistema Ultra Fast está separado del proveedor Fast.
+Otros booleanos del sistema aceptan `on`/`off`: `--show-codex-credits`, `--account-picker`, `--main-account-hard-lock`, `--ultra-fast-tier` y `--fast-rows`. Escriben solo campos explícitos y pueden combinarse con las opciones del sistema existentes. Mostrar créditos es una preferencia de visualización, no una opción de crédito pagado; el sistema Ultra Fast está separado del proveedor Fast.
 
 Ultra Fast es una configuración opt-in, por defecto desactivado. Con `--ultra-fast-tier on`, el catálogo generado agrega la opción de velocidad ultrarrápida a `gpt-6-astra` y `gpt-6.1-sol` nativos (incluidas las filas vinculadas a la cuenta), por lo que el selector Codex lo ofrece junto a Fast. Ultrafast requiere un plan ChatGPT elegible; el catálogo no puede verificar eso, así que active la configuración solo si su plan lo incluye. Otros modelos y la velocidad predeterminada no se modifican.
 

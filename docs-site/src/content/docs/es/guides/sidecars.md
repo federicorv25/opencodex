@@ -26,7 +26,7 @@ Además de ChatGPT y Claude, hay tres backends de búsqueda adicionales. Todos r
 | Backend | Ejecución | Credenciales | Notas |
 | --- | --- | --- | --- |
 | `xai` | Grok alojado `web_search` (+ opt-in `x_search` ) en `api.x.ai` Responses | Almacenado Grok OAuth (`ocx login xai`) | `webSearchSidecar.xSearch` permite la búsqueda X con `allowedXHandles` / `excludedXHandles` (máximo 20, mutuamente excluyentes) e ISO `fromDate` / `toDate`. Modelo predeterminado `grok-4.6`. |
-| `gemini` | `google_search` puesta a tierra en el transporte Antigravity | Almacenado Antigravity OAuth con un proyecto descubierto (`ocx login google-antigravity`) | Modelo predeterminado `gemini-3.8-flash`; el razonamiento selecciona el nivel coincidente. |
+| `gemini` | Fundamentación mediante `google_search` en el transporte Antigravity | Almacenado Antigravity OAuth con un proyecto descubierto (`ocx login google-antigravity`) | Modelo predeterminado `gemini-3.8-flash`; el razonamiento selecciona el nivel coincidente. |
 | `exa` | Exa Search API (resumen de resultados no LLM) | `webSearchSidecar.exaApiKey` | La clave es solo escritura a través de la administración API (nunca se hizo eco, se redactó desde los registros). No se aplica ningún modelo de sidecar. |
 
 <a id="web-search-sidecar"></a>

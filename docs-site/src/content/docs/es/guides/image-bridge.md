@@ -49,8 +49,8 @@ Las opciones de puente de imagen viven bajo `images` en `~/.opencodex/config.jso
 | --- | --- | --- |
 | `bridgeEnabled` | `false` | Interruptor maestro. Establecer `true` para permitir el puente. Desactivado por defecto para evitar cargos inesperados de xAI. |
 | `bridgeModel` | `grok-imagine-image-quality` | El identificador de modelo de imagen xAI para enviar mensajes. |
-| `maxRounds` | `3` | Iteraciones máximas de bucle de generación de imágenes por turno. Fijado a un número entero y fijado a `[0, 10]`; los valores no finitos vuelven a `3`. |
-| `timeoutMs` | `60000` | Fecha límite xAI por llamada en milisegundos. Los valores positivos finitos se minimizan y pasan a la solicitud xAI. |
+| `maxRounds` | `3` | Iteraciones máximas de bucle de generación de imágenes por turno. Los valores se redondean hacia abajo al entero inferior y se limitan al intervalo `[0, 10]`; los valores no finitos usan el valor de respaldo `3`. |
+| `timeoutMs` | `60000` | Fecha límite xAI por llamada en milisegundos. Los valores positivos finitos se redondean hacia abajo al entero inferior y se pasan a la solicitud xAI. |
 | `artifactsKeepCount` | `200` | Número máximo de archivos retenidos bajo `artifacts/`. Cuando se excede, los archivos más antiguos se eliminan después de cada llamada completada. Establezca en `0` o un valor negativo para deshabilitar la poda. |
 
 <a id="artifact-retention"></a>

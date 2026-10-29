@@ -22,7 +22,7 @@ Una ruta es una lista de saltos desde el cliente API al cable ascendente. Los sa
 
 `native` describe cómo viaja una solicitud. No es un veredicto de compatibilidad: una ruta nativa todavía puede cumplir con un proveedor que rechaza un campo, y los resultados verificados de Compatibility Lab son una cosa separada.
 
-Con cada apagado, una ruta de proveedor único elegible toma estos caminos:
+Con todas las opciones desactivadas, una ruta elegible con un único proveedor sigue estas rutas:
 
 | Cliente API → aguas arriba | Ruta |
 | --- | --- |
@@ -78,7 +78,7 @@ Bajo `reject`, una ruta directa se juzga en el ingreso una vez que su proveedor 
 
 ## Interruptores de despliegue
 
-Estos interruptores preparan los nuevos caminos. Cada uno por defecto está apagado excepto `antigravityDirect`, y un interruptor que está apagado no cambia nada.
+Estos interruptores preparan los nuevos caminos. Cada uno está desactivado de forma predeterminada excepto `antigravityDirect`, y un interruptor desactivado no cambia nada.
 
 | Interruptor | Cuando esté |
 | --- | --- |
@@ -114,7 +114,7 @@ ocx api policy --unrepresentable reject
 Estos caminos todavía utilizan el puente interno Responses o no están cubiertos:
 
 - El chat y las solicitudes Messages todavía se decodifican en un cuerpo con forma de Responses antes de la IR, incluso en una ruta traducida. La excepción es una solicitud de Chat o Messages a una única ruta Google Antigravity, a menos que `antigravityDirect` se establezca en `false`.
-- Los candidatos de la política de enrutamiento, combos alcanzados a través de una fila de esfuerzo, combos candidatos mientras `nativeChatCombos` está apagado y Messages combos.
+- Los candidatos de la política de enrutamiento, combos alcanzados a través de una fila de esfuerzo, combos candidatos mientras `nativeChatCombos` está desactivado y Messages combos.
 - Direct (`directEncoders`) cubre solo una ruta concreta, no Responses en la entrega de transmisión. Los hijos combinados y de políticas, la compactación enrutada, los adaptadores de ejecución-giro (Cursor, Devin, los CLI de agentes de codificación, CodeBuddy) y los giros laterales mantienen el puente.
 - Un candidato combinado nativo de Chat que falla en la banda antes de cualquier salida no pasa al siguiente candidato; uno puenteado lo haría.
 - Los sidecares de búsqueda, visión y generación de imágenes web solo funcionan en la tubería Responses.

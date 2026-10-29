@@ -249,7 +249,7 @@ Con un conjunto de `port`, las integraciones locales siguen al oyente: `ocx clau
 
 **Reinicie el proxy después de cambiar este campo, en cualquier forma.** Los sockets se unen una vez en el inicio y los valores de cliente exportados se escriben desde el puerto resuelto, por lo que un proxy en ejecución mantiene su respuesta anterior, en un oyente portado que es la diferencia entre una solicitud servida y un `404` del oyente.
 
-En un `runtimeRole: "hub"`, este campo también es la puerta de entrada para saber si el concentrador reescribe la configuración del cliente local **Su propio**. Con el oyente apagado, `ocx sync`, `ocx ensure` y `ocx restore back` omiten las escrituras propias del concentrador Codex / Grok / Claude y lo dicen, nombrando `unauthenticatedLoopbackListener` en lugar del conmutador `clientIntegrations`.
+En un `runtimeRole: "hub"`, este campo también es la puerta de entrada para saber si el concentrador reescribe la configuración del cliente local **Su propio**. Con el oyente desactivado, `ocx sync`, `ocx ensure` y `ocx restore back` omiten las escrituras propias del concentrador Codex / Grok / Claude y lo dicen, nombrando `unauthenticatedLoopbackListener` en lugar del conmutador `clientIntegrations`.
 
 El oyente sólo sirve `POST /v1/responses`, su actualización WebSocket, `POST /v1/responses/compact`,
 `POST /v1/messages` (el cable Anthropic Claude Code y Claude Desktop hablar),
@@ -532,7 +532,7 @@ El proveedor del modelo seleccionado recibe toda la conversación para resumirla
 
 ### Razonamiento de retención durante la compactación
 
-La retención de razonamiento legible es un opt-in avanzado y explícito y es **apagado por defecto**. Solo `reasoningRetention.enabled: true` lo habilita; un bloque omitido, `enabled: false`, o límites heredados sin `enabled: true` dejan sin cambios el comportamiento de compactación ordinario. Cuando se habilita para las solicitudes v1 `POST /v1/responses/compact` y v2 `compaction_trigger` enrutadas, el razonamiento legible permanece local mientras que el modelo seleccionado resume otro contexto. Después de que un resumen legible tenga éxito, el texto retenido exacto regresa junto con él en mensajes de contexto histórico enmarcados, no como un nuevo razonamiento o instrucciones auxiliares. La compactación repetida retiene esos mensajes de nuevo. Los giros posteriores ordinarios los repiten como historia.
+La retención de razonamiento legible requiere activación explícita como opción avanzada y está **desactivada de forma predeterminada**. Solo `reasoningRetention.enabled: true` lo habilita; un bloque omitido, `enabled: false`, o límites heredados sin `enabled: true` dejan sin cambios el comportamiento de compactación ordinario. Cuando se habilita para las solicitudes v1 `POST /v1/responses/compact` y v2 `compaction_trigger` enrutadas, el razonamiento legible permanece local mientras que el modelo seleccionado resume otro contexto. Después de que un resumen legible tenga éxito, el texto retenido exacto regresa junto con él en mensajes de contexto histórico enmarcados, no como un nuevo razonamiento o instrucciones auxiliares. La compactación repetida retiene esos mensajes de nuevo. Los giros posteriores ordinarios los repiten como historia.
 
 ```json
 {

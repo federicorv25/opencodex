@@ -75,7 +75,7 @@ Familias de comandos adicionales:
 
 | Familia | Sintaxis y referencia |
 | --- | --- |
-| `ocx chatgpt` | `ocx chatgpt <launch\|restore\|status>` - macOS aplicación-servidor de calza experimental, por defecto apagado. Véase [ChatGPT Escritorio](/es/guides/chatgpt-desktop/). |
+| `ocx chatgpt` | `ocx chatgpt <launch\|restore\|status>` - macOS aplicación-servidor de calza experimental, desactivado de forma predeterminada. Véase [ChatGPT Escritorio](/es/guides/chatgpt-desktop/). |
 | `ocx hub` | `ocx hub invite [--json] [--data-url <origin>] [--management-url <origin>] [--clients codex,claude]`: crea un código de emparejamiento secreto de un solo uso en un concentrador en ejecución. Consulte [Hub remoto](/es/guides/remote-hub/); invite requiere autorización explícita y su código no debe ingresar una transcripción del agente. |
 | `ocx inspect` | `ocx inspect <subcommand>` - lea la configuración efectiva, el catálogo, el análisis de enrutamiento, el ritmo, el inventario del proveedor de claves, el indicador Codex, la configuración del cliente, el estado de estrella o el estado de la bandeja Windows. Ejecutar `ocx help inspect` para los enlaces del tema. |
 | `ocx mcode` | `ocx mcode [mcode args...]` - inicie el código MiniMax después de que su integración de archivos administrados esté habilitada. Véase [MiniMax clientes](/es/guides/minimax/). |
