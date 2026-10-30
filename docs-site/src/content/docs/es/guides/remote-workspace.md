@@ -83,26 +83,55 @@ El flujo manual equivalente es:
 
 ```bash
 cd /path/to/project
-printf '%s\n' 'ONE-TIME-CODE' | ocx remote-workspace pair 'https://your-hub.example' \
-  --pairing-code-stdin --root "$PWD"
-ocx remote-workspace agent
+if read -r -s -p 'Pairing code: ' pairing_code; then
+  printf '\n'
+  pairing_status=0
+  printf '%s\n' "$pairing_code" | ocx remote-workspace pair 'https://your-hub.example' \
+    --pairing-code-stdin --root "$PWD" || pairing_status=$?
+  unset pairing_code
+  if [ "$pairing_status" -eq 0 ]; then ocx remote-workspace agent; fi
+  unset pairing_status
+else
+  unset pairing_code
+fi
 ```
 
 En Windows PowerShell, usa el comando que muestra el dashboard. Su equivalente manual es:
 
 ```powershell
-$pairingCode = 'ONE-TIME-CODE'
-$pairingCode | ocx remote-workspace pair 'https://your-hub.example' `
-  --pairing-code-stdin --root (Get-Location).Path
-if ($LASTEXITCODE -eq 0) { ocx remote-workspace agent }
+$pairingSecret = Read-Host 'Pairing code' -AsSecureString
+$pairingBuffer = [IntPtr]::Zero
+$pairingExitCode = 1
+try {
+  $pairingBuffer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($pairingSecret)
+  $pairingCode = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($pairingBuffer)
+  $pairingCode | ocx remote-workspace pair 'https://your-hub.example' `
+    --pairing-code-stdin --root (Get-Location).Path
+  $pairingExitCode = $LASTEXITCODE
+} finally {
+  if ($pairingBuffer -ne [IntPtr]::Zero) {
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($pairingBuffer)
+  }
+  $pairingSecret.Dispose()
+  Remove-Variable pairingCode, pairingSecret, pairingBuffer -ErrorAction SilentlyContinue
+}
+if ($pairingExitCode -eq 0) { ocx remote-workspace agent }
+Remove-Variable pairingExitCode
 ```
 
 El ejecutable actual de Bun que usa OCX se añade automáticamente al sandbox de Linux como un único archivo de solo lectura. Si el proyecto necesita herramientas instaladas por el usuario fuera de las rutas del sistema, incluye explícitamente esa cadena de herramientas en el emparejamiento, sin exponer el resto del directorio personal:
 
 ```bash
-printf '%s\n' 'ONE-TIME-CODE' | ocx remote-workspace pair 'https://your-hub.example' \
-  --pairing-code-stdin --root "$PWD" \
-  --toolchain-root "$HOME/.nvm/versions/node/v24/bin"
+if read -r -s -p 'Pairing code: ' pairing_code; then
+  printf '\n'
+  pairing_status=0
+  printf '%s\n' "$pairing_code" | ocx remote-workspace pair 'https://your-hub.example' \
+    --pairing-code-stdin --root "$PWD" \
+    --toolchain-root "$HOME/.nvm/versions/node/v24/bin" || pairing_status=$?
+  unset pairing_code pairing_status
+else
+  unset pairing_code
+fi
 ```
 
 El código fuente del auxiliar nativo se incluye en el paquete para su revisión. Compilarlo no habilita la ejecución de comandos en Windows ni macOS en esta implementación. `--executor-helper` sigue siendo un selector de auxiliares revisados; que exista un binario o una ruta configurada no demuestra que se admita ejecutar comandos.

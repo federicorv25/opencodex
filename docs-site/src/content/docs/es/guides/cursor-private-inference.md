@@ -123,7 +123,7 @@ Razonamiento-esfuerzo **Max** (opencodex `max` / `ultra`) es el otro significado
 
 Debido a que opencodex anuncia `responses` en `api_types`, este agente de envío de compilación se convierte en `/v1/responses` con `reasoning.effort`, no en `/v1/chat/completions`.
 
-Esa elección de cable tiene un efecto secundario para Claude filas: Cursor envía Claude esfuerzo solo como `output_config.effort` en el cable Anthropic Messages, por lo que con un `/v1` URL Base una fila Claude que muestra un control aún se ejecuta en el proveedor predeterminado. Una URL base que termina en `/messages` lo invierte: se envía Claude esfuerzo y se elimina OpenAI -esfuerzo familiar. Una entrada de puerta de enlace no puede servir a ambas familias; filas de esfuerzo (arriba) paso lateral esto porque opencodex aplica el esfuerzo en sí.
+Esta elección de protocolo tiene un efecto secundario en las filas Claude: Cursor solo envía su esfuerzo de razonamiento mediante `output_config.effort` en Anthropic Messages. Por tanto, con una URL base `/v1`, la fila Claude seleccionada usa el esfuerzo predeterminado de su proveedor aunque muestre un control de esfuerzo. Con una URL base que termina en `/messages`, ocurre lo contrario: se envía el esfuerzo de Claude y se descarta el de la familia OpenAI. Una sola entrada del gateway no puede servir a ambas familias; las filas de esfuerzo descritas arriba evitan esta limitación porque opencodex aplica el esfuerzo directamente.
 
 <a id="verify"></a>
 

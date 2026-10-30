@@ -114,8 +114,8 @@ right; say why when it is wrong. It does not block a merge.
 runs on `pull_request_target` and on CodeRabbit `status` events, both loaded
 from the repository default branch; the write-capable behavior therefore
 changes only after the gate revision is promoted to `main`. The cross-platform
-CI workflow runs on `pull_request` and takes effect as soon as it is on the
-branch being targeted.
+CI workflow runs on `pull_request` using the PR merge ref (`refs/pull/<number>/merge`),
+so workflow changes can affect that PR before merge, subject to event filters and fork-run approval.
 
 ## Sponsored surfaces
 

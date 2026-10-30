@@ -41,7 +41,7 @@ CodeRabbit revisa los PR y sus hallazgos son recomendaciones. Corrige los válid
 
 ### Cuándo entra en vigor un cambio de automatización
 
-`enforce-target` y `label` usan la automatización de confianza de la rama predeterminada. El control del PR se ejecuta en `pull_request_target` y en los eventos `status` de CodeRabbit, cargados desde esa rama. Por tanto, el comportamiento con permiso de escritura solo cambia al promocionar la revisión del control a `main`. La CI multiplataforma se ejecuta en `pull_request` y sus cambios surten efecto cuando llegan a la rama de destino.
+`enforce-target` y `label` usan la automatización de confianza de la rama predeterminada. El control del PR se ejecuta en `pull_request_target` y en los eventos `status` de CodeRabbit, cargados desde esa rama. Por tanto, el comportamiento con permiso de escritura solo cambia al promocionar la revisión del control a `main`. La CI multiplataforma se ejecuta en `pull_request` usando la referencia de merge del PR (`refs/pull/<number>/merge`), por lo que un cambio del workflow puede afectar a ese PR antes del merge, según los filtros del evento y la autorización de las ejecuciones desde forks.
 
 <a id="sponsored-surfaces"></a>
 

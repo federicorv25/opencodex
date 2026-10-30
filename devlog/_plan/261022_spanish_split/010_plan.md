@@ -636,3 +636,89 @@ This follow-up resolves the Windows cleanup limitation recorded above. It does
 not resolve the 20 new documentation threads from CodeRabbit's completed review
 of `9af015348`; those findings and independent Spanish/render acceptance remain
 separate. Keep the PR in Draft and preserve the existing CI dispatch policy.
+
+## 2026-10-29 — Complete the twenty new documentation findings
+
+Reviewed all twenty open threads from the completed CodeRabbit review of
+`9af015348`. The branch retains the Windows fixture fix in `eab49f9ad` and all
+maintainer carry commits. A fresh fetch found no commits missing from `dev`
+(`3ea89653f5727aea41948ddbd5e833f74afe3e36`, 2.95.0).
+
+| Finding | Correction |
+| --- | --- |
+| 1. Platform Support | Use a Starlight slug; navigation keeps the selected locale. |
+| 2. Workflow revision | English and Spanish contributing/PR-quality pages describe the PR merge ref and pre-merge effect, subject to filters and fork approval; trusted default-branch gates remain separate. |
+| 3. Activation | State the default-off opt-in and quota-window reset trigger; preserve process-restart recovery and retry timing. |
+| 4. Installation | Distinguish the loopback root URL from non-loopback provider-table authentication. |
+| 5. Log Guard | Limit filtering to rows persisted in local SQLite; preserve the listed exclusions. |
+| 6. Quota privacy | Separate outbound quota signals from bounded local tier counts and selected tier; retain the no-account-ID/token/fingerprint guarantee. |
+| 7. Combo options | Add the cooldown-reprobe options to both English and Spanish summaries. |
+| 8. Cursor | Describe the selected Claude provider's default reasoning effort, without implying a provider change. |
+| 9. Integration removal | State that edits can lock the switch and refuse Disable, leaving the managed block intact. |
+| 10. Trace location | Name the actual Logs dashboard section. |
+| 11. Executor pairing | Synchronize all nine locale recipes: silent input, stdin delivery, variable cleanup and agent launch only after successful pairing. |
+| 12. Subagent roster | English and Spanish describe the first five priorities, non-allowlist semantics and catalog completion. |
+| 13. Incomplete usage | Distinguish the warning from readable-only counts/dates/rankings and retain the incomplete-snapshot refusal/recovery. |
+| 14. Native omission | Correct both English and Spanish defaults: absent/false/invalid values add no omission. |
+| 15. Strict effort | Use the intersection of known effort scales, including empty scales; keep adaptive and dispatch distinctions. |
+| 16. API-key scope | State that decision-destination scopes are enforced before credential or request-state reads. |
+| 17. Migration | Clearly preserve parsing of old usage rows without routeDecision and explain index rebuilding. |
+| 18. Non-loopback credentials | Include configured client API keys in English and Spanish, matching assertServerAuthConfig. |
+| 19. Encrypted task recovery | English and Spanish describe the eligible recovery exception and retain the last native error after native attempts; link the existing trust/loopback/no-persistence restrictions. |
+| 20. Video Bridge | Align the remaining seven locales with the English/Spanish environment-key reference and explicit key mode; also repair the Japanese example's translated JSON property. |
+
+No runtime, GUI, Desktop, workflow, dependency or lockfile change is made by this
+batch. The primary GitHub Actions event reference confirms the merge-ref
+distinction; provider, quota, admission and recovery claims were compared with
+their current implementations and canonical guides.
+
+Two new regressions inside the existing Spanish-docs guard check that every
+locale's Video Bridge example parses and requires the environment key/key-auth
+shape, and that every Executor example reads silently, uses stdin and clears
+its variable. Both failed before the corrections. The first full docs selection
+had 392 passes and one failure caused by a changed inline code-span delimiter in
+the effort table. The delimiter was restored without weakening the guard; final
+affected-file validation passed all 20 cases and 2,542 assertions. The other
+fourteen files' 373 passes remain valid and were not rerun on unchanged inputs.
+
+```powershell
+$env:OCX_TEST_RUNNER_BUN = (Get-Command bun).Source
+$docsTests = @(rg --files tests/ci-workflows -g 'docs-*.test.ts')
+bun scripts/test.ts --timeout 120000 @docsTests tests/ci-workflows/client-support-matrix.test.ts
+bun scripts/test.ts --timeout 120000 tests/ci-workflows/docs-spanish-localization.test.ts
+bun scripts/test.ts --timeout 120000 tests/routing/jev-quota-signals.test.ts tests/routing/jev-decision-destination.test.ts tests/server/agent-task-recovery-combo.test.ts
+bun run typecheck
+bun run structure:check
+bun scripts/file-size-ratchet.ts
+git diff --check
+```
+
+The runtime-contract selection passed 46 tests / 270 assertions. Typecheck passed
+2,243 files with zero errors. Structure and size gates pass without increasing
+any cap. Frozen docs-site install changed no package; the final offline docs
+build completed with 703 pages and 104,174 checked internal links, Pagefind and
+sitemap. The full root suite was not rerun for this documentation/data-read
+change on the shared host; focused docs, semantic runtime contracts and the full
+site build cover this batch, with broader hosted/platform evidence left to
+maintainer-authorized current-head PR CI.
+
+Six isolated shell smoke cases exercised the actual canonical Bash and Windows
+PowerShell snippets with a stubbed ocx command: success and failure, stdin,
+absence of the synthetic code from arguments/output, variable cleanup and agent
+gating. The checks used private temporary homes, no live pairing, no network and
+no execution-policy changes. These are agent-run fixtures, not native-client or
+provider acceptance.
+
+Actual-browser inspection verified the corrected catalog text, clicked Platform
+Support and reached the Spanish page with lang=es at 1280 px, and inspected
+Executor pairing at 390 px without horizontal page overflow. Viewport overrides
+were reset. Captures are kept outside the source branch under
+`spanish-docs-review-20261029/` on pr-assets, with their pinned commit in the PR.
+This does not replace the maintainer-arranged independent Spanish/render
+acceptance. The personal Desktop listener remained on 127.0.0.1:10100 in the
+same observed process; its configuration and credentials were not used.
+
+Publish the corrections once, then resolve the twenty corrected threads and
+request one full CodeRabbit review without waiting for its result. Keep Draft
+pending independent acceptance, current-head CI and maintainer review. Do not
+merge, dispatch batched CI, change permissions/labels or infer an approval.

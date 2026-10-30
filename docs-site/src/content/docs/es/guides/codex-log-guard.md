@@ -36,7 +36,7 @@ Hay dos modos disponibles:
 
 La protección reduce las filas que llegan al almacenamiento SQLite persistente. **No** elimina el trabajo previo de diagnóstico de Codex: los eventos aún pueden formatearse, encolarse, agruparse en transacciones y pasar por su lógica de limpieza antes de que el trigger descarte una fila. Protect reduce las escrituras persistentes; no desactiva la generación interna de diagnósticos.
 
-Log Guard filtros solo persisten locales SQLite filas de registro. No cambia el procesamiento de diagnóstico Codex, [transporte del adaptador](/es/reference/adapters/), las cargas útiles del proveedor, la semántica de transmisión, la autenticación, el enrutamiento, las cuotas o el estado de la cuenta.
+Log Guard solo filtra las filas de registro que se guardan en la base de datos SQLite local. No cambia el procesamiento de diagnóstico Codex, [transporte del adaptador](/es/reference/adapters/), las cargas útiles del proveedor, la semántica de transmisión, la autenticación, el enrutamiento, las cuotas o el estado de la cuenta.
 
 <a id="safety-checks"></a>
 

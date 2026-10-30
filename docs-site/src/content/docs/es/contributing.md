@@ -118,7 +118,7 @@ Se aceptan PR que actualicen una rama mediante rebase. Indica en la descripción
 - Parte del commit actual de **`dev`**. El check **`enforce-target`** rechaza ramas cuya base de merge se encuentre en el extremo de **`main`** mientras estén muy por detrás de la base del PR, como ocurrió en #644.
 - Completa la plantilla del repositorio: `Summary`, `Verification` y `Checklist`. Explica qué cambia y por qué y documenta el plan de pruebas y sus resultados. El check rechaza descripciones vacías, compuestas solo por marcadores o que usen `\n` literal en lugar de saltos de línea reales.
 - Si cambias `gui/`, incluye una captura real de la interfaz en la descripción. `enforce-target` vuelve a comprobarla cuando se edita la descripción. Adjunta la imagen al editor; no la añadas a la rama del PR, porque el squash la incorporaría a `dev`. Para subirla por CLI se utiliza la rama `pr-assets` y un enlace fijado al SHA del commit.
-- Los workflows de confianza `enforce-target` y `label` usan **`pull_request_target`**. Su lógica de control nueva solo entra en vigor al llegar a la rama predeterminada, como se documentó en #631. La CI multiplataforma usa **`pull_request`** y sus cambios se aplican desde la rama de destino del PR.
+- Los workflows de confianza `enforce-target` y `label` usan **`pull_request_target`**. Su lógica de control nueva solo entra en vigor al llegar a la rama predeterminada, como se documentó en #631. La CI multiplataforma usa **`pull_request`** y la referencia de merge del PR (`refs/pull/<number>/merge`), por lo que un cambio del workflow puede afectar a ese PR antes del merge, según los filtros del evento y la autorización de las ejecuciones desde forks.
 
 <a id="project-maintainers"></a>
 

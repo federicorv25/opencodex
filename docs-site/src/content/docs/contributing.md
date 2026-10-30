@@ -177,7 +177,7 @@ description.
 - Branch from the current **`dev`** tip, not from **`main`**. The required **`enforce-target`** check rejects heads whose merge base sits on the **`main`** tip while the branch is far behind the pull request base (the failure mode seen in #644).
 - Complete the repository template's `Summary`, `Verification`, and `Checklist` sections: explain what changed and why, and document the test plan and results. Empty bodies, placeholder-only text, and descriptions that use escaped `\n` instead of real line breaks fail the check.
 - If the pull request changes files under `gui/`, include a screenshot of the UI change in the description; the `enforce-target` check re-runs on description edits until the screenshot is present. Drag the image into the description editor rather than committing it: an image on your branch rides the squash merge into `dev`. Maintainers uploading from the command line use the `pr-assets` branch and link by commit SHA.
-- The trusted `enforce-target` and `label` workflows use **`pull_request_target`**, so their updated enforcement logic applies only after promotion to the repository default branch, as documented in #631. Cross-platform CI uses **`pull_request`**; its changes take effect on the pull request base branch.
+- The trusted `enforce-target` and `label` workflows use **`pull_request_target`**, so their updated enforcement logic applies only after promotion to the repository default branch, as documented in #631. Cross-platform CI uses **`pull_request`** and the PR merge ref (`refs/pull/<number>/merge`), so workflow changes can affect that PR before merge, subject to event filters and fork-run approval.
 
 ## Project maintainers
 

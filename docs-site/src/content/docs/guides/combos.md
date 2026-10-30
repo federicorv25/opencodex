@@ -900,8 +900,13 @@ For such a request, a combo filters its eligible targets to canonical native Cha
 including after a retryable failure. Direct-key Responses routes explicitly trusted with
 `allowEncryptedV2AgentTasks: true` can also receive the encrypted task when selected directly,
 outside a combo; the opt-in does not make them eligible combo targets.
-If the combo has no decrypt-capable target, opencodex stops
-before dispatch and returns HTTP 400:
+If no canonical native target is selectable, or native attempts are exhausted, explicitly enabled
+`agentTaskRecovery` may recover an eligible spawned task and continue through an available routed
+combo target. The [encrypted v2 task delivery restrictions](/guides/sub-agent-surface/#encrypted-v2-task-delivery)
+still apply, including loopback-only operation, the incoming native credential and no plaintext
+persistence. If recovery is unavailable or fails and no native attempt has occurred, opencodex
+stops before dispatch and returns HTTP 400; after failed native attempts, their last error is retained.
+The initial unreadable-task response is:
 
 ```json
 {
@@ -953,7 +958,7 @@ ocx combo remove <id> --yes
 ```
 
 `set` also accepts `--strategy`, `--sticky`, `--effort`, `--alias`, `--native-alias`,
-`--allow-metered-targets on|off`, `--display-name`, `--description`, `--decision-provider`, `--decision-timeout`, and `--rename-from`. Use `-` as the
+`--allow-metered-targets on|off`, `--cooldown-reprobe on|off`, `--cooldown-reprobe-interval`, `--display-name`, `--description`, `--decision-provider`, `--decision-timeout`, and `--rename-from`. Use `-` as the
 value of `--effort`, `--alias`, `--display-name`, `--description`, `--decision-provider`, or `--decision-timeout` to
 clear that field. The two decision flags apply only when the effective strategy is JEV: `--strategy jev`, or a stored JEV combo when `--strategy` is omitted. On an existing combo, `--targets` replaces only
 the target list: without `--strategy` the stored strategy and its JEV settings stay as they are. `--native-alias` requires a currently supported bare native

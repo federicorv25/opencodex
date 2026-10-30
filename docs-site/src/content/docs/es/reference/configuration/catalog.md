@@ -26,8 +26,8 @@ La plantilla nativa de herencia se valida y se captura antes de la omisión, por
 filas enrutadas conservan los mismos metadatos de entrada y herramientas, incluso si la
 única fila que servía de plantilla está deshabilitada.
 
-Un valor ausente, falso o no válido conserva el comportamiento predeterminado de ocultar
-las filas. La omisión existente mediante alias nativo es independiente de este ajuste.
+Un valor ausente, falso o no válido conserva el comportamiento predeterminado, sin esta
+omisión adicional. La omisión existente mediante alias nativo es independiente de este ajuste.
 El ajuste solo controla el descubrimiento: las solicitudes directas a identificadores nativos
 deshabilitados siguen enrutándose con normalidad. Si la sincronización no cambia la salida,
 conserva su comportamiento de no escribir y de mantener la fecha de modificación.

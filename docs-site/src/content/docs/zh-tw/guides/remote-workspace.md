@@ -53,26 +53,55 @@ Codex Remote Workspace 使用目前的 App Server 權限設定檔。若 Hub 選�
 
 ```bash
 cd /path/to/project
-printf '%s\n' 'ONE-TIME-CODE' | ocx remote-workspace pair 'https://your-hub.example' \
-  --pairing-code-stdin --root "$PWD"
-ocx remote-workspace agent
+if read -r -s -p 'Pairing code: ' pairing_code; then
+  printf '\n'
+  pairing_status=0
+  printf '%s\n' "$pairing_code" | ocx remote-workspace pair 'https://your-hub.example' \
+    --pairing-code-stdin --root "$PWD" || pairing_status=$?
+  unset pairing_code
+  if [ "$pairing_status" -eq 0 ]; then ocx remote-workspace agent; fi
+  unset pairing_status
+else
+  unset pairing_code
+fi
 ```
 
 在 Windows PowerShell 上，請使用儀表板顯示的指令。等效的手動形式如下：
 
 ```powershell
-$pairingCode = 'ONE-TIME-CODE'
-$pairingCode | ocx remote-workspace pair 'https://your-hub.example' `
-  --pairing-code-stdin --root (Get-Location).Path
-if ($LASTEXITCODE -eq 0) { ocx remote-workspace agent }
+$pairingSecret = Read-Host 'Pairing code' -AsSecureString
+$pairingBuffer = [IntPtr]::Zero
+$pairingExitCode = 1
+try {
+  $pairingBuffer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($pairingSecret)
+  $pairingCode = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($pairingBuffer)
+  $pairingCode | ocx remote-workspace pair 'https://your-hub.example' `
+    --pairing-code-stdin --root (Get-Location).Path
+  $pairingExitCode = $LASTEXITCODE
+} finally {
+  if ($pairingBuffer -ne [IntPtr]::Zero) {
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($pairingBuffer)
+  }
+  $pairingSecret.Dispose()
+  Remove-Variable pairingCode, pairingSecret, pairingBuffer -ErrorAction SilentlyContinue
+}
+if ($pairingExitCode -eq 0) { ocx remote-workspace agent }
+Remove-Variable pairingExitCode
 ```
 
 目前的 OCX Bun 可執行檔會自動以單一唯讀檔案加入 Linux sandbox。若專案需要位於系統路徑之外、由使用者安裝的工具鏈，可明確配對該路徑，而不用公開 home 目錄其餘部分：
 
 ```bash
-printf '%s\n' 'ONE-TIME-CODE' | ocx remote-workspace pair 'https://your-hub.example' \
-  --pairing-code-stdin --root "$PWD" \
-  --toolchain-root "$HOME/.nvm/versions/node/v24/bin"
+if read -r -s -p 'Pairing code: ' pairing_code; then
+  printf '\n'
+  pairing_status=0
+  printf '%s\n' "$pairing_code" | ocx remote-workspace pair 'https://your-hub.example' \
+    --pairing-code-stdin --root "$PWD" \
+    --toolchain-root "$HOME/.nvm/versions/node/v24/bin" || pairing_status=$?
+  unset pairing_code pairing_status
+else
+  unset pairing_code
+fi
 ```
 
 原生 helper 原始碼隨套件提供，供審查使用。建置它不會在本次移植中啟用 Windows 或 macOS 指令。`--executor-helper` 仍是已審查 helper 的選擇器；二進位檔存在或路徑已設定，都不能證明支援指令。

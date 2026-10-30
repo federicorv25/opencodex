@@ -61,7 +61,7 @@ La vista previa enumera cada ruta candidata con su ruta de solicitud, modo de en
 
 ## Rastrear una solicitud
 
-Cada solicitud que llegó a un proveedor, o fue rechazada antes de enviar, registra la ruta que realmente tomó en su fila de registro: el modo final y las rutas, las razones, los efectos de las características y una ruta por intento físico. En el panel de control, **Troncos** muestra una insignia de ruta, un filtro **Ruta de protocolo** y una sección **Ruta de protocolo** en el detalle de la solicitud. Las filas más antiguas no tienen datos de trayectoria y lo dicen; nada se adivina.
+Cada solicitud que llegó a un proveedor, o fue rechazada antes de enviar, registra la ruta que realmente tomó en su fila de registro: el modo final y las rutas, las razones, los efectos de las características y una ruta por intento físico. En el panel de control, **Logs** muestra una insignia de ruta, un filtro **Ruta de protocolo** y una sección **Ruta de protocolo** en el detalle de la solicitud. Las filas más antiguas no tienen datos de trayectoria y lo dicen; nada se adivina.
 
 <a id="unrepresentable-features"></a>
 

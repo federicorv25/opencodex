@@ -121,7 +121,7 @@ opencodex guarda sus datos en `$OPENCODEX_HOME` (por defecto, `~/.opencodex`). L
 | `$OPENCODEX_HOME/runtime-port.json` | El PID vivo, el nombre de host y el puerto —, incluido un puerto asignado al sistema operativo cuando `config.port` es `0`. |
 | `$OPENCODEX_HOME/auth.json` | Las credenciales OAuth almacenadas (cuando `ocx login`). |
 | `$OPENCODEX_HOME/catalog-backup*.json` | Codex copias de seguridad del catálogo de modelos hechas antes de que opencodex lo edite. |
-| `$CODEX_HOME/config.toml` | En bucle, opencodex agrega una raíz de propiedad del marcador `openai_base_url`; non-loopback une el uso `model_provider = "opencodex"` más `[model_providers.opencodex]` para que Codex pueda enviar el encabezado API-auth. |
+| `$CODEX_HOME/config.toml` | Cuando el proxy se vincula a loopback, opencodex añade `openai_base_url` en la raíz, dentro de su bloque delimitado por marcadores. Con una vinculación fuera de loopback, utiliza `model_provider = "opencodex"` y `[model_providers.opencodex]` para que Codex pueda enviar el encabezado de autenticación de la API. |
 | `$CODEX_HOME/opencodex.config.toml` | Perfil de referencia/retroceso escrito junto a la configuración principal de Codex. |
 | `$CODEX_HOME/opencodex-catalog.json` | Catálogo de modelos nativos y enrutados sincronizados utilizado por Codex. |
 

@@ -105,7 +105,7 @@ behavior.
 
 ## Remote and LAN binds
 
-Normal loopback model routes do not require a data token. A non-loopback bind, such as `0.0.0.0`, requires a data-admission credential, resolved from `OPENCODEX_API_AUTH_TOKEN`, `OCX_API_TOKEN_FILE`, or the owner-only `service-api-token` file. `ocx service install` can provision that file when absent. If supplying an environment token, set it before `ocx start` or `ocx service install`:
+Normal loopback model routes do not require a data token. A non-loopback bind, such as `0.0.0.0`, requires a data-admission credential: a client API key configured in `config.apiKeys`, or a shared token resolved from `OPENCODEX_API_AUTH_TOKEN`, `OCX_API_TOKEN_FILE`, or the owner-only `service-api-token` file. `ocx service install` can provision that file when absent. If supplying an environment token, set it before `ocx start` or `ocx service install`:
 
 ```bash
 export OPENCODEX_API_AUTH_TOKEN="your-secret-token"

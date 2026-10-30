@@ -132,7 +132,8 @@ afinidad de enrutamiento y el comportamiento ante fallos.
 
 Las rutas normales de modelos en loopback no requieren un token de datos.
 Escuchar fuera de loopback, por ejemplo en `0.0.0.0`, requiere una credencial
-de admisión de datos. Se resuelve desde `OPENCODEX_API_AUTH_TOKEN`,
+de admisión de datos: una clave API de cliente configurada en `config.apiKeys`,
+o un token compartido resuelto desde `OPENCODEX_API_AUTH_TOKEN`,
 `OCX_API_TOKEN_FILE` o el archivo privado `service-api-token`, accesible
 solo para su propietario. `ocx service install` puede crear ese archivo
 si no existe. Si utiliza un token mediante una variable de entorno, defínala

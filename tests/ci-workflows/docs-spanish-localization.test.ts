@@ -225,6 +225,33 @@ describe("Spanish documentation localization", () => {
     }
   });
 
+  test("Video Bridge key-auth examples parse and reference the environment in every locale", () => {
+    for (const locale of ["", ...localeFolders]) {
+      const path = join(root, locale, "guides/video-bridge.md");
+      if (!existsSync(path)) continue;
+      const block = codeBlocks(source(path)).find(text => text.includes('"xai"'));
+      expect(block, path).toBeDefined();
+      const config = JSON.parse(block!.replace(/^[ \t]*>[ \t]?/gm, ""));
+      expect(config.providers.xai, path).toMatchObject({ apiKey: "${XAI_API_KEY}", authMode: "key" });
+      expect(source(path).match(/`authMode: "key"`/g)?.length ?? 0, path).toBeGreaterThan(0);
+    }
+  });
+
+  test("Executor pairing examples read secrets silently and clear variables in every locale", () => {
+    for (const locale of ["", ...localeFolders]) {
+      const path = join(root, locale, "guides/remote-workspace.md");
+      if (!existsSync(path)) continue;
+      const blocks = codeBlocks(source(path)).filter(text => text.includes("ocx remote-workspace pair"));
+      expect(blocks.length, path).toBeGreaterThan(0);
+      for (const block of blocks) {
+        expect(block, path).not.toContain("ONE-TIME-CODE");
+        expect(block, path).toMatch(/read -r -s|Read-Host [^\n]+-AsSecureString/);
+        expect(block, path).toContain("--pairing-code-stdin");
+        expect(block, path).toMatch(/unset pairing_code|Remove-Variable pairingCode/);
+      }
+    }
+  });
+
   test("model identifier parity rejects extended tokens across families and namespaces", () => {
     const identifiers = ["gpt-6-astra", "whisper-1", "claude-opus-5", "o1-mini", "o3-mini", "o4-mini",
       "codex-mini-latest", "qwen/qwen3-coder-plus", "tev1:4b"];
