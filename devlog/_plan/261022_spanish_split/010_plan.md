@@ -590,3 +590,49 @@ should choose the full Ubuntu PR lane when CI is authorized. Publish once,
 update the description once, request one full CodeRabbit review without waiting
 for its result, and leave Draft pending independent acceptance and current-head
 CI. Do not merge or change CI permissions, labels or workflows.
+
+## 2026-10-29 — Windows CC-Switch fixture cleanup
+
+Reproduced the reported F3 cleanup failure on Windows with Bun 1.4.4, using the
+repository wrapper and a dedicated ignored TEMP root. The unchanged case reached
+all 15 assertions but failed its teardown with EBUSY after the 15-second removal
+budget. Its uncached SQLite prepared statements survived the default deferred
+connection close. F1/F2 used the same deferred-close pattern.
+
+Those two fixtures now use `Database.close(true)` to finalize outstanding
+statements and release file handles before unlinking the hard-link alias or
+removing their temporary home. The outer F3 finally also uses that idempotent,
+strict close instead of swallowing close failures. The shared removal helper,
+retry budget, assertions and test-home protections are unchanged. The owning
+`structure/ops/test-sandbox-cleanup.md` contract records this lifecycle.
+
+Validation, from the repository root with `OCX_TEST_RUNNER_BUN` pinned to the
+installed Bun executable and TEMP/TMP contained under the ignored task scratch:
+
+```powershell
+bun scripts/test.ts --timeout 120000 --test-name-pattern 'F3:' tests/providers/cc-switch-import.test.ts
+# Before the fix: 0 pass, 1 teardown failure, 8 filtered out, 15 assertions.
+bun scripts/test.ts --timeout 120000 tests/providers/cc-switch-import.test.ts
+# After the fix: 9 pass, 0 fail, 543 assertions; F3 completed in 164 ms.
+bun scripts/test.ts --timeout 120000 tests/cli/cli-provider-cc-switch-import.test.ts tests/lib/remove-tree-helper.test.ts tests/ci-workflows/test-home-guard.test.ts tests/ci-workflows/test-home-guard-unpreloaded.test.ts tests/ci-workflows/test-temp-quarantine.test.ts
+# 50 pass, 6 existing platform skips, 0 fail, 278 assertions.
+bun run typecheck
+# Zero type errors across 2,243 files.
+bun run structure:check
+bun scripts/file-size-ratchet.ts
+git diff --check
+# All passed.
+```
+
+The full root suite was not rerun for this fixture-only resource-lifecycle fix:
+focused red/green reproduction, the entire affected file, related CLI and
+home/removal guards cover the change without repeating the costly runtime suite
+on the shared host. Broader hosted/platform coverage remains subject to the
+maintainer's current-head PR CI approval. No production runtime or Desktop file
+changed, no real credential or client configuration was imported, and the
+Desktop listener remained on 127.0.0.1:10100 in the same observed process.
+
+This follow-up resolves the Windows cleanup limitation recorded above. It does
+not resolve the 20 new documentation threads from CodeRabbit's completed review
+of `9af015348`; those findings and independent Spanish/render acceptance remain
+separate. Keep the PR in Draft and preserve the existing CI dispatch policy.
