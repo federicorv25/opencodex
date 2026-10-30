@@ -68,6 +68,8 @@ tailscale serve status
 
 `/healthz` ne prouve que la vie du processus. Validez aussi `/readyz`, `GET /v1/catalog` authentifié et une vraie réponse routée. Le port de gestion doit écouter uniquement sur `127.0.0.1`. Pour un proxy TLS privé, utilisez `tailscale cert hub-name.tailnet-name.ts.net` et ne fabriquez jamais d’en-têtes `Tailscale-User-*`; utilisez l’association à usage unique.
 
+<a id="giving-the-data-listener-tls"></a>
+
 ### Donner du TLS à l'écoute de données
 
 Le mappage Serve ci-dessus ne publie que l'entrée de **gestion**. Celle-ci ne sert jamais `/v1/*`, `/healthz` ni `/readyz` : à elle seule, elle ne donne donc à un client distant aucun plan de données utilisable. opencodex ne termine par ailleurs aucun TLS : l'écoute est en HTTP clair et le HTTPS vient toujours d'un frontal détenu par l'opérateur.

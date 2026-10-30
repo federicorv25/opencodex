@@ -703,6 +703,8 @@ con código 1 sin iniciar Codex; ejecuta `ocx codex-shim install` para actualiza
 no repara shims. La comprobación del contenido no demuestra la procedencia del archivo de respaldo
 en Windows ni impide la sustitución concurrente de su ruta.
 
+En macOS, cada inicio, incluidos los de ayuda o versión, verifica el ejecutable seleccionado si su ruta seleccionada o su ubicación canónica está dentro de cualquier paquete `.app`. Los paquetes renombrados y los enlaces simbólicos hacia paquetes requieren las mismas comprobaciones de propiedad, permisos y firmas de OpenAI para el paquete y el ejecutable. Un miembro seleccionado debe permanecer dentro del `Contents/` canónico de ese paquete, también al resolver enlaces simbólicos de ejecutables, directorios o del paquete completo. Si falla la verificación, termina con código 1 sin iniciar Codex. Los ejecutables ordinarios fuera de paquetes, incluidas las instalaciones npm, conservan su comportamiento.
+
 Usa `ocx help codex` para la ayuda del lanzador y `ocx codex --help` para la de Codex.
 Ejecutar después `codex` directamente conserva su comportamiento habitual.
 

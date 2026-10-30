@@ -48,7 +48,7 @@ El hook `prepublishOnly` también usa `typecheck:tsc`, entre la auditoría y la 
 
 La suite usa Bun 1.4.4, declarado en `testRunnerBun` de `package.json`; el entorno de ejecución distribuido es 1.4.4. `scripts/test.ts` busca Bun 1.4.4 en PATH o `~/.bun/bin`, o utiliza `OCX_TEST_RUNNER_BUN`. Si falta esa versión, instálala localmente: el selector no la descarga.
 
-Ambas funciones se comprueban por separado aunque sus versiones coincidan. Una promoción requiere una ejecución multiplataforma completa con `lane=all`, exitosa para el commit candidato exacto.
+El ejecutor de pruebas y el entorno de ejecución distribuido se comprueban por separado aunque usen la misma versión de Bun. Una promoción requiere una ejecución multiplataforma completa con `lane=all`, exitosa para el commit candidato exacto.
 
 Ejecuta `bun run test` por defecto. Si la suite completa resulta desproporcionadamente costosa por el tamaño de la tarea, los recursos disponibles o la actividad de otros árboles de trabajo, ejecuta al menos las regresiones que prueben el comportamiento modificado, por ejemplo `bun test tests/<domain>/<name>.test.ts`. Explica el motivo, los comandos exactos, sus resultados y la cobertura pendiente. `bun run test:changed` complementa esa cobertura, pero no detecta todas las dependencias indirectas. Depender solo de CI o saltarse las pruebas locales no constituye una exención general. Antes del merge, los checks requeridos deben pasar para el commit actual del PR.
 

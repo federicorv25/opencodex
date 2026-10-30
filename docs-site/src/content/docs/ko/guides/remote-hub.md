@@ -172,6 +172,8 @@ tailscale serve status
 
 관리 포트는 `127.0.0.1:10101`에서만 보여야 합니다. `hub.managementPublicOrigin`은 Serve가 표시한 정확한 HTTPS Origin으로 설정하세요. 직접 TLS 프록시를 운영한다면 `tailscale cert hub-name.tailnet-name.ts.net`으로 ts.net 전체 FQDN 인증서만 발급하고 `127.0.0.1:10101`로만 프록시하세요. 임의의 `Tailscale-User-*` 헤더를 만들지 말고, 신뢰할 수 있는 Tailscale 신원이 없으면 일회용 pairing을 사용하세요.
 
+<a id="giving-the-data-listener-tls"></a>
+
 ### 데이터 리스너에 TLS 붙이기
 
 위의 Serve 매핑은 **관리** 인그레스만 공개합니다. 그 인그레스는 `/v1/*`, `/healthz`, `/readyz`를 제공하지 않으므로 그것만으로는 원격 클라이언트에게 쓸 수 있는 데이터 플레인이 생기지 않습니다. opencodex는 자체적으로 TLS를 종료하지 않습니다. 리스너는 평문 HTTP이고 HTTPS는 항상 운영자가 소유한 프런트엔드입니다.

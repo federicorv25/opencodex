@@ -334,7 +334,7 @@ a session. Verify both directions:
 # Negative: the loopback-only port must not be reachable through the node's tailnet address.
 curl --fail --connect-timeout 3 http://100.64.0.10:10101/ && echo "unexpected exposure"
 
-# Positive: the HTTPS dashboard loads through Serve from an allowed tailnet user.
+# Transport only: an identity-required dashboard may reject curl; verify it in an allowed user's browser.
 curl --fail --silent --show-error https://hub-name.tailnet-name.ts.net/ >/dev/null
 ```
 

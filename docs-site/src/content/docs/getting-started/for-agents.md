@@ -83,9 +83,11 @@ makes it the default provider:
 
 ```bash
 ocx provider add anthropic-apikey \
-  --api-key "$ANTHROPIC_API_KEY" \
+  --api-key '${ANTHROPIC_API_KEY}' \
   --set-default
 ```
+
+Keep the single quotes: they pass the environment reference literally instead of putting the secret in process arguments or saving its value in config. Make `ANTHROPIC_API_KEY` available to the proxy before it starts and to CLI processes that resolve provider credentials, such as model sync. Exporting it later in another terminal does not update a running proxy. For a background service, configure its startup environment and restart it; service installation does not automatically retain arbitrary provider variables from your shell.
 
 `ocx provider add` writes local configuration. Add `--sync` if a live proxy is already running and
 you want to sync models to Codex immediately; otherwise run `ocx sync` later. Custom providers that

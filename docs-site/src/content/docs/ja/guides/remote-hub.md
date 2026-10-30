@@ -68,6 +68,8 @@ tailscale serve status
 
 `/healthz` の `200` はプロセスの生存確認にすぎません。`/readyz`、認証済み `GET /v1/catalog`、実際のモデル応答も確認してください。独自 TLS プロキシでは `tailscale cert hub-name.tailnet-name.ts.net` を使い、`127.0.0.1:10101` のみに転送します。`Tailscale-User-*` を偽造せず、信頼できる ID がない場合は一度限りのペアリングを使います。
 
+<a id="giving-the-data-listener-tls"></a>
+
 ### データリスナーに TLS を付ける
 
 上の Serve マッピングが公開するのは**管理**入口だけです。管理入口は `/v1/*`、`/healthz`、`/readyz` を提供しないため、それだけではリモートクライアントが使えるデータプレーンになりません。opencodex 自身は TLS を終端しません。リスナーは平文 HTTP で、HTTPS は常に運用者が用意するフロントエンドの役目です。

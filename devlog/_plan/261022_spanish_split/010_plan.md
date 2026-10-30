@@ -722,3 +722,112 @@ Publish the corrections once, then resolve the twenty corrected threads and
 request one full CodeRabbit review without waiting for its result. Keep Draft
 pending independent acceptance, current-head CI and maintainer review. Do not
 merge, dispatch batched CI, change permissions/labels or infer an approval.
+
+## 2026-10-30 — Consolidated audit and seven review findings
+
+Merged the 37 newer dev commits through
+`3cab4a74e4eec15ee5ff3bdd59dcab8ede938372` (2.95.0) in ordinary merge
+`563de9172d93021fed7d3a41816104efb4b74db7`. The two conflict resolutions keep
+all 20 test-layout shards, both new upstream test registrations, and both the
+subagent priority explanation and the new workflow-limit panel. Contributor
+history, maintainer carry commits and attribution are preserved. A fresh fetch
+before publication found zero missing dev commits.
+
+| Open review | Disposition |
+| --- | --- |
+| Bun roles | Name the test runner and distributed runtime explicitly; their independent checks remain separate. |
+| Provider-key examples | Pass literal environment references in all nine Agent Quickstart copies and English/Spanish JEV examples. Explain proxy startup, CLI resolution and separately configured service environments. |
+| macOS uninstall | English and Spanish say to remove the managed terminal command before trashing the app; retained state and separately installed services are still identified. |
+| OpenCode transport | All nine copies show manually configured HTTPS, explain the required TLS frontend and loopback-tunnel alternative, and retain the dedicated admission header. Seven older Grok copies now carry the same protected-transport and token-file instructions. |
+| Remote Hub diagnostic | Label unauthenticated curl as transport-only; browser acceptance still requires an allowed signed-in identity. Matching executable comments are synchronized across locales. |
+| Malformed enrollment journal | Say commands are rejected, preserve the original bytes and recovery instructions, and clarify exit 3, temporary-file cleanup and messages already in transit. |
+| Windows signing | English, Spanish and the existing Turkish page distinguish attempted production signing from the original unsigned-file fallback. No signing or release policy changes. |
+
+The audit covers the entire Spanish content inventory mechanically: all **79**
+canonical paths, executable blocks, inline identifiers and model names,
+frontmatter, external references, API status codes, local links, locale maps,
+metadata and benchmark placeholders. A numeric-prose comparison and semantic
+pattern sweep supplemented manual English/source checks in affected and related
+workflows. This is not an independent line-by-line linguistic acceptance of
+every sentence or a live execution of every documented integration.
+
+Spanish now follows the new keychain chapter and its sidebar entry, task workflow
+ceilings, Artificial Analysis role tiers, launcher verification, Claude agent
+cleanup, Meta/xAI/Azure tool and include handling, model-label routing exception,
+history-index validation and update-restart refusal. Additional confirmed wording
+fixes restore account failover and affinity, jitter, token refresh semantics,
+the absent-management-origin condition, and the distinction between context and
+cumulative reasoning-archive storage. Duplicated archive-capacity prose is
+removed without dropping the refusal codes or recovery guidance.
+
+The credential findings received a separate read-only source investigation and
+one fresh candidate review. No surviving scoped credential-example defect or
+compatibility regression was found. The public examples change; runtime,
+dependencies, Desktop and CI policy do not. Two new existing-file regressions
+failed before correction and pass after it. A whole-tree search found no
+remaining shell-expanded `--api-key` example in Markdown documentation.
+
+Validation, Windows and Bun 1.4.4, repository wrapper/preload and synthetic homes:
+
+```powershell
+$env:OCX_TEST_RUNNER_BUN = (Get-Command bun).Source
+$docsTests = @(rg --files tests/ci-workflows -g 'docs-*.test.ts')
+$related = @(
+  'tests/ci-workflows/client-support-matrix.test.ts',
+  'tests/test-layout.test.ts', 'tests/test-layout-tooling.test.ts',
+  'tests/providers/provider-key-store.test.ts', 'tests/providers/opencode-cli.test.ts',
+  'tests/cli/cli-provider.test.ts', 'tests/routing/jev-decision.test.ts',
+  'tests/server/server-loopback-host-gate.test.ts',
+  'tests/config/config-workflow-budget.test.ts',
+  'tests/server/server-workflow-budget-settings.test.ts',
+  'tests/server/management-workflow-budget-routes.test.ts',
+  'tests/lib/workflow-budget.test.ts',
+  'tests/routing/codex-role-capability-consent.test.ts',
+  'tests/routing/codex-role-capability-redirects.test.ts',
+  'tests/providers/cc-switch-import.test.ts'
+)
+bun scripts/test.ts --timeout 120000 @docsTests @related
+# 655 pass, 0 fail; 7,053 assertions across 29 files.
+bun scripts/test.ts --timeout 120000 tests/ci-workflows/docs-spanish-localization.test.ts
+# Final prose rerun: 22 pass, 0 fail; 2,615 assertions.
+bun run typecheck
+# 2,252 files; zero type errors.
+bun run structure:check
+bun scripts/file-size-ratchet.ts
+bun run privacy:scan
+git diff --cached --check
+```
+
+Root and docs-site frozen installs changed no package or lockfile. Final offline
+docs-site build, Pagefind and sitemap pass: **712 pages / 105,972 internal links**.
+The first post-merge docs selection had 417 passes and five synchronization
+failures. A later broad selection had 422 passes and two failures; corrected
+prose edits had accidentally omitted adjacent provider details and were narrowed
+to retain every canonical identifier/link. The final 655-case selection passed
+without weakening assertions. The first build caught missing localized TLS
+anchors; those anchors are now explicit and the final build passes. Earlier
+failing commands are not described as exit 0.
+
+The full root suite was not repeated on this shared host. This documentation and
+data-read change is covered locally by focused docs tests, related credential,
+launcher, routing and workflow contracts, typecheck and the complete site build.
+The earlier full-run timeout and unclassified failures remain historical limits;
+no full-suite pass is claimed. Broader platform, packaged-client and live-provider
+acceptance remain for maintainer-authorized current-head CI and human acceptance.
+
+Actual-browser checks inspected workflow-limit table rendering at 1280 px and
+the new keychain chapter at 1280/390 px. The mobile page has lang=es and no
+horizontal page overflow. Spanish search for “llavero” returned 16 results and
+opened the new chapter. The viewport override was reset. Two captures are kept
+outside the source branch on pr-assets, with immutable links in the description.
+Browser-tool connection failures required a fresh Chrome tab; they were not
+reported as product defects. This is agent inspection, not independent native
+Spanish/render acceptance. Personal Desktop state and credentials were not used;
+its observed loopback listener stayed in the same process during the work.
+
+Publish this consolidated batch, reply to and resolve the seven corrected
+threads, update the description once, and request one full CodeRabbit review
+without waiting for its result. CodeRabbit's official command documentation
+distinguishes a full reanalysis from an incremental review; its configuration
+and review scope are unchanged. Keep Draft for fresh review, independent human
+language/render acceptance, current-head CI and maintainer integration approval.

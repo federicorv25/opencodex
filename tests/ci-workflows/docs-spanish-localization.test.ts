@@ -225,6 +225,33 @@ describe("Spanish documentation localization", () => {
     }
   });
 
+  test("provider quickstarts pass environment references without shell expansion", () => {
+    for (const locale of ["", ...localeFolders]) {
+      const examples = codeBlocks(source(join(root, locale, "getting-started/for-agents.md"))).join("\n");
+      expect(examples, `${locale || "en"} provider CLI reference`).toContain("--api-key '${ANTHROPIC_API_KEY}'");
+    }
+    for (const locale of ["", "es"]) {
+      const examples = codeBlocks(source(join(root, locale, "guides/combos.md"))).join("\n");
+      expect(examples, `${locale || "en"} JEV CLI reference`).toContain("--api-key '${TYPESAFE_API_KEY}'");
+    }
+  });
+
+  test("remote credential examples require a protected transport in every locale", () => {
+    for (const locale of ["", ...localeFolders]) {
+      const opencode = codeBlocks(source(join(root, locale, "guides/opencode.md")))
+        .find(block => block.includes('"x-opencodex-api-key"'));
+      expect(opencode, `${locale || "en"} OpenCode example`).toBeDefined();
+      const options = JSON.parse(`{${opencode}}`).options;
+      expect(new URL(options.baseURL).protocol, `${locale || "en"} OpenCode transport`).toBe("https:");
+      expect(options.headers["x-opencodex-api-key"]).toBe("{env:OPENCODEX_OPENCODE_API_KEY}");
+      const grok = codeBlocks(source(join(root, locale, "guides/grok-build.md")))
+        .find(block => block.includes("[model_providers.opencodex]")
+          && /api_key = "(?!opencodex-loopback")[^"]+"/.test(block));
+      expect(grok, `${locale || "en"} Grok remote example`).toBeDefined();
+      expect(grok, `${locale || "en"} Grok transport`).toMatch(/base_url = "https:\/\//);
+    }
+  });
+
   test("Video Bridge key-auth examples parse and reference the environment in every locale", () => {
     for (const locale of ["", ...localeFolders]) {
       const path = join(root, locale, "guides/video-bridge.md");

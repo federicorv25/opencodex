@@ -274,6 +274,16 @@ El historial devuelto y las cargas útiles de decisión de ruta exponen solo met
 
 CLI: `ocx logs history`, `ocx logs get <request-id>`, `ocx logs explain <request-id>`, `ocx logs rebuild-index`, `ocx logs index-status`, `ocx route policy list | show | dry-run | evaluate`.
 
+<a id="index-validation-and-recovery"></a>
+
+### Validación y recuperación del índice
+
+Un índice de historial existente se comprueba en un proceso de trabajo de solo lectura al abrirlo por primera vez. Las consultas de historial esperan esa comprobación inicial sin bloquear el hilo que atiende las solicitudes del proxy. Mientras tanto, las lecturas síncronas de enrutamiento indican que el índice está ocupado y los perfiles aplican su política `unknownEvidence.health`. Una reconstrucción pequeña realizada en línea queda disponible de inmediato; una reconstrucción en un proceso de trabajo se comprueba antes de publicarse.
+
+Tras una comprobación o reconstrucción correcta, la primera lectura realizada al menos cinco minutos después inicia una única comprobación de integridad en segundo plano. Las lecturas siguen usando el índice verificado mientras se ejecuta. Las actualizaciones normales conservan las comprobaciones de esquema, identidad de origen y desplazamiento, sin un recorrido síncrono completo; un índice inactivo no inicia ningún temporizador. Los fallos temporales, como una base de datos ocupada o un proceso de trabajo no disponible, conservan el índice y permiten reintentar en una lectura posterior tras una espera de 30 segundos. Un índice que aún no complete su validación inicial permanece inaccesible.
+
+La corrupción detectada provoca una reconstrucción automática a partir de `usage.jsonl`, con un reintento para la lectura asíncrona de historial o analítica afectada. Cerrar o reconstruir el índice descarta los resultados antiguos y espera a que el comprobador libere el archivo antes de sustituirlo. La validación y recuperación nunca reescriben el registro canónico. La comprobación inicial sigue tardando un tiempo proporcional al tamaño del índice; las posteriores solo se ejecutan cuando se utiliza.
+
 <a id="migration"></a>
 
 ## Migración

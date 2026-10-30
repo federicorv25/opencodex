@@ -164,9 +164,11 @@ Loopback example:
 
 Non-loopback example:
 
+This is a manually configured remote-client example. Configure a TLS frontend first, then use its HTTPS URL; OpenCodex does not terminate TLS or discover that URL for `ocx opencode`. Plain LAN HTTP exposes the admission credential in transit. Alternatively, keep the proxy on loopback and use a local SSH tunnel. See [TLS for the data listener](/guides/remote-hub/#giving-the-data-listener-tls).
+
 ```json
 "options": {
-  "baseURL": "http://192.168.1.10:10100/v1",
+  "baseURL": "https://proxy.example.com/v1",
   "headers": {
     "x-opencodex-api-key": "{env:OPENCODEX_OPENCODE_API_KEY}"
   }

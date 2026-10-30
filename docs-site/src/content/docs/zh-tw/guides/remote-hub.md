@@ -67,6 +67,8 @@ tailscale serve status
 
 `/healthz` 只證明程序仍在執行。還必須驗證 `/readyz`、已驗證的 `GET /v1/catalog` 與一次真實模型回應。管理連接埠只能監聽 `127.0.0.1`。自管 TLS proxy 應使用 `tailscale cert hub-name.tailnet-name.ts.net`，並只代理到 `127.0.0.1:10101`。不要偽造 `Tailscale-User-*`；沒有可信身分時請使用一次性配對。
 
+<a id="giving-the-data-listener-tls"></a>
+
 ### 為資料監聽器提供 TLS
 
 上面的 Serve 對應只發布**管理**入口。該入口從不提供 `/v1/*`、`/healthz` 或 `/readyz`，因此光靠它並不能讓遠端用戶端取得可用的資料平面。opencodex 本身也不終結 TLS：監聽器是明文 HTTP，HTTPS 一律由維運方自建的前端負責。

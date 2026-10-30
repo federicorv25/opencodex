@@ -13,7 +13,7 @@ dosyalardan kaynaklanan yanlış alarmları önlemeye yardımcı olur.
 Geçiş sürüyor. Yayın iş akışı hazır; SignPath bunu test sertifikasıyla doğruluyor.
 Üretim sertifikası verilene kadar Windows yayın dosyaları imzasız kalır ve
 SmartScreen bir kez **Ek bilgi → Yine de çalıştır** seçimini isteyebilir.
-Geçişten sonra yayımlanan sürümler **SignPath Foundation** imzası taşır.
+Geçişten sonra iş akışı **SignPath Foundation** ile üretim imzalamayı dener. İmzalama veya doğrulama başarısız olursa, aşağıda açıklandığı gibi özgün imzasız dosya yine de yayımlanabilir.
 
 ## Kod imzalama ilkesi
 

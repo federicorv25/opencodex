@@ -15,8 +15,9 @@ that newly signed binaries can still trigger reputation warnings.
 
 Signing is rolling out. The release workflow is wired, and SignPath is validating it with a test
 certificate. Until the production certificate is issued, Windows release files stay unsigned, and
-SmartScreen may ask once (**More info → Run anyway**). Releases published after that switch carry
-a signature from **SignPath Foundation**.
+SmartScreen may ask once (**More info → Run anyway**). After that switch, the workflow attempts
+production signing through **SignPath Foundation**. If signing or verification fails, the release
+can still contain the original unsigned file, as described below.
 
 ## Code signing policy
 

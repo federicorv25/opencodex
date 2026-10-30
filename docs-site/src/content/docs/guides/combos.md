@@ -366,8 +366,10 @@ models remain available in their normal picker groups.
 For headless setup, store the key explicitly or reference the TypeSafe environment variable:
 
 ```bash
-ocx provider add jev --api-key "${TYPESAFE_API_KEY}"
+ocx provider add jev --api-key '${TYPESAFE_API_KEY}'
 ```
+
+Keep the single quotes so the shell passes the reference instead of the secret. Set `TYPESAFE_API_KEY` in the proxy's startup environment and restart it if it is already running; a background service needs its own configured environment.
 
 When the provider has no saved key, the decision client also accepts `TYPESAFE_API_KEY` directly and
 the standard provider-derived alias `JEV_API_KEY` printed by `ocx provider add`.

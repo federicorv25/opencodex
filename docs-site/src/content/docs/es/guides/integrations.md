@@ -589,11 +589,26 @@ ocx agent roles set explorer xai/grok-4.5
 
 Auto-assign es parte de omo (Codex / LazyCodex): se encuentra por encima de la tabla de roles en esa sección y existe solo mientras se detecta LazyCodex. Sin él, el tablero de instrumentos no muestra ninguno, el API responde 409 `lazycodex_not_detected` y `ocx agent roles suggest` es rechazado.
 
-Auto-assign propone un modelo para cada rol a la vez. opencodex le hace una pregunta a su modelo predeterminado Codex (la raíz `model` en Codex `config.toml`): para cada rol, dada su descripción y el inicio de sus instrucciones, ¿qué nivel de capacidad (rápido, estándar o frontera) y cuánto razonamiento (mirada, medido, minucioso o exhaustivo) necesita? Ese modelo nunca elige un modelo. opencodex luego elige el modelo más barato de su lista de selectores que alcanza el nivel:
+La asignación automática propone un modelo para cada rol a la vez. OpenCodex consulta al modelo predeterminado de Codex (la raíz `model` en su `config.toml`): según la descripción y el inicio de las instrucciones de cada rol, ¿qué nivel de capacidad (fast, standard o frontier), esfuerzo de razonamiento (glance, measured, thorough o exhaustive) y dominio de tarea (coding, agentic, reasoning, writing, knowledge o general) necesita? Ese modelo no elige otro modelo: OpenCodex selecciona después el más económico del selector que alcance el nivel necesario:
 
-- Los modelos enumerados bajo `codexRoleTiers` en la configuración opencodex (`{ "fast": [...], "standard": [...], "frontier": [...] }`) tienen ese nivel.
-- Otros modelos con un precio conocido se clasifican por precio y se dividen uniformemente en los tres niveles. Con solo uno o dos modelos de precio, el más caro es la frontera y el otro, si lo hay, es estándar.
-- Los modelos sin precio y sin nivel listado nunca son propuestos. Enumerarlos para incluirlos.
+- Los modelos incluidos en `codexRoleTiers` de la configuración (`{ "fast": [...], "standard": [...], "frontier": [...] }`) reciben ese nivel.
+- Si al menos dos de los demás modelos tienen una puntuación publicada para el dominio del rol, se clasifican por sus valores distintos, sin exigir precio. Puntuaciones iguales comparten nivel y se excluyen los modelos sin puntuación. Las puntuaciones proceden de [Artificial Analysis](https://artificialanalysis.ai) si proporcionas tu propia clave API (véase abajo). El bloque `capability` de la respuesta identifica la fuente utilizada.
+- Los otros modelos con precio conocido se ordenan por precio y se reparten entre los tres niveles. Si solo hay uno o dos, el más caro es frontier y el otro, si existe, standard.
+- Cuando se recurre a la clasificación por precio, no se proponen modelos sin precio ni nivel configurado. Inclúyelos en la configuración si quieres utilizarlos.
+
+Para usar Artificial Analysis, crea una clave API gratuita en [artificialanalysis.ai](https://artificialanalysis.ai/api-reference) y configúrala como valor literal, referencia `${ENV}` o referencia del llavero:
+
+```json
+{
+  "codexRoleCapability": {
+    "artificialAnalysis": { "apiKey": "${ARTIFICIAL_ANALYSIS_API_KEY}" }
+  }
+}
+```
+
+OpenCodex consulta los datos una vez al día, dentro del límite diario del plan gratuito. Sus condiciones permiten usarlos para decisiones propias y prohíben redistribuirlos, por lo que las puntuaciones permanecen internas: la respuesta devuelve el nivel asignado y la atribución, sin las puntuaciones. Si falta la clave o falla la consulta, se usan los niveles configurados y los precios; `capability.error` explica el motivo y los campos de atribución de la fuente son null. La opción retirada `huggingFace` se ignora.
+
+Artificial Analysis rechaza redirecciones HTTP y limita cada respuesta a 16 MiB y cada solicitud a 30 segundos. Las credenciales se envían únicamente a su endpoint API fijo.
 
 Cada propuesta muestra el modelo, el nivel, el esfuerzo de razonamiento, una razón de una línea y lo que lo movería hacia arriba o hacia abajo. Un papel que el modelo no podría dimensionar claramente se muestra como no dimensionado, con la razón, y no se puede aplicar. No se escribe nada hasta que presione Aplicar en una fila o Aplicar todo. La aplicación utiliza el mismo guardar como picking a mano. Cada rol de tamaño cuyo modelo elegido tiene una escalera de esfuerzo no vacía recibe una propuesta de esfuerzo, y Aplicar o `--apply` inserta o reemplaza su valor `model_reasoning_effort`. El esfuerzo se coloca en los propios niveles del modelo elegido: su más bajo, su predeterminado, uno por encima del predeterminado o su más alto. Una escalera vacía no da ninguna propuesta de esfuerzo (`proposedEffort: null`); Aplicar omite `effort` y deja cualquier pin de esfuerzo existente como estaba. Una propuesta nula nunca borra un alfiler.
 

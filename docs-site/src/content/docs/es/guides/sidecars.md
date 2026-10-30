@@ -156,6 +156,8 @@ Vea el [Referencia de configuración](/es/reference/configuration/server/#sideca
 
 Las respuestas de búsqueda con campos opcionales mal formados conservan el texto válido de la respuesta y las citas. Los valores no válidos de un mensaje de error se sustituyen por un mensaje de fallo genérico.
 
+Los sidecars de búsqueda y visión de OpenAI aceptan finales de línea CR, LF y CRLF, incluso mezclados o con CRLF dividido entre fragmentos de red. Leen el evento final de finalización o fallo aunque el servidor cierre el cuerpo sin un salto de línea final. Una respuesta sin terminar o detenida por un límite de tamaño sigue notificando un error.
+
 Cuando una respuesta de búsqueda termina con una lista de fuentes, un elemento que no se reconoce como cita permanece en la respuesta en lugar de eliminarse. Un título seguido de su URL sigue tratándose como una sola cita. El texto con aspecto de URI que no sea HTTP dentro de código en línea, como `mode:fast`, permanece en la respuesta; las URL HTTP(S) con formato de código siguen siendo citas.
 
 Las consultas y respuestas de búsqueda largas se acortan sin dividir pares de sustitutos UTF-16, de modo que los límites del resultado nunca cortan por la mitad un carácter como 😀. Una secuencia de varios caracteres, como los emoji unidos mediante un carácter de unión de ancho cero, todavía puede cortarse entre sus componentes.

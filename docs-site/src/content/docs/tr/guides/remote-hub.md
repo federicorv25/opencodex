@@ -68,6 +68,8 @@ tailscale serve status
 
 `/healthz` yalnızca işlemin yaşadığını gösterir. `/readyz`, kimlik doğrulamalı `GET /v1/catalog` ve gerçek bir model yanıtını da doğrulayın. Kendi TLS proxy'niz için `tailscale cert hub-name.tailnet-name.ts.net` kullanın ve yalnızca `127.0.0.1:10101` hedefine yönlendirin. `Tailscale-User-*` başlıkları uydurmayın; güvenilir kimlik yoksa tek kullanımlık eşleştirme kullanın.
 
+<a id="giving-the-data-listener-tls"></a>
+
 ### Veri dinleyicisine TLS vermek
 
 Yukarıdaki Serve eşlemesi yalnızca **yönetim** girişini yayımlar. Bu giriş `/v1/*`, `/healthz` veya `/readyz` sunmaz; dolayısıyla tek başına uzak bir istemciye kullanılabilir bir veri düzlemi vermez. opencodex kendi TLS'ini de sonlandırmaz: dinleyici düz HTTP'dir ve HTTPS her zaman operatörün kendi ön ucudur.
